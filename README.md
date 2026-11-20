@@ -18,19 +18,19 @@ Permite que cada contacto tenga **1 o más cuentas bancarias/billeteras virtuale
   - Soporte completo y nativo para **Modo Claro** y **Modo Oscuro** con toggle persistente en `localStorage` y prevención de FOUC (*Flash of Un-themed Content*).
 - **Mobile First & Ergonomía de Pulgar**:
   - Áreas de toque mínimas de 44x44px.
-  - Buscador predictivo en tiempo real que filtra por nombre de amigo, grupo, banco o alias.
+  - Buscador predictivo en tiempo real que filtra por nombre de persona, grupo, banco o alias.
   - Barra de chips para filtrado rápido por entidad (Mercado Pago, Galicia, Santander, Brubank, Lemon, etc.).
 - **Mecánica de Copiado en 1 Clic (Dual-Access)**:
   - **Tocar el chip del alias**: Copia la cadena al portapapeles y emite una animación de destello en color menta neón.
   - **Botón dedicado con icono (📋)**: Para usuarios habituados a botones explícitos de acción.
   - Compatible con CBU/CVU de 22 dígitos en bloque colapsable/expandible.
   - **Accesibilidad**: Región en vivo (`role="status"`, `aria-live="polite"`) con solución para anuncios repetidos en VoiceOver/TalkBack (`\u00A0`).
-- **Múltiples Cuentas por Amigo**:
-  - Cada amigo puede poseer N cuentas (ej. Mercado Pago, Galicia, Santander en USD, etc.).
-  - Soporte para especificar titulares alternativos si una cuenta no está a nombre del amigo.
+- **Múltiples Cuentas por Persona**:
+  - Cada persona puede poseer N cuentas (ej. Mercado Pago, Galicia, Santander en USD, etc.).
+  - Soporte para especificar titulares alternativos si una cuenta no está a nombre de la persona.
 - **Backend Robusto en Google Sheets**:
   - Persistencia en hoja `'Cuentas'`.
-  - Modo Container-Bound (hoja de cálculo vinculada) o Standalone (crea y vincula automáticamente la hoja `DB_Amigos_Alias`).
+  - Modo Container-Bound (hoja de cálculo vinculada) o Standalone (crea y vincula automáticamente la hoja `DB_Personas_Alias`).
   - Auto-poblado de datos demo (seed inicial) si la base de datos está vacía.
   - Métodos RPC atómicos con exclusión mutua (`LockService`).
 
@@ -55,7 +55,7 @@ AliasDB/
 
 ### Opción 1: Vinculado a Google Sheets (Recomendado)
 
-1. Abre [Google Sheets](https://sheets.new) y crea una hoja de cálculo nueva (por ejemplo, llamada `DB_Amigos_Alias`).
+1. Abre [Google Sheets](https://sheets.new) y crea una hoja de cálculo nueva (por ejemplo, llamada `DB_Personas_Alias`).
 2. En el menú superior, ve a **Extensiones** > **Apps Script**.
 3. Reemplaza el contenido de `Código.gs` con el código de `Code.js`.
 4. Haz clic en el botón `+` (Añadir archivo) > **HTML** y nómbralo exactamente `Index` (se creará `Index.html`).
@@ -67,7 +67,7 @@ AliasDB/
 
 1. Ingresa a [script.google.com](https://script.google.com) y crea un nuevo proyecto.
 2. Copia `Code.js`, `Index.html` y `appsscript.json`.
-3. Al ejecutarse por primera vez, el backend detectará que no hay hoja vinculada, creará automáticamente un Google Sheet titulado `DB_Amigos_Alias` en tu Google Drive y guardará su ID en las propiedades del script.
+3. Al ejecutarse por primera vez, el backend detectará que no hay hoja vinculada, creará automáticamente un Google Sheet titulado `DB_Personas_Alias` en tu Google Drive y guardará su ID en las propiedades del script.
 
 ---
 
@@ -102,12 +102,12 @@ La pestaña `'Cuentas'` utiliza las siguientes columnas formateadas como texto p
 
 | Columna | Campo | Descripción |
 | :--- | :--- | :--- |
-| A | `id_amigo` | Identificador único del amigo (ej: `amigo_martin_gomez`) |
-| B | `nombre_amigo` | Nombre y apellido del contacto (ej: `Martín Gómez`) |
+| A | `id_persona` | Identificador único de la persona (ej: `persona_martin_gomez`) |
+| B | `nombre_persona` | Nombre y apellido de la persona (ej: `Martín Gómez`) |
 | C | `grupo` | Etiqueta o grupo opcional (ej: `Fútbol`, `Facultad`) |
 | D | `id_cuenta` | Identificador único de la cuenta bancaria |
 | E | `entidad_banco` | Banco o billetera (ej: `Mercado Pago`, `Banco Galicia`) |
 | F | `tipo_cuenta` | Tipo de cuenta (`CVU`, `Caja de Ahorro $`, etc.) |
 | G | `alias` | Alias bancario copiable (ej: `martin.mp.futbol`) |
 | H | `cbu_cvu` | CBU o CVU numérico de 22 dígitos |
-| I | `titular_diferente` | Nombre del titular si no coincide con el amigo |
+| I | `titular_diferente` | Nombre del titular si no coincide con la persona |

@@ -1093,10 +1093,10 @@
           type="text" 
           id="search-input" 
           class="search-input" 
-          placeholder="Buscar amigo, alias o banco..." 
+          placeholder="Buscar persona, alias o banco..." 
           autocomplete="off" 
           spellcheck="false"
-          aria-label="Buscar por nombre de amigo, alias bancario o entidad"
+          aria-label="Buscar por nombre de persona, alias bancario o entidad"
         >
         <button id="search-clear" class="search-clear-btn" type="button" aria-label="Limpiar b&uacute;squeda">&times;</button>
       </div>
@@ -1116,7 +1116,7 @@
     </section>
 
     <!-- Cards Grid Container -->
-    <main id="cards-container" class="cards-grid" aria-label="Listado de alias bancarios de amigos" aria-live="polite">
+    <main id="cards-container" class="cards-grid" aria-label="Listado de alias bancarios de personas" aria-live="polite">
       <!-- Din&aacute;micamente renderizado por JavaScript -->
     </main>
 
@@ -1141,7 +1141,7 @@
       'use strict';
 
       /* ======================================================================
-         1. DATOS DE EJEMPLO (AMIGOS & BANCOS ARGENTINA/LATAM)
+         1. DATOS DE EJEMPLO (PERSONAS & BANCOS ARGENTINA/LATAM)
          ====================================================================== */
       var DEFAULT_FRIENDS_DATA = [
         {
@@ -1154,7 +1154,7 @@
               bankName: 'Mercado Pago',
               badgeClass: 'bank-badge-mp',
               type: 'CVU Pesos',
-              alias: 'mateo.mp.amigos',
+              alias: 'mateo.mp.personas',
               cbu: '0000003100018274659102'
             },
             {
@@ -1231,7 +1231,7 @@
               bankName: 'Ual\u00e1',
               badgeClass: 'bank-badge-uala',
               type: 'CVU Prepaga',
-              alias: 'camila.uala.amigos',
+              alias: 'camila.uala.personas',
               cbu: '0000007900204561238902'
             }
           ]

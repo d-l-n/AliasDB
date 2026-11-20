@@ -9,8 +9,8 @@ const SHEET_NAME = 'Cuentas';
 const SPREADSHEET_PROP_KEY = 'SPREADSHEET_ID';
 
 const HEADERS = [
-  'id_amigo',
-  'nombre_amigo',
+  'id_persona',
+  'nombre_persona',
   'grupo',
   'id_cuenta',
   'entidad_banco',
@@ -25,7 +25,7 @@ const HEADERS = [
  */
 const DEMO_FRIENDS = [
   {
-    id: 'amigo_martin_gomez',
+    id: 'persona_martin_gomez',
     name: 'Martín Gómez',
     group: 'Fútbol',
     accounts: [
@@ -48,7 +48,7 @@ const DEMO_FRIENDS = [
     ]
   },
   {
-    id: 'amigo_sofia_rossi',
+    id: 'persona_sofia_rossi',
     name: 'Sofía Rossi',
     group: 'Facultad',
     accounts: [
@@ -63,7 +63,7 @@ const DEMO_FRIENDS = [
     ]
   },
   {
-    id: 'amigo_lucas_benitez',
+    id: 'persona_lucas_benitez',
     name: 'Lucas Benítez',
     group: 'Trabajo',
     accounts: [
@@ -99,7 +99,7 @@ const DEMO_FRIENDS = [
 function doGet(e) {
   try {
     // Modo API REST: Servir JSON público para clientes externos (ej: GitHub Pages)
-    if (e && e.parameter && (e.parameter.action === 'getFriends' || e.parameter.format === 'json')) {
+    if (e && e.parameter && (e.parameter.action === 'getFriends' || e.parameter.action === 'getPersons' || e.parameter.action === 'getPersonas' || e.parameter.format === 'json')) {
       const friends = getFriendsDataInternal();
       return ContentService.createTextOutput(JSON.stringify({ success: true, data: friends }))
         .setMimeType(ContentService.MimeType.JSON);
@@ -111,7 +111,7 @@ function doGet(e) {
       .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (error) {
-    if (e && e.parameter && (e.parameter.action === 'getFriends' || e.parameter.format === 'json')) {
+    if (e && e.parameter && (e.parameter.action === 'getFriends' || e.parameter.action === 'getPersons' || e.parameter.action === 'getPersonas' || e.parameter.format === 'json')) {
       return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.message || String(error) }))
         .setMimeType(ContentService.MimeType.JSON);
     }
@@ -167,7 +167,7 @@ function getSpreadsheet() {
   }
 
   // 3. Fallback: Crear nueva hoja y registrar ID en propiedades del script
-  const newSpreadsheet = SpreadsheetApp.create('DB_Amigos_Alias');
+  const newSpreadsheet = SpreadsheetApp.create('DB_Personas_Alias');
   scriptProps.setProperty(SPREADSHEET_PROP_KEY, newSpreadsheet.getId());
   console.log('Nueva base de datos creada. ID registrado:', newSpreadsheet.getId());
   return newSpreadsheet;
@@ -244,7 +244,7 @@ function seedDemoData(sheet) {
 // ===================================================================
 
 /**
- * Devuelve todos los amigos con sus cuentas agrupadas.
+ * Devuelve todas las personas con sus cuentas agrupadas.
  * Respuesta: { success: true, data: [{ id, name, group, avatar, accounts: [...] }] }
  */
 function getFriendsData() {
@@ -257,8 +257,13 @@ function getFriendsData() {
   }
 }
 
+/** Alias para compatibilidad terminológica */
+function getPersonasData() {
+  return getFriendsData();
+}
+
 /**
- * Crea o actualiza un amigo con sus respectivas cuentas bancarias.
+ * Crea o actualiza una persona con sus respectivas cuentas bancarias.
  * @param {Object|string} friendObj Objeto con id, name, group y array accounts
  * @returns {Object} Respuesta { success: true, data: friendObj } o error
  */
@@ -275,16 +280,16 @@ function saveFriendWithAccounts(friendObj) {
     }
 
     if (!friendObj || typeof friendObj !== 'object') {
-      return { success: false, error: 'Estructura de amigo inválida.' };
+      return { success: false, error: 'Estructura de persona inválida.' };
     }
 
-    const name = (friendObj.name || friendObj.nombre_amigo || '').trim();
+    const name = (friendObj.name || friendObj.nombre_persona || '').trim();
     if (!name) {
-      return { success: false, error: 'El nombre del amigo es obligatorio.' };
+      return { success: false, error: 'El nombre de la persona es obligatorio.' };
     }
 
     const group = (friendObj.group || friendObj.grupo || 'General').trim();
-    const friendId = (friendObj.id || friendObj.id_amigo || ('amigo_' + Utilities.getUuid().slice(0, 8))).trim();
+    const friendId = (friendObj.id || friendObj.id_persona || ('persona_' + Utilities.getUuid().slice(0, 8))).trim();
     const rawAccounts = Array.isArray(friendObj.accounts) ? friendObj.accounts : [];
 
     const sheet = getAccountsSheet();
@@ -319,7 +324,7 @@ function saveFriendWithAccounts(friendObj) {
       });
     }
 
-    // Identificar si el amigo ya existía para mantener su posición ordinal
+    // Identificar si la persona ya existía para mantener su posición ordinal
     let firstExistingIndex = -1;
     const remainingRows = [];
 
@@ -338,7 +343,7 @@ function saveFriendWithAccounts(friendObj) {
       // Reemplazo en la misma posición relativa
       remainingRows.splice(firstExistingIndex, 0, ...newFriendRows);
     } else {
-      // Amigo nuevo: agregarlo al final
+      // Persona nueva: agregarla al final
       remainingRows.push(...newFriendRows);
     }
 
@@ -371,9 +376,14 @@ function saveFriendWithAccounts(friendObj) {
   }
 }
 
+/** Alias para compatibilidad terminológica */
+function savePersonaWithAccounts(personaObj) {
+  return saveFriendWithAccounts(personaObj);
+}
+
 /**
- * Elimina un amigo y todas sus cuentas asociadas.
- * @param {string} friendId Identificador del amigo
+ * Elimina una persona y todas sus cuentas asociadas.
+ * @param {string} friendId Identificador de la persona
  * @returns {Object} Respuesta { success: true, data: { id, deleted: true } }
  */
 function deleteFriend(friendId) {
@@ -385,7 +395,7 @@ function deleteFriend(friendId) {
     }
 
     if (!friendId) {
-      return { success: false, error: 'Identificador de amigo requerido.' };
+      return { success: false, error: 'Identificador de persona requerido.' };
     }
 
     const sheet = getAccountsSheet();
@@ -417,9 +427,14 @@ function deleteFriend(friendId) {
   }
 }
 
+/** Alias para compatibilidad terminológica */
+function deletePersona(personaId) {
+  return deleteFriend(personaId);
+}
+
 /**
  * Elimina una cuenta bancaria puntual por su id_cuenta.
- * Si es la única cuenta del amigo, preserva la ficha del amigo con cuentas vacías.
+ * Si es la única cuenta de la persona, preserva la ficha de la persona con cuentas vacías.
  * @param {string} accountId Identificador de la cuenta bancaria
  * @returns {Object} Respuesta { success: true, data: { id, deleted: true } }
  */
@@ -444,7 +459,7 @@ function deleteAccount(accountId) {
     const existingRows = fullData.slice(1);
     const targetAccId = String(accountId).trim();
 
-    // Localizar amigo al que pertenece la cuenta
+    // Localizar persona a la que pertenece la cuenta
     let targetFriendId = null;
     let friendRowCount = 0;
 
@@ -459,7 +474,7 @@ function deleteAccount(accountId) {
       return { success: false, error: 'Cuenta no encontrada con ID: ' + accountId };
     }
 
-    // Contar cuántas filas tiene ese amigo
+    // Contar cuántas filas tiene esa persona
     for (let i = 0; i < existingRows.length; i++) {
       if (String(existingRows[i][0]).trim() === targetFriendId) {
         friendRowCount++;
@@ -474,7 +489,7 @@ function deleteAccount(accountId) {
       if (!isTargetAccount) {
         updatedRows.push(row);
       } else if (friendRowCount === 1) {
-        // Preservar la información del amigo con campos de cuenta vacíos
+        // Preservar la información de la persona con campos de cuenta vacíos
         updatedRows.push([row[0], row[1], row[2], '', '', '', '', '', '']);
       }
     }
@@ -498,7 +513,7 @@ function deleteAccount(accountId) {
 
 /**
  * Restablece la base de datos a los datos de prueba iniciales.
- * @returns {Object} Respuesta con la lista de amigos restaurada
+ * @returns {Object} Respuesta con la lista de personas restaurada
  */
 function resetToDemoData() {
   const lock = LockService.getScriptLock();
@@ -556,8 +571,8 @@ function getSpreadsheetInfo() {
 // ===================================================================
 
 /**
- * Extrae y agrupa todos los amigos con sus cuentas bancarias desde la hoja.
- * @returns {Array<Object>} Lista de amigos agrupados
+ * Extrae y agrupa todas las personas con sus cuentas bancarias desde la hoja.
+ * @returns {Array<Object>} Lista de personas agrupadas
  */
 function getFriendsDataInternal() {
   const sheet = getAccountsSheet();
@@ -611,7 +626,7 @@ function getFriendsDataInternal() {
 
 /**
  * Genera iniciales visuales a partir del nombre para el avatar.
- * @param {string} name Nombre del amigo
+ * @param {string} name Nombre de la persona
  * @returns {string} Iniciales en mayúscula (ej: 'Martín Gómez' -> 'MG')
  */
 function getInitials(name) {
