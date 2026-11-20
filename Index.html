@@ -1378,6 +1378,7 @@
                 '    <span class="bank-badge ' + acc.badgeClass + '">' + acc.bankName + '</span>',
                 '    <span class="account-type">' + acc.type + '</span>',
                 '  </div>',
+                (acc.titular ? '  <div class="account-titular font-mono" style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 4px; margin-bottom: 6px;">Titular: ' + acc.titular + '</div>' : ''),
                 '  <div class="copy-action-row">',
                 '    <div class="alias-chip" role="button" tabindex="0" data-alias="' + acc.alias + '" aria-label="Copiar alias ' + acc.alias + ' de ' + friend.name + '">',
                 '      <span class="alias-text font-mono">' + acc.alias + '</span>',
@@ -1484,6 +1485,70 @@
       /* ======================================================================
          8. INTEGRACIÓN BIDIRECCIONAL CON GOOGLE APPS SCRIPT
          ====================================================================== */
+      var AVATAR_PALETTE = [
+        'var(--accent-cyan)',
+        'var(--accent-yellow)',
+        'var(--accent-mint)',
+        'var(--accent-purple)',
+        'var(--accent-pink)',
+        'var(--accent-orange)',
+        'var(--accent-lime)'
+      ];
+
+      function resolveBankMeta(bankName) {
+        var str = (bankName || '').toUpperCase();
+        if (str.indexOf('MERCADO') !== -1 || str.indexOf('MP') !== -1) {
+          return { bankId: 'MERCADO_PAGO', badgeClass: 'bank-badge-mp' };
+        }
+        if (str.indexOf('GALICIA') !== -1) {
+          return { bankId: 'GALICIA', badgeClass: 'bank-badge-galicia' };
+        }
+        if (str.indexOf('SANTANDER') !== -1) {
+          return { bankId: 'SANTANDER', badgeClass: 'bank-badge-santander' };
+        }
+        if (str.indexOf('BRUBANK') !== -1) {
+          return { bankId: 'BRUBANK', badgeClass: 'bank-badge-brubank' };
+        }
+        if (str.indexOf('LEMON') !== -1) {
+          return { bankId: 'LEMON', badgeClass: 'bank-badge-lemon' };
+        }
+        if (str.indexOf('BBVA') !== -1 || str.indexOf('FRANCES') !== -1) {
+          return { bankId: 'BBVA', badgeClass: 'bank-badge-bbva' };
+        }
+        if (str.indexOf('UALA') !== -1 || str.indexOf('UALÁ') !== -1) {
+          return { bankId: 'UALA', badgeClass: 'bank-badge-uala' };
+        }
+        return { bankId: 'OTROS', badgeClass: 'bank-badge-generic' };
+      }
+
+      function normalizeFriendData(list) {
+        if (!Array.isArray(list)) return [];
+        return list.map(function(friend, idx) {
+          var accounts = (friend.accounts || []).map(function(acc) {
+            var bankName = acc.bankName || acc.bank || 'Banco';
+            var meta = resolveBankMeta(bankName);
+            return {
+              id: acc.id || '',
+              bankId: acc.bankId || meta.bankId,
+              bankName: bankName,
+              badgeClass: acc.badgeClass || meta.badgeClass,
+              type: acc.type || 'Cuenta',
+              alias: acc.alias || '',
+              cbu: acc.cbu || '',
+              titular: acc.titular || ''
+            };
+          });
+
+          return {
+            id: friend.id || ('friend_' + idx),
+            name: friend.name || 'Sin Nombre',
+            group: friend.group || 'General',
+            avatarColor: friend.avatarColor || AVATAR_PALETTE[idx % AVATAR_PALETTE.length],
+            accounts: accounts
+          };
+        });
+      }
+
       function loadDataFromAppsScript() {
         if (typeof google !== 'undefined' && google.script && google.script.run) {
           google.script.run
@@ -1495,7 +1560,7 @@
                 list = serverData.data;
               }
               if (list && list.length > 0) {
-                friendsData = list;
+                friendsData = normalizeFriendData(list);
                 renderCards();
               }
             })
