@@ -1,0 +1,3378 @@
+const fs = require('fs');
+const path = require('path');
+
+const adminHtml = `<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>AliasDB // Panel de Administración</title>
+
+  <!-- Modern Color Scheme Declaration -->
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F7F5F0" id="meta-theme-color">
+
+  <!-- Anti-FOUC Theme Pre-initialization -->
+  <script>
+    (function() {
+      try {
+        var storedTheme = localStorage.getItem('theme-preference');
+        var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var activeTheme = storedTheme ? storedTheme : (systemDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', activeTheme);
+        var metaScheme = document.querySelector('meta[name="color-scheme"]');
+        if (metaScheme) {
+          metaScheme.content = activeTheme === 'dark' ? 'dark' : (storedTheme ? 'light' : 'light dark');
+        }
+        var metaTheme = document.getElementById('meta-theme-color');
+        if (metaTheme) {
+          metaTheme.content = activeTheme === 'dark' ? '#121214' : '#F7F5F0';
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Google Fonts: Space Grotesk & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       NEO-BRUTALIST DESIGN TOKENS & SYSTEM (ALIGNED WITH INDEX.HTML)
+       ========================================================================== */
+    :root {
+      color-scheme: light dark;
+
+      /* Modo Claro (Tokens Base) */
+      --canvas: #F7F5F0;
+      --surface: #FFFFFF;
+      --surface-muted: #EDE9DF;
+      --surface-elevated: #FFFFFF;
+      --text: #0D0D11;
+      --text-muted: #4B4B58;
+      --border: #0D0D11;
+      --shadow: #0D0D11;
+      --shadow-subtle: rgba(13, 13, 17, 0.12);
+
+      /* Neo-Brutalist Accent Palette */
+      --accent-yellow: #FFE600;
+      --accent-cyan: #00F0FF;
+      --accent-mint: #2DF8C5;
+      --accent-purple: #B57BFF;
+      --accent-pink: #FF5EAC;
+      --accent-orange: #FF6B00;
+      --accent-red: #FF3B30;
+      --accent-lime: #CCFF00;
+      --accent-blue: #2563EB;
+
+      /* Badges de Bancos */
+      --bank-mp-bg: #00D1FF;
+      --bank-mp-text: #002B36;
+      --bank-galicia-bg: #FF7A00;
+      --bank-galicia-text: #170700;
+      --bank-santander-bg: #D31010;
+      --bank-santander-text: #FFFFFF;
+      --bank-brubank-bg: #7328E0;
+      --bank-brubank-text: #FFFFFF;
+      --bank-lemon-bg: #B8FF00;
+      --bank-lemon-text: #0A1C00;
+      --bank-bbva-bg: #004DB8;
+      --bank-bbva-text: #FFFFFF;
+      --bank-uala-bg: #D81B60;
+      --bank-uala-text: #FFFFFF;
+      --bank-generic-bg: #E2E8F0;
+      --bank-generic-text: #0F172A;
+
+      /* Geometría Neo-Brutalista */
+      --border-width: 2px;
+      --border-thick: 3px;
+      --shadow-offset: 4px;
+      --shadow-offset-sm: 2px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-pill: 9999px;
+      --touch-min: 44px;
+
+      /* Fuentes */
+      --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', SFMono-Regular, Consolas, monospace;
+
+      /* Transiciones Táctiles */
+      --transition-tap: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1);
+      --transition-hover: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+    }
+
+    /* Modo Oscuro */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --canvas: #121214;
+        --surface: #1E1E22;
+        --surface-muted: #28282E;
+        --surface-elevated: #24242A;
+        --text: #FFFFFF;
+        --text-muted: #A1A1AA;
+        --border: #FFFFFF;
+        --shadow: #FFFFFF;
+        --shadow-subtle: rgba(255, 255, 255, 0.15);
+        --bank-generic-bg: #334155;
+        --bank-generic-text: #F8FAFC;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --canvas: #121214;
+      --surface: #1E1E22;
+      --surface-muted: #28282E;
+      --surface-elevated: #24242A;
+      --text: #FFFFFF;
+      --text-muted: #A1A1AA;
+      --border: #FFFFFF;
+      --shadow: #FFFFFF;
+      --shadow-subtle: rgba(255, 255, 255, 0.15);
+      --bank-generic-bg: #334155;
+      --bank-generic-text: #F8FAFC;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--canvas);
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 16px;
+      line-height: 1.45;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--touch-min) + 36px + env(safe-area-inset-bottom, 0px));
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--accent-yellow);
+      outline-offset: 3px;
+    }
+
+    [data-theme="dark"] :focus-visible {
+      outline: 3px solid var(--accent-cyan);
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .font-mono {
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       CONTAINER & LAYOUT
+       ========================================================================== */
+    .app-container {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    @media (min-width: 640px) {
+      .app-container {
+        padding: 24px;
+        gap: 24px;
+      }
+    }
+
+    /* Header Neo-Brutalista */
+    .app-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-cyan);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      font-weight: 900;
+      font-size: 1.25rem;
+      color: #0D0D11;
+      flex-shrink: 0;
+    }
+
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .admin-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 1px 1px 0px var(--shadow);
+    }
+
+    .brand-tagline {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Key status badge */
+    .key-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 12px;
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: var(--text);
+      transition: var(--transition-tap);
+    }
+
+    .key-badge:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    .key-badge.is-active {
+      background: var(--accent-mint);
+      color: #0D0D11;
+    }
+
+    .key-badge.is-empty {
+      background: var(--accent-red);
+      color: #FFFFFF;
+    }
+
+    /* Botones Neo-Brutalistas */
+    .btn-brutalist {
+      height: var(--touch-min);
+      min-height: var(--touch-min);
+      padding: 0 16px;
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--surface);
+      color: var(--text);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: var(--transition-tap);
+    }
+
+    .btn-brutalist:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    .btn-primary {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+    }
+
+    .btn-cyan {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
+    .btn-mint {
+      background: var(--accent-mint);
+      color: #0D0D11;
+    }
+
+    .btn-purple {
+      background: var(--accent-purple);
+      color: #0D0D11;
+    }
+
+    .btn-danger {
+      background: var(--accent-red);
+      color: #FFFFFF;
+    }
+
+    .btn-sm {
+      height: 36px;
+      min-height: 36px;
+      padding: 0 10px;
+      font-size: 0.75rem;
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle-btn {
+      width: var(--touch-min);
+      height: var(--touch-min);
+      min-width: var(--touch-min);
+      min-height: var(--touch-min);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      cursor: pointer;
+      color: var(--text);
+      transition: var(--transition-tap);
+    }
+
+    .theme-toggle-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .icon-sun { display: none; }
+    .icon-moon { display: block; }
+    [data-theme="dark"] .icon-sun { display: block; }
+    [data-theme="dark"] .icon-moon { display: none; }
+
+    /* ==========================================================================
+       STATS SUMMARY CARDS
+       ========================================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: var(--border);
+    }
+
+    .stat-card.stat-yellow::before { background: var(--accent-yellow); }
+    .stat-card.stat-cyan::before { background: var(--accent-cyan); }
+    .stat-card.stat-mint::before { background: var(--accent-mint); }
+    .stat-card.stat-purple::before { background: var(--accent-purple); }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 1.85rem;
+      font-weight: 900;
+      line-height: 1.1;
+      font-family: var(--font-mono);
+      color: var(--text);
+    }
+
+    /* ==========================================================================
+       TOOLBAR & ACTION BAR
+       ========================================================================== */
+    .toolbar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
+      padding: 16px;
+    }
+
+    .toolbar-primary-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .toolbar-primary-row {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 46px;
+      min-height: var(--touch-min);
+      padding: 0 44px 0 44px;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--surface-elevated);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      transition: var(--transition-hover);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .search-input:focus {
+      outline: none;
+      transform: translate(-1px, -1px);
+      box-shadow: calc(var(--shadow-offset-sm) + 2px) calc(var(--shadow-offset-sm) + 2px) 0px var(--shadow);
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 6px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: none;
+      place-items: center;
+      border-radius: var(--radius-sm);
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .search-clear-btn.visible {
+      display: grid;
+    }
+
+    .group-filter-select {
+      height: 46px;
+      min-height: var(--touch-min);
+      padding: 0 14px;
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      cursor: pointer;
+      min-width: 180px;
+    }
+
+    .toolbar-secondary-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: var(--border-width) dashed var(--border);
+    }
+
+    /* ==========================================================================
+       GROUP ACCORDIONS & PERSON CARDS
+       ========================================================================== */
+    .groups-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .group-section {
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .group-header {
+      background: var(--surface-muted);
+      padding: 14px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: var(--border-width) solid var(--border);
+    }
+
+    .group-title-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .group-name {
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+
+    .group-badge-count {
+      padding: 2px 10px;
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 900;
+      box-shadow: 1px 1px 0px var(--shadow);
+    }
+
+    .group-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .group-persons-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .group-persons-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+    }
+
+    /* Persona Card */
+    .admin-person-card {
+      background: var(--surface-elevated);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 3px 3px 0px var(--shadow);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: var(--transition-hover);
+    }
+
+    .admin-person-card:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px var(--shadow);
+    }
+
+    .person-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: var(--border-width) dashed var(--border);
+    }
+
+    .person-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .person-avatar {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 1rem;
+      color: #0D0D11;
+      background: var(--accent-cyan);
+      flex-shrink: 0;
+    }
+
+    .person-name-box {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .person-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .person-meta {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .person-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Accounts List inside Person Card */
+    .person-accounts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .account-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .bank-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      box-shadow: 1px 1px 0px var(--shadow);
+    }
+
+    .bank-badge-mp { background: var(--bank-mp-bg); color: var(--bank-mp-text); }
+    .bank-badge-galicia { background: var(--bank-galicia-bg); color: var(--bank-galicia-text); }
+    .bank-badge-santander { background: var(--bank-santander-bg); color: var(--bank-santander-text); }
+    .bank-badge-brubank { background: var(--bank-brubank-bg); color: var(--bank-brubank-text); }
+    .bank-badge-lemon { background: var(--bank-lemon-bg); color: var(--bank-lemon-text); }
+    .bank-badge-bbva { background: var(--bank-bbva-bg); color: var(--bank-bbva-text); }
+    .bank-badge-uala { background: var(--bank-uala-bg); color: var(--bank-uala-text); }
+    .bank-badge-generic { background: var(--bank-generic-bg); color: var(--bank-generic-text); }
+
+    .account-type-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .account-data-box {
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .alias-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .alias-text {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      font-weight: 800;
+      color: var(--text);
+      word-break: break-all;
+    }
+
+    .cbu-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .cbu-text {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .copy-chip-btn {
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 2px 7px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 1px 1px 0px var(--shadow);
+      white-space: nowrap;
+      transition: var(--transition-tap);
+    }
+
+    .copy-chip-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    .copy-chip-btn.copied-active {
+      background: var(--accent-mint) !important;
+      color: #0D0D11 !important;
+    }
+
+    /* ==========================================================================
+       MODALS (<dialog>) NEO-BRUTALISTAS CON OVERSCROLL CONTAINMENT
+       ========================================================================== */
+    dialog {
+      position: fixed;
+      inset: 0;
+      margin: auto;
+      background: var(--surface);
+      color: var(--text);
+      border: var(--border-thick) solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 8px 8px 0px var(--shadow);
+      padding: 0;
+      width: calc(100% - 32px);
+      max-width: 640px;
+      max-height: 88vh;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    dialog[open] {
+      display: flex;
+    }
+
+    dialog:modal {
+      overscroll-behavior: contain;
+    }
+
+    dialog::backdrop {
+      background: rgba(13, 13, 17, 0.75);
+      backdrop-filter: blur(2px);
+      overflow: hidden;
+      overscroll-behavior: contain;
+    }
+
+    .dialog-header {
+      padding: 16px 20px;
+      background: var(--surface-muted);
+      border-bottom: var(--border-width) solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .dialog-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+
+    .dialog-close-btn {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0px var(--shadow);
+      font-weight: 900;
+      font-size: 1.1rem;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .dialog-close-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    .dialog-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overscroll-behavior: contain;
+    }
+
+    .dialog-footer {
+      padding: 14px 20px;
+      background: var(--surface-muted);
+      border-top: var(--border-width) solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Form Fields */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      width: 100%;
+      height: 42px;
+      min-height: 42px;
+      padding: 0 12px;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0px var(--shadow);
+      transition: var(--transition-hover);
+    }
+
+    .form-control:focus {
+      outline: none;
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--shadow);
+    }
+
+    textarea.form-control {
+      height: auto;
+      min-height: 80px;
+      padding: 10px 12px;
+      resize: vertical;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    /* Quick-Add Box */
+    .quick-add-box {
+      background: var(--surface-muted);
+      border: var(--border-width) dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quick-add-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .quick-add-title {
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text);
+    }
+
+    /* Dynamic Account Card in Modal */
+    .account-edit-card {
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 2px 2px 0px var(--shadow);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+    }
+
+    .account-edit-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .account-edit-index {
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .account-edit-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 500px) {
+      .account-edit-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Tables Neo-Brutalistas */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0px var(--shadow);
+    }
+
+    .brutalist-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      text-align: left;
+    }
+
+    .brutalist-table th {
+      background: var(--surface-muted);
+      padding: 10px 12px;
+      border-bottom: var(--border-width) solid var(--border);
+      border-right: 1px solid var(--border);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .brutalist-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .brutalist-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .brutalist-table tr:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    [data-theme="dark"] .brutalist-table tr:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* File Drop Zone */
+    .file-dropzone {
+      border: var(--border-width) dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px 16px;
+      text-align: center;
+      background: var(--surface-muted);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition-hover);
+    }
+
+    .file-dropzone:hover, .file-dropzone.dragover {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+    }
+
+    /* ==========================================================================
+       TOAST NOTIFICATION (ACCESSIBLE & POP-UP)
+       ========================================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: max(20px, env(safe-area-inset-bottom, 20px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      pointer-events: none;
+      width: calc(100% - 32px);
+      max-width: 460px;
+    }
+
+    .brutalist-toast {
+      pointer-events: auto;
+      background: var(--accent-mint);
+      color: #0D0D11;
+      border: var(--border-thick) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 6px 6px 0px var(--shadow);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      opacity: 0;
+      transform: translateY(24px) scale(0.95);
+      transition: opacity 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                  transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .brutalist-toast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .brutalist-toast.toast-error {
+      background: var(--accent-red);
+      color: #FFFFFF;
+    }
+
+    .toast-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .toast-icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      background: #0D0D11;
+      color: var(--accent-mint);
+      border-radius: var(--radius-sm);
+    }
+
+    .toast-close-btn {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      background: transparent;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-sm);
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+
+    /* Accessibility: Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Screen Reader Live Region for Accessible Announcements -->
+  <div id="sr-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="app-container">
+
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand-group">
+        <div class="brand-icon" aria-hidden="true">&#9881;</div>
+        <div class="brand-titles">
+          <div class="brand-title-row">
+            <h1 class="brand-title">AliasDB</h1>
+            <span class="admin-pill">ADMIN</span>
+          </div>
+          <p class="brand-tagline">Panel de Administraci&oacute;n Central</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <!-- Key Status Badge -->
+        <button id="admin-auth-btn" class="key-badge is-empty" type="button" aria-haspopup="dialog" title="Gestionar clave de administrador">
+          <span class="key-indicator">&#9679;</span>
+          <span id="key-label">Verificando Clave...</span>
+        </button>
+
+        <!-- Link a Google Sheet -->
+        <button id="open-sheet-btn" class="btn-brutalist btn-sm" type="button" title="Abrir Google Sheet conectada">
+          &#128279; <span class="btn-text">Google Sheet</span>
+        </button>
+
+        <!-- Recargar datos -->
+        <button id="reload-btn" class="btn-brutalist btn-sm" type="button" title="Recargar datos desde el backend">
+          &#128260; <span class="btn-text">Recargar</span>
+        </button>
+
+        <!-- Vista Pública -->
+        <a href="index.html" class="btn-brutalist btn-sm" title="Ir al directorio público">
+          &#128065; <span class="btn-text">Vista P&uacute;blica</span>
+        </a>
+        
+        <!-- Theme Switch Button -->
+        <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Alternar entre modo claro y modo oscuro">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Summary Cards -->
+    <section class="stats-grid" aria-label="Resumen de datos">
+      <div class="stat-card stat-yellow">
+        <span class="stat-label">Total Personas</span>
+        <span id="stat-persons" class="stat-value font-mono">0</span>
+      </div>
+      <div class="stat-card stat-cyan">
+        <span class="stat-label">Total Cuentas</span>
+        <span id="stat-accounts" class="stat-value font-mono">0</span>
+      </div>
+      <div class="stat-card stat-mint">
+        <span class="stat-label">Grupos Activos</span>
+        <span id="stat-groups" class="stat-value font-mono">0</span>
+      </div>
+      <div class="stat-card stat-purple">
+        <span class="stat-label">Tokens Activos</span>
+        <span id="stat-tokens" class="stat-value font-mono">0</span>
+      </div>
+    </section>
+
+    <!-- Toolbar & Action Bar -->
+    <section class="toolbar-section" aria-label="Herramientas y filtros de administraci&oacute;n">
+      <div class="toolbar-primary-row">
+        <!-- Buscador -->
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            id="search-input" 
+            class="search-input" 
+            placeholder="Buscar por persona, alias, CBU o banco..." 
+            autocomplete="off" 
+            spellcheck="false"
+            aria-label="Filtrar datos en tiempo real"
+          >
+          <button id="search-clear" class="search-clear-btn" type="button" aria-label="Limpiar b&uacute;squeda">&times;</button>
+        </div>
+
+        <!-- Filtro por Grupo -->
+        <select id="group-filter-select" class="group-filter-select" aria-label="Filtrar por grupo">
+          <option value="ALL">Todos los grupos</option>
+        </select>
+
+        <!-- Botón Primario + Nueva Persona -->
+        <button id="btn-new-person" class="btn-brutalist btn-primary" type="button">
+          <strong>+ Nueva Persona</strong>
+        </button>
+      </div>
+
+      <div class="toolbar-secondary-row">
+        <button id="btn-open-tokens" class="btn-brutalist btn-sm btn-cyan" type="button">
+          &#128273; Tokens de Acceso
+        </button>
+        <button id="btn-open-groups" class="btn-brutalist btn-sm" type="button">
+          &#128193; Gestionar Grupos
+        </button>
+        <button id="btn-export-csv" class="btn-brutalist btn-sm" type="button">
+          &#128228; Exportar CSV
+        </button>
+        <button id="btn-open-import" class="btn-brutalist btn-sm btn-mint" type="button">
+          &#128229; Importar CSV
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Content: Groups Container -->
+    <main id="groups-container" class="groups-container" aria-label="Directorio agrupado de personas">
+      <!-- Din&aacute;micamente renderizado por JavaScript -->
+    </main>
+
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 1: AUTENTICACIÓN ADMIN (ADMIN KEY)
+       ========================================================================== -->
+  <dialog id="modal-auth" aria-labelledby="auth-modal-title">
+    <div class="dialog-header">
+      <h2 id="auth-modal-title" class="dialog-title">&#128273; Clave de Administrador</h2>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-auth" aria-label="Cerrar">&times;</button>
+    </div>
+    <form id="form-auth" method="dialog">
+      <div class="dialog-body">
+        <p class="form-hint" style="font-size: 0.85rem; line-height: 1.4;">
+          Ingres&aacute; la <strong>adminKey</strong> configurada en el backend de Google Apps Script (ScriptProperties) para autorizar operaciones de guardado, edici&oacute;n y eliminaci&oacute;n.
+        </p>
+        <div class="form-group">
+          <label for="admin-key-input" class="form-label">Clave de Administrador (adminKey)</label>
+          <input 
+            type="password" 
+            id="admin-key-input" 
+            class="form-control font-mono" 
+            placeholder="Peg&aacute; tu clave secreta aqu&iacute;..." 
+            autocomplete="off"
+            required
+            autofocus
+          >
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button id="btn-clear-auth" class="btn-brutalist btn-sm btn-danger" type="button" style="margin-right: auto;">
+          Cerrar Sesi&oacute;n
+        </button>
+        <button class="btn-brutalist btn-sm" type="button" data-close-modal="modal-auth">Cancelar</button>
+        <button id="btn-save-auth" class="btn-brutalist btn-sm btn-primary" type="submit">Guardar Clave</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ==========================================================================
+       MODAL 2: CREACIÓN / EDICIÓN DE PERSONA
+       ========================================================================== -->
+  <dialog id="modal-person" aria-labelledby="person-modal-title">
+    <div class="dialog-header">
+      <h2 id="person-modal-title" class="dialog-title">Nueva Persona</h2>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-person" aria-label="Cerrar">&times;</button>
+    </div>
+    <form id="form-person" onsubmit="return false;">
+      <input type="hidden" id="person-id-input" value="">
+      
+      <div class="dialog-body">
+        <!-- Nombre Completo -->
+        <div class="form-group">
+          <label for="person-name-input" class="form-label">Nombre de la Persona *</label>
+          <input 
+            type="text" 
+            id="person-name-input" 
+            class="form-control" 
+            placeholder="Ej: Mart&iacute;n G&oacute;mez" 
+            required
+            autofocus
+          >
+        </div>
+
+        <!-- Grupo -->
+        <div class="form-group">
+          <label for="person-group-select" class="form-label">Grupo de Contacto *</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="person-group-select" class="form-control" style="flex: 1;">
+              <!-- Llenado dinámicamente -->
+              <option value="General">General</option>
+              <option value="__NEW__">+ Crear nuevo grupo...</option>
+            </select>
+          </div>
+          <input 
+            type="text" 
+            id="person-group-new-input" 
+            class="form-control" 
+            placeholder="Nombre del nuevo grupo..." 
+            style="display: none; margin-top: 6px;"
+          >
+        </div>
+
+        <!-- Smart Quick-Add Box -->
+        <div class="quick-add-box">
+          <div class="quick-add-header">
+            <span class="quick-add-title">&#9889; Auto-detecci&oacute;n Inteligente (Quick-Add)</span>
+            <span class="form-hint">CBU / CVU + Alias</span>
+          </div>
+          <textarea 
+            id="quick-add-text" 
+            class="form-control" 
+            rows="2" 
+            placeholder="Peg&aacute; un alias y CBU/CVU libremente (ej: 'martin.mp.futbol 0000003100012345678901')..."
+          ></textarea>
+          <div style="display: flex; justify-content: flex-end;">
+            <button id="btn-quick-add-detect" class="btn-brutalist btn-sm btn-cyan" type="button">
+              &#128064; Auto-detectar y Agregar
+            </button>
+          </div>
+        </div>
+
+        <!-- Cuentas Bancarias Dinámicas -->
+        <div class="form-group">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <label class="form-label">Cuentas Bancarias Asociadas</label>
+            <button id="btn-add-account-row" class="btn-brutalist btn-sm btn-mint" type="button">
+              + Agregar Cuenta
+            </button>
+          </div>
+          <div id="modal-accounts-container" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Filas dinámicas de cuentas -->
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <button class="btn-brutalist btn-sm" type="button" data-close-modal="modal-person">Cancelar</button>
+        <button id="btn-submit-person" class="btn-brutalist btn-sm btn-primary" type="button">
+          &#128190; Guardar Persona
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ==========================================================================
+       MODAL 3: GESTIÓN DE TOKENS DE ACCESO
+       ========================================================================== -->
+  <dialog id="modal-tokens" aria-labelledby="tokens-modal-title">
+    <div class="dialog-header">
+      <h2 id="tokens-modal-title" class="dialog-title">&#128273; Tokens de Acceso por Grupo</h2>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-tokens" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="dialog-body">
+      <p class="form-hint" style="font-size: 0.85rem; line-height: 1.4;">
+        Los tokens permiten compartir enlaces a la vista p&uacute;blica que muestran <strong>&uacute;nicamente las personas de ese grupo</strong> sin revelar el nombre en la URL ni exponer al resto de tus contactos.
+      </p>
+
+      <!-- Generador de nuevo token -->
+      <div class="quick-add-box" style="background: var(--surface);">
+        <span class="quick-add-title">Generar Nuevo Token para un Grupo</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+          <select id="token-group-select" class="form-control" style="flex: 1; min-width: 160px;"></select>
+          <button id="btn-generate-token" class="btn-brutalist btn-sm btn-primary" type="button">
+            &#10024; Generar Token
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de tokens existentes -->
+      <div class="form-group">
+        <label class="form-label">Tokens Activos Registrados</label>
+        <div class="table-container">
+          <table class="brutalist-table">
+            <thead>
+              <tr>
+                <th>Grupo</th>
+                <th>Token</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tokens-table-body">
+              <!-- Render dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-brutalist btn-sm" type="button" data-close-modal="modal-tokens">Cerrar</button>
+    </div>
+  </dialog>
+
+  <!-- ==========================================================================
+       MODAL 4: GESTIÓN DE GRUPOS (RENOMBRAR / VER)
+       ========================================================================== -->
+  <dialog id="modal-groups" aria-labelledby="groups-modal-title">
+    <div class="dialog-header">
+      <h2 id="groups-modal-title" class="dialog-title">&#128193; Gestionar Grupos</h2>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-groups" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="dialog-body">
+      <p class="form-hint" style="font-size: 0.85rem;">
+        Pod&eacute;s renombrar un grupo para todas las personas que pertenezcan a &eacute;l simult&aacute;neamente.
+      </p>
+      <div class="table-container">
+        <table class="brutalist-table">
+          <thead>
+            <tr>
+              <th>Nombre de Grupo</th>
+              <th>Personas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="groups-table-body">
+            <!-- Render dinámico -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-brutalist btn-sm" type="button" data-close-modal="modal-groups">Cerrar</button>
+    </div>
+  </dialog>
+
+  <!-- ==========================================================================
+       MODAL 5: IMPORTAR CSV
+       ========================================================================== -->
+  <dialog id="modal-import" aria-labelledby="import-modal-title">
+    <div class="dialog-header">
+      <h2 id="import-modal-title" class="dialog-title">&#128229; Importar Personas desde CSV</h2>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-import" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="dialog-body">
+      <p class="form-hint" style="font-size: 0.85rem; line-height: 1.4;">
+        Formato esperado de columnas: <code>nombre,grupo,banco,tipo,alias,cbu,titular</code>.
+      </p>
+
+      <!-- Dropzone -->
+      <div id="csv-dropzone" class="file-dropzone" role="button" tabindex="0">
+        <div style="font-size: 1.8rem;">&#128196;</div>
+        <strong>Hac&eacute; click o arrastr&aacute; tu archivo .csv aqu&iacute;</strong>
+        <span class="form-hint">Codificaci&oacute;n UTF-8 recomendada</span>
+        <input type="file" id="csv-file-input" accept=".csv,text/csv" class="sr-only">
+      </div>
+
+      <!-- Preview de importación -->
+      <div id="import-preview-box" style="display: none; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <label class="form-label">Vista Previa (<span id="import-count-label">0 registros</span>)</label>
+          <span id="import-status-pill" class="admin-pill">V&aacute;lido</span>
+        </div>
+        <div class="table-container" style="max-height: 200px; overflow-y: auto;">
+          <table class="brutalist-table">
+            <thead>
+              <tr>
+                <th>Persona</th>
+                <th>Grupo</th>
+                <th>Banco</th>
+                <th>Alias</th>
+                <th>CBU</th>
+              </tr>
+            </thead>
+            <tbody id="import-preview-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-brutalist btn-sm" type="button" data-close-modal="modal-import">Cancelar</button>
+      <button id="btn-confirm-import" class="btn-brutalist btn-sm btn-primary" type="button" disabled>
+        Confirmar e Importar
+      </button>
+    </div>
+  </dialog>
+
+  <!-- ==========================================================================
+       MODAL 6: CONFIRMACIÓN DE ACCIÓN DESTRUCTIVA
+       ========================================================================== -->
+  <dialog id="modal-confirm" aria-labelledby="confirm-modal-title">
+    <div class="dialog-header">
+      <h2 id="confirm-modal-title" class="dialog-title">&#9888; Confirmar Acci&oacute;n</h2>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-confirm" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="dialog-body">
+      <p id="confirm-modal-msg" style="font-size: 0.95rem; font-weight: 700; line-height: 1.4;">
+        &iquest;Est&aacute;s seguro de realizar esta operaci&oacute;n?
+      </p>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn-brutalist btn-sm" type="button" data-close-modal="modal-confirm" autofocus>Cancelar</button>
+      <button id="btn-execute-confirm" class="btn-brutalist btn-sm btn-danger" type="button">
+        Confirmar
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Toast Notification (Accessible Bottom Bar) -->
+  <div class="toast-container" aria-hidden="true">
+    <div id="brutalist-toast" class="brutalist-toast" role="status">
+      <div class="toast-content">
+        <div class="toast-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <span id="toast-message">Notificaci&oacute;n del sistema</span>
+      </div>
+      <button id="toast-close" class="toast-close-btn" type="button" aria-label="Cerrar notificaci&oacute;n">&times;</button>
+    </div>
+  </div>
+
+  <!-- Datalist para bancos comunes -->
+  <datalist id="bank-datalist">
+    <option value="Mercado Pago"></option>
+    <option value="Banco Galicia"></option>
+    <option value="Banco Santander"></option>
+    <option value="Brubank"></option>
+    <option value="Lemon Cash"></option>
+    <option value="BBVA"></option>
+    <option value="Ual&aacute;"></option>
+    <option value="Banco Naci&oacute;n"></option>
+    <option value="Banco Provincia"></option>
+    <option value="Banco Macro"></option>
+    <option value="Banco Ciudad"></option>
+    <option value="Banco Credicoop"></option>
+    <option value="Banco Patagonia"></option>
+    <option value="Naranja X"></option>
+    <option value="Personal Pay"></option>
+  </datalist>
+
+  <!-- ==========================================================================
+       CLIENT-SIDE LOGIC: ADMIN PANEL SPA
+       ========================================================================== */ -->
+  <script>
+    (function() {
+      'use strict';
+
+      /* Constantes de Configuración */
+      var BACKEND_API_URL = 'https://script.google.com/macros/s/AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg/exec';
+      var STORAGE_ADMIN_KEY = 'aliasdb_admin_key';
+      var STORAGE_GROUP_TOKENS = 'aliasdb_group_tokens';
+      var STORAGE_THEME = 'theme-preference';
+
+      /* Mapeo de Entidades Bancarias por prefijo CBU (primeros 3 dígitos) */
+      var CBU_BANK_MAP = {
+        '007': 'Banco Galicia',
+        '011': 'Banco Nación',
+        '014': 'Banco Provincia',
+        '015': 'Banco ICBC',
+        '017': 'BBVA',
+        '027': 'Banco Supervielle',
+        '029': 'Banco Ciudad',
+        '034': 'Banco Patagonia',
+        '044': 'Banco Hipotecario',
+        '072': 'Banco Santander',
+        '083': 'Banco Chubut',
+        '093': 'Banco de la Pampa',
+        '143': 'Brubank',
+        '147': 'Banco Bica',
+        '150': 'HSBC',
+        '191': 'Banco Credicoop',
+        '247': 'Banco Roela',
+        '259': 'Banco Itaú',
+        '285': 'Banco Macro',
+        '299': 'Banco Comafi',
+        '301': 'Banco Piano',
+        '303': 'Banco Finansur',
+        '309': 'Nuevo Banco de Santa Fe',
+        '310': 'Banco del Chaco',
+        '315': 'Banco de Formosa',
+        '321': 'Banco Santiago del Estero',
+        '330': 'Nuevo Banco de Santa Fe',
+        '341': 'Banco Masventas',
+        '386': 'Nuevo Banco de Entre Ríos',
+        '389': 'Banco Columbia',
+        '000': 'CVU (Fintech)'
+      };
+
+      /* Paleta de avatares brutalistas */
+      var AVATAR_PALETTE = [
+        'var(--accent-cyan)',
+        'var(--accent-yellow)',
+        'var(--accent-mint)',
+        'var(--accent-purple)',
+        'var(--accent-pink)',
+        'var(--accent-orange)',
+        'var(--accent-lime)'
+      ];
+
+      /* Datos demo predeterminados */
+      var DEMO_PERSONS = [
+        {
+          id: 'persona_martin_gomez',
+          name: 'Martín Gómez',
+          group: 'Fútbol',
+          accounts: [
+            {
+              id: 'acc_mg_mp',
+              bank: 'Mercado Pago',
+              type: 'CVU',
+              alias: 'martin.mp.futbol',
+              cbu: '0000003100012345678901',
+              titular: ''
+            },
+            {
+              id: 'acc_mg_galicia',
+              bank: 'Banco Galicia',
+              type: 'Caja de Ahorro',
+              alias: 'martin.galicia.ar',
+              cbu: '0070012330004567890123',
+              titular: ''
+            }
+          ]
+        },
+        {
+          id: 'persona_sofia_rossi',
+          name: 'Sofía Rossi',
+          group: 'Facultad',
+          accounts: [
+            {
+              id: 'acc_sr_brubank',
+              bank: 'Brubank',
+              type: 'Caja de Ahorro',
+              alias: 'sofi.rossi.bru',
+              cbu: '1430001713009876543210',
+              titular: ''
+            }
+          ]
+        },
+        {
+          id: 'persona_lucas_benitez',
+          name: 'Lucas Benítez',
+          group: 'Trabajo',
+          accounts: [
+            {
+              id: 'acc_lb_lemon',
+              bank: 'Lemon Cash',
+              type: 'CVU',
+              alias: 'lucas.lemon.crypto',
+              cbu: '0000123400009876543210',
+              titular: ''
+            },
+            {
+              id: 'acc_lb_santander',
+              bank: 'Banco Santander',
+              type: 'Cuenta Corriente',
+              alias: 'lucas.santander',
+              cbu: '0720023420001122334455',
+              titular: 'Benítez & Asociados SRL'
+            }
+          ]
+        }
+      ];
+
+      /* Estado de la Aplicación */
+      var appState = {
+        adminKey: '',
+        persons: [],
+        groupTokens: {},
+        spreadsheetUrl: '',
+        searchQuery: '',
+        selectedGroup: 'ALL',
+        parsedImportData: [],
+        onConfirmCallback: null
+      };
+
+      /* Referencias al DOM */
+      var dom = {
+        adminAuthBtn: document.getElementById('admin-auth-btn'),
+        keyLabel: document.getElementById('key-label'),
+        openSheetBtn: document.getElementById('open-sheet-btn'),
+        reloadBtn: document.getElementById('reload-btn'),
+        themeToggleBtn: document.getElementById('theme-toggle'),
+        metaColorScheme: document.querySelector('meta[name="color-scheme"]'),
+        metaThemeColor: document.getElementById('meta-theme-color'),
+        
+        statPersons: document.getElementById('stat-persons'),
+        statAccounts: document.getElementById('stat-accounts'),
+        statGroups: document.getElementById('stat-groups'),
+        statTokens: document.getElementById('stat-tokens'),
+
+        searchInput: document.getElementById('search-input'),
+        searchClearBtn: document.getElementById('search-clear'),
+        groupFilterSelect: document.getElementById('group-filter-select'),
+        groupsContainer: document.getElementById('groups-container'),
+
+        btnNewPerson: document.getElementById('btn-new-person'),
+        btnOpenTokens: document.getElementById('btn-open-tokens'),
+        btnOpenGroups: document.getElementById('btn-open-groups'),
+        btnExportCsv: document.getElementById('btn-export-csv'),
+        btnOpenImport: document.getElementById('btn-open-import'),
+
+        // Modals
+        modalAuth: document.getElementById('modal-auth'),
+        adminKeyInput: document.getElementById('admin-key-input'),
+        btnClearAuth: document.getElementById('btn-clear-auth'),
+        btnSaveAuth: document.getElementById('btn-save-auth'),
+
+        modalPerson: document.getElementById('modal-person'),
+        personModalTitle: document.getElementById('person-modal-title'),
+        personIdInput: document.getElementById('person-id-input'),
+        personNameInput: document.getElementById('person-name-input'),
+        personGroupSelect: document.getElementById('person-group-select'),
+        personGroupNewInput: document.getElementById('person-group-new-input'),
+        quickAddText: document.getElementById('quick-add-text'),
+        btnQuickAddDetect: document.getElementById('btn-quick-add-detect'),
+        modalAccountsContainer: document.getElementById('modal-accounts-container'),
+        btnAddAccountRow: document.getElementById('btn-add-account-row'),
+        btnSubmitPerson: document.getElementById('btn-submit-person'),
+
+        modalTokens: document.getElementById('modal-tokens'),
+        tokenGroupSelect: document.getElementById('token-group-select'),
+        btnGenerateToken: document.getElementById('btn-generate-token'),
+        tokensTableBody: document.getElementById('tokens-table-body'),
+
+        modalGroups: document.getElementById('modal-groups'),
+        groupsTableBody: document.getElementById('groups-table-body'),
+
+        modalImport: document.getElementById('modal-import'),
+        csvDropzone: document.getElementById('csv-dropzone'),
+        csvFileInput: document.getElementById('csv-file-input'),
+        importPreviewBox: document.getElementById('import-preview-box'),
+        importPreviewBody: document.getElementById('import-preview-body'),
+        importCountLabel: document.getElementById('import-count-label'),
+        btnConfirmImport: document.getElementById('btn-confirm-import'),
+
+        modalConfirm: document.getElementById('modal-confirm'),
+        confirmModalMsg: document.getElementById('confirm-modal-msg'),
+        btnExecuteConfirm: document.getElementById('btn-execute-confirm'),
+
+        toast: document.getElementById('brutalist-toast'),
+        toastMessage: document.getElementById('toast-message'),
+        toastClose: document.getElementById('toast-close'),
+        srAnnouncer: document.getElementById('sr-announcer')
+      };
+
+      var toastTimeout = null;
+      var lastAnnounced = '';
+
+      /* ======================================================================
+         1. UTILIDADES Y ACCESIBILIDAD
+         ====================================================================== */
+      function announce(msg) {
+        if (!dom.srAnnouncer) return;
+        var text = (lastAnnounced === msg) ? msg + '\u00A0' : msg;
+        lastAnnounced = text;
+        dom.srAnnouncer.textContent = text;
+      }
+
+      function showToast(message, isError, duration) {
+        if (!dom.toast || !dom.toastMessage) return;
+        duration = duration || 3200;
+
+        dom.toastMessage.textContent = message;
+        dom.toast.classList.toggle('toast-error', !!isError);
+        dom.toast.classList.add('show');
+        dom.toast.parentElement.setAttribute('aria-hidden', 'false');
+
+        announce(message);
+
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(hideToast, duration);
+      }
+
+      function hideToast() {
+        if (!dom.toast) return;
+        dom.toast.classList.remove('show');
+        dom.toast.parentElement.setAttribute('aria-hidden', 'true');
+        if (toastTimeout) {
+          clearTimeout(toastTimeout);
+          toastTimeout = null;
+        }
+      }
+
+      dom.toastClose.addEventListener('click', hideToast);
+
+      function copyToClipboard(text, triggerEl, label) {
+        label = label || 'Dato';
+        if (!text) return;
+
+        function success() {
+          if (triggerEl) {
+            triggerEl.classList.add('copied-active');
+            setTimeout(function() {
+              triggerEl.classList.remove('copied-active');
+            }, 800);
+          }
+          showToast(label + ' copiado al portapapeles: ' + text);
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(success).catch(function() {
+            if (fallbackCopy(text)) success();
+            else showToast('No se pudo copiar automáticamente', true);
+          });
+        } else {
+          if (fallbackCopy(text)) success();
+          else showToast('No se pudo copiar automáticamente', true);
+        }
+      }
+
+      function fallbackCopy(text) {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          var res = document.execCommand('copy');
+          document.body.removeChild(ta);
+          return res;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function getInitials(name) {
+        if (!name) return '??';
+        var parts = name.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) return '??';
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function getBasePublicUrl() {
+        var origin = window.location.origin;
+        var pathname = window.location.pathname;
+        if (!origin || origin === 'null' || origin.indexOf('file:') === 0) {
+          return 'https://d-l-n.github.io/amigos-alias/index.html';
+        }
+        var publicPath = pathname.replace(/admin(\.html)?$/i, 'index.html');
+        return origin + publicPath;
+      }
+
+      /* Auto-detección CBU y Fintech */
+      function detectBankFromCBU(cbu) {
+        if (!cbu || cbu.length < 3) return null;
+        var prefix = cbu.substring(0, 3);
+        return CBU_BANK_MAP[prefix] || null;
+      }
+
+      function detectFintechFromAlias(alias) {
+        var lower = (alias || '').toLowerCase();
+        if (lower.indexOf('mp') !== -1 || lower.indexOf('mercado') !== -1) return 'Mercado Pago';
+        if (lower.indexOf('uala') !== -1 || lower.indexOf('ualá') !== -1) return 'Ualá';
+        if (lower.indexOf('lemon') !== -1) return 'Lemon Cash';
+        if (lower.indexOf('bru') !== -1) return 'Brubank';
+        if (lower.indexOf('naranja') !== -1) return 'Naranja X';
+        if (lower.indexOf('personal') !== -1) return 'Personal Pay';
+        return 'Mercado Pago';
+      }
+
+      function resolveBankBadgeClass(bankName) {
+        var str = (bankName || '').toUpperCase();
+        if (str.indexOf('MERCADO') !== -1 || str.indexOf('MP') !== -1) return 'bank-badge-mp';
+        if (str.indexOf('GALICIA') !== -1) return 'bank-badge-galicia';
+        if (str.indexOf('SANTANDER') !== -1) return 'bank-badge-santander';
+        if (str.indexOf('BRUBANK') !== -1) return 'bank-badge-brubank';
+        if (str.indexOf('LEMON') !== -1) return 'bank-badge-lemon';
+        if (str.indexOf('BBVA') !== -1 || str.indexOf('FRANCES') !== -1) return 'bank-badge-bbva';
+        if (str.indexOf('UALA') !== -1 || str.indexOf('UALÁ') !== -1) return 'bank-badge-uala';
+        return 'bank-badge-generic';
+      }
+
+      /* ======================================================================
+         2. GESTIÓN DE MODALES NATIVOS (<dialog>)
+         ====================================================================== */
+      function openModal(dialogEl) {
+        if (!dialogEl) return;
+        if (typeof dialogEl.showModal === 'function') {
+          dialogEl.showModal();
+        } else {
+          dialogEl.setAttribute('open', '');
+        }
+      }
+
+      function closeModal(dialogEl) {
+        if (!dialogEl) return;
+        if (typeof dialogEl.close === 'function') {
+          dialogEl.close();
+        } else {
+          dialogEl.removeAttribute('open');
+        }
+      }
+
+      // Event delegation para botones data-close-modal
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-close-modal]');
+        if (btn) {
+          var targetId = btn.getAttribute('data-close-modal');
+          closeModal(document.getElementById(targetId));
+        }
+      });
+
+      // Light-dismiss para diálogos (click en el backdrop)
+      document.querySelectorAll('dialog').forEach(function(dlg) {
+        dlg.addEventListener('click', function(e) {
+          var rect = dlg.getBoundingClientRect();
+          var isOutside = (
+            e.clientX < rect.left || 
+            e.clientX > rect.right || 
+            e.clientY < rect.top || 
+            e.clientY > rect.bottom
+          );
+          if (isOutside) {
+            closeModal(dlg);
+          }
+        });
+      });
+
+      /* ======================================================================
+         3. MODO OSCURO / CLARO
+         ====================================================================== */
+      function toggleTheme() {
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try {
+          localStorage.setItem(STORAGE_THEME, next);
+        } catch (e) {}
+
+        if (dom.metaColorScheme) dom.metaColorScheme.content = next;
+        if (dom.metaThemeColor) dom.metaThemeColor.content = next === 'dark' ? '#121214' : '#F7F5F0';
+        announce('Modo ' + (next === 'dark' ? 'oscuro' : 'claro') + ' activado');
+      }
+
+      dom.themeToggleBtn.addEventListener('click', toggleTheme);
+
+      /* ======================================================================
+         4. AUTENTICACIÓN ADMIN
+         ====================================================================== */
+      function initAuth() {
+        var savedKey = '';
+        try {
+          savedKey = localStorage.getItem(STORAGE_ADMIN_KEY) || '';
+        } catch (e) {}
+
+        appState.adminKey = savedKey.trim();
+        updateAuthUI();
+
+        if (!appState.adminKey) {
+          // Mostrar modal para ingresar la clave
+          openModal(dom.modalAuth);
+        }
+      }
+
+      function updateAuthUI() {
+        if (appState.adminKey) {
+          dom.adminAuthBtn.className = 'key-badge is-active';
+          dom.keyLabel.textContent = 'adminKey Activa';
+          dom.adminAuthBtn.title = 'adminKey activa (' + appState.adminKey.slice(0, 3) + '...). Click para cambiar o cerrar sesión.';
+        } else {
+          dom.adminAuthBtn.className = 'key-badge is-empty';
+          dom.keyLabel.textContent = 'Sin Clave Admin';
+          dom.adminAuthBtn.title = 'No hay clave admin guardada. Click para configurarla.';
+        }
+      }
+
+      dom.adminAuthBtn.addEventListener('click', function() {
+        dom.adminKeyInput.value = appState.adminKey;
+        openModal(dom.modalAuth);
+      });
+
+      dom.btnSaveAuth.addEventListener('click', function(e) {
+        e.preventDefault();
+        var key = dom.adminKeyInput.value.trim();
+        if (!key) {
+          showToast('Por favor ingresá una clave válida', true);
+          return;
+        }
+        appState.adminKey = key;
+        try {
+          localStorage.setItem(STORAGE_ADMIN_KEY, key);
+        } catch (err) {}
+        updateAuthUI();
+        closeModal(dom.modalAuth);
+        showToast('Clave de administrador guardada');
+        loadData();
+      });
+
+      dom.btnClearAuth.addEventListener('click', function() {
+        appState.adminKey = '';
+        try {
+          localStorage.removeItem(STORAGE_ADMIN_KEY);
+        } catch (e) {}
+        dom.adminKeyInput.value = '';
+        updateAuthUI();
+        closeModal(dom.modalAuth);
+        showToast('Sesión de administrador cerrada');
+      });
+
+      /* ======================================================================
+         5. PERSISTENCIA DE TOKENS (ScriptProperties + Fallback Local)
+         ====================================================================== */
+      function loadLocalTokens() {
+        try {
+          var raw = localStorage.getItem(STORAGE_GROUP_TOKENS);
+          if (raw) {
+            appState.groupTokens = JSON.parse(raw);
+          }
+        } catch (e) {}
+      }
+
+      function saveLocalTokens() {
+        try {
+          localStorage.setItem(STORAGE_GROUP_TOKENS, JSON.stringify(appState.groupTokens));
+        } catch (e) {}
+      }
+
+      /* ======================================================================
+         6. SINCRONIZACIÓN CON EL BACKEND APPS SCRIPT
+         ====================================================================== */
+      function loadData() {
+        dom.reloadBtn.querySelector('.btn-text').textContent = 'Cargando...';
+
+        var url = BACKEND_API_URL + '?action=getFriends';
+        if (appState.adminKey) {
+          url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+        }
+
+        fetch(url)
+          .then(function(res) {
+            if (res.status === 403) throw new Error('NO_AUTH');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+          })
+          .then(function(json) {
+            dom.reloadBtn.querySelector('.btn-text').textContent = 'Recargar';
+            if (json && json.success === false && (json.error === 'No autorizado.' || json.error === 'NO_AUTH')) {
+              showToast('Error: Clave de administrador no autorizada', true);
+              openModal(dom.modalAuth);
+              return;
+            }
+
+            var list = [];
+            if (Array.isArray(json)) list = json;
+            else if (json && json.success && Array.isArray(json.data)) list = json.data;
+
+            if (list.length > 0) {
+              appState.persons = normalizePersonsList(list);
+              showToast('Datos sincronizados correctamente con Google Sheets');
+            } else {
+              // Si la hoja está vacía, usar demo data
+              appState.persons = normalizePersonsList(DEMO_PERSONS);
+              showToast('Directorio vacío. Mostrando datos de demostración');
+            }
+
+            // Cargar info de la hoja de cálculo
+            fetchSpreadsheetInfo();
+            // Cargar tokens si existen en backend
+            fetchGroupTokens();
+
+            renderDashboard();
+          })
+          .catch(function(err) {
+            dom.reloadBtn.querySelector('.btn-text').textContent = 'Recargar';
+            if (err.message === 'NO_AUTH') {
+              showToast('Error: No autorizado. Ingresá una clave válida.', true);
+              openModal(dom.modalAuth);
+              return;
+            }
+            console.warn('Backend fetch fallback:', err);
+            if (appState.persons.length === 0) {
+              appState.persons = normalizePersonsList(DEMO_PERSONS);
+            }
+            showToast('Modo sin conexión. Mostrando datos locales.', true);
+            renderDashboard();
+          });
+      }
+
+      function fetchSpreadsheetInfo() {
+        var url = BACKEND_API_URL + '?action=getSpreadsheetInfo';
+        if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+
+        fetch(url)
+          .then(function(res) { return res.json(); })
+          .then(function(json) {
+            if (json && json.success && json.data && json.data.url) {
+              appState.spreadsheetUrl = json.data.url;
+            }
+          })
+          .catch(function() {});
+      }
+
+      function fetchGroupTokens() {
+        var url = BACKEND_API_URL + '?action=getTokens';
+        if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+
+        fetch(url)
+          .then(function(res) { return res.json(); })
+          .then(function(json) {
+            if (json && json.success && json.data && typeof json.data === 'object') {
+              appState.groupTokens = Object.assign({}, appState.groupTokens, json.data);
+              saveLocalTokens();
+              updateTokensCountUI();
+            }
+          })
+          .catch(function() {
+            // Utilizar tokens locales existentes
+            updateTokensCountUI();
+          });
+      }
+
+      function normalizePersonsList(list) {
+        if (!Array.isArray(list)) return [];
+        return list.map(function(item, idx) {
+          var accounts = (item.accounts || []).map(function(acc, aIdx) {
+            return {
+              id: acc.id || ('acc_' + (item.id || idx) + '_' + aIdx),
+              bank: acc.bank || acc.bankName || acc.entidad_banco || 'Banco',
+              type: acc.type || acc.tipo_cuenta || 'Caja de Ahorro',
+              alias: (acc.alias || '').trim(),
+              cbu: (acc.cbu || acc.cbu_cvu || '').trim(),
+              titular: (acc.titular || acc.titular_diferente || '').trim()
+            };
+          });
+
+          return {
+            id: item.id || ('persona_' + idx),
+            name: (item.name || item.nombre_persona || 'Sin Nombre').trim(),
+            group: (item.group || item.grupo || 'General').trim(),
+            avatarColor: item.avatarColor || AVATAR_PALETTE[idx % AVATAR_PALETTE.length],
+            accounts: accounts
+          };
+        });
+      }
+
+      /* Apertura de Google Sheet */
+      dom.openSheetBtn.addEventListener('click', function() {
+        if (appState.spreadsheetUrl) {
+          window.open(appState.spreadsheetUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          showToast('Consultando URL de la hoja de cálculo...');
+          var url = BACKEND_API_URL + '?action=getSpreadsheetInfo';
+          if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+          
+          fetch(url)
+            .then(function(res) { return res.json(); })
+            .then(function(json) {
+              if (json && json.success && json.data && json.data.url) {
+                appState.spreadsheetUrl = json.data.url;
+                window.open(json.data.url, '_blank', 'noopener,noreferrer');
+              } else {
+                window.open('https://docs.google.com/spreadsheets', '_blank');
+              }
+            })
+            .catch(function() {
+              window.open('https://docs.google.com/spreadsheets', '_blank');
+            });
+        }
+      });
+
+      dom.reloadBtn.addEventListener('click', function() {
+        loadData();
+      });
+
+      /* ======================================================================
+         7. RENDERIZADO DEL DASHBOARD & AGRUPACIÓN
+         ====================================================================== */
+      function getDistinctGroups() {
+        var set = new Set();
+        appState.persons.forEach(function(p) {
+          if (p.group) set.add(p.group);
+        });
+        if (set.size === 0) set.add('General');
+        return Array.from(set).sort();
+      }
+
+      function updateTokensCountUI() {
+        var count = Object.keys(appState.groupTokens).length;
+        dom.statTokens.textContent = count;
+      }
+
+      function renderDashboard() {
+        var q = (appState.searchQuery || '').toLowerCase().trim();
+        var selectedGroup = appState.selectedGroup;
+
+        // 1. Métricas
+        var totalPersons = appState.persons.length;
+        var totalAccounts = appState.persons.reduce(function(acc, p) { return acc + p.accounts.length; }, 0);
+        var distinctGroups = getDistinctGroups();
+        
+        dom.statPersons.textContent = totalPersons;
+        dom.statAccounts.textContent = totalAccounts;
+        dom.statGroups.textContent = distinctGroups.length;
+        updateTokensCountUI();
+
+        // 2. Actualizar selector de grupos
+        var currentFilterVal = dom.groupFilterSelect.value;
+        dom.groupFilterSelect.innerHTML = '<option value="ALL">Todos los grupos (' + distinctGroups.length + ')</option>' +
+          distinctGroups.map(function(g) {
+            var count = appState.persons.filter(function(p) { return p.group === g; }).length;
+            var isSel = (g === selectedGroup);
+            return '<option value="' + escapeHtml(g) + '"' + (isSel ? ' selected' : '') + '>' + escapeHtml(g) + ' (' + count + ')</option>';
+          }).join('');
+
+        // 3. Filtrar personas
+        var filteredPersons = appState.persons.filter(function(person) {
+          var matchGroup = (selectedGroup === 'ALL' || person.group === selectedGroup);
+          if (!matchGroup) return false;
+
+          if (!q) return true;
+
+          var inName = person.name.toLowerCase().indexOf(q) !== -1;
+          var inGroup = person.group.toLowerCase().indexOf(q) !== -1;
+          var inAccount = person.accounts.some(function(acc) {
+            return (
+              acc.alias.toLowerCase().indexOf(q) !== -1 ||
+              acc.cbu.indexOf(q) !== -1 ||
+              acc.bank.toLowerCase().indexOf(q) !== -1 ||
+              acc.titular.toLowerCase().indexOf(q) !== -1
+            );
+          });
+
+          return inName || inGroup || inAccount;
+        });
+
+        // 4. Renderizar agrupado por grupo
+        if (filteredPersons.length === 0) {
+          dom.groupsContainer.innerHTML = [
+            '<div class="group-section" style="padding: 40px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px;">',
+            '  <div style="font-size: 2.2rem;">&#128064;</div>',
+            '  <h2 style="font-size: 1.25rem; font-weight: 900; text-transform: uppercase;">Sin resultados</h2>',
+            '  <p style="font-size: 0.875rem; color: var(--text-muted); max-width: 380px;">No encontramos ninguna persona o cuenta que coincida con los criterios de búsqueda seleccionados.</p>',
+            '  <button id="btn-reset-filters" class="btn-brutalist btn-sm btn-yellow" type="button" style="margin-top: 8px;">Restablecer filtros</button>',
+            '</div>'
+          ].join('\n');
+
+          var resetBtn = document.getElementById('btn-reset-filters');
+          if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+              dom.searchInput.value = '';
+              appState.searchQuery = '';
+              dom.searchClearBtn.classList.remove('visible');
+              appState.selectedGroup = 'ALL';
+              renderDashboard();
+            });
+          }
+          return;
+        }
+
+        // Agrupar personas filtradas por grupo
+        var groupMap = new Map();
+        filteredPersons.forEach(function(person) {
+          var g = person.group || 'General';
+          if (!groupMap.has(g)) groupMap.set(g, []);
+          groupMap.get(g).push(person);
+        });
+
+        var sortedGroupNames = Array.from(groupMap.keys()).sort();
+
+        var html = sortedGroupNames.map(function(groupName) {
+          var personsInGroup = groupMap.get(groupName);
+
+          var cardsHtml = personsInGroup.map(function(person) {
+            var initials = getInitials(person.name);
+
+            var accountsHtml = '';
+            if (person.accounts.length === 0) {
+              accountsHtml = '<div style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; padding: 6px 0;">Sin cuentas bancarias registradas.</div>';
+            } else {
+              accountsHtml = person.accounts.map(function(acc) {
+                var badgeClass = resolveBankBadgeClass(acc.bank);
+                return [
+                  '<div class="account-data-box">',
+                  '  <div class="account-badge-row">',
+                  '    <span class="bank-badge ' + badgeClass + '">' + escapeHtml(acc.bank) + '</span>',
+                  '    <span class="account-type-tag">' + escapeHtml(acc.type) + '</span>',
+                  '  </div>',
+                  (acc.titular ? '  <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Titular: ' + escapeHtml(acc.titular) + '</div>' : ''),
+                  '  <div class="alias-row">',
+                  '    <span class="alias-text font-mono">' + escapeHtml(acc.alias) + '</span>',
+                  '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(acc.alias) + '" data-copy-label="Alias">Copiar</button>',
+                  '  </div>',
+                  '  <div class="cbu-row">',
+                  '    <span class="cbu-text font-mono">CBU: ' + escapeHtml(acc.cbu) + '</span>',
+                  '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(acc.cbu) + '" data-copy-label="CBU">Copiar CBU</button>',
+                  '  </div>',
+                  '</div>'
+                ].join('\n');
+              }).join('\n');
+            }
+
+            return [
+              '<article class="admin-person-card" data-person-id="' + escapeHtml(person.id) + '">',
+              '  <div class="person-header">',
+              '    <div class="person-info">',
+              '      <div class="person-avatar" style="background: ' + person.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
+              '      <div class="person-name-box">',
+              '        <h3 class="person-name">' + escapeHtml(person.name) + '</h3>',
+              '        <span class="person-meta">' + person.accounts.length + ' ' + (person.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
+              '      </div>',
+              '    </div>',
+              '    <div class="person-card-actions">',
+              '      <button class="btn-brutalist btn-sm btn-edit-person" type="button" data-person-id="' + escapeHtml(person.id) + '" title="Editar ficha de ' + escapeHtml(person.name) + '">&#9998; Editar</button>',
+              '      <button class="btn-brutalist btn-sm btn-danger btn-delete-person" type="button" data-person-id="' + escapeHtml(person.id) + '" data-person-name="' + escapeHtml(person.name) + '" title="Eliminar a ' + escapeHtml(person.name) + '">&#128465;</button>',
+              '    </div>',
+              '  </div>',
+              '  <div class="person-accounts-list">',
+              accountsHtml,
+              '  </div>',
+              '</article>'
+            ].join('\n');
+          }).join('\n');
+
+          return [
+            '<section class="group-section" data-group-name="' + escapeHtml(groupName) + '">',
+            '  <header class="group-header">',
+            '    <div class="group-title-box">',
+            '      <h2 class="group-name">&#128193; ' + escapeHtml(groupName) + '</h2>',
+            '      <span class="group-badge-count">' + personsInGroup.length + ' ' + (personsInGroup.length === 1 ? 'persona' : 'personas') + '</span>',
+            '    </div>',
+            '    <div class="group-actions">',
+            '      <button class="btn-brutalist btn-sm btn-cyan btn-group-token" type="button" data-group-name="' + escapeHtml(groupName) + '">',
+            '        &#128273; Link de Grupo',
+            '      </button>',
+            '      <button class="btn-brutalist btn-sm btn-rename-group" type="button" data-group-name="' + escapeHtml(groupName) + '">',
+            '        &#9998; Renombrar',
+            '      </button>',
+            '    </div>',
+            '  </header>',
+            '  <div class="group-persons-grid">',
+            cardsHtml,
+            '  </div>',
+            '</section>'
+          ].join('\n');
+        }).join('\n');
+
+        dom.groupsContainer.innerHTML = html;
+        attachDashboardEvents();
+      }
+
+      function attachDashboardEvents() {
+        // Copiar botones
+        dom.groupsContainer.querySelectorAll('[data-copy-text]').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var text = btn.getAttribute('data-copy-text');
+            var label = btn.getAttribute('data-copy-label') || 'Dato';
+            copyToClipboard(text, btn, label);
+          });
+        });
+
+        // Editar persona
+        dom.groupsContainer.querySelectorAll('.btn-edit-person').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var personId = btn.getAttribute('data-person-id');
+            openPersonModal(personId);
+          });
+        });
+
+        // Eliminar persona
+        dom.groupsContainer.querySelectorAll('.btn-delete-person').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var personId = btn.getAttribute('data-person-id');
+            var personName = btn.getAttribute('data-person-name');
+            confirmDestructiveAction(
+              '¿Estás seguro de que deseás eliminar a <strong>' + escapeHtml(personName) + '</strong> y todas sus cuentas asociadas? Esta acción se aplicará en Google Sheets.',
+              function() {
+                deletePerson(personId);
+              }
+            );
+          });
+        });
+
+        // Token de grupo (1-click copiar o generar)
+        dom.groupsContainer.querySelectorAll('.btn-group-token').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var groupName = btn.getAttribute('data-group-name');
+            handleGroupTokenShare(groupName);
+          });
+        });
+
+        // Renombrar grupo
+        dom.groupsContainer.querySelectorAll('.btn-rename-group').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var groupName = btn.getAttribute('data-group-name');
+            promptRenameGroup(groupName);
+          });
+        });
+      }
+
+      /* Event listeners de búsqueda y filtro */
+      dom.searchInput.addEventListener('input', function(e) {
+        appState.searchQuery = e.target.value;
+        dom.searchClearBtn.classList.toggle('visible', appState.searchQuery.length > 0);
+        renderDashboard();
+      });
+
+      dom.searchClearBtn.addEventListener('click', function() {
+        dom.searchInput.value = '';
+        appState.searchQuery = '';
+        dom.searchClearBtn.classList.remove('visible');
+        renderDashboard();
+        dom.searchInput.focus();
+      });
+
+      dom.groupFilterSelect.addEventListener('change', function(e) {
+        appState.selectedGroup = e.target.value;
+        renderDashboard();
+      });
+
+      /* ======================================================================
+         8. MODAL DE CREACIÓN / EDICIÓN DE PERSONA
+         ====================================================================== */
+      function openPersonModal(personId) {
+        var isEdit = !!personId;
+        dom.personModalTitle.textContent = isEdit ? 'Editar Persona' : 'Nueva Persona';
+        dom.personIdInput.value = isEdit ? personId : '';
+        dom.quickAddText.value = '';
+
+        // Poblar select de grupos
+        var distinctGroups = getDistinctGroups();
+        dom.personGroupSelect.innerHTML = distinctGroups.map(function(g) {
+          return '<option value="' + escapeHtml(g) + '">' + escapeHtml(g) + '</option>';
+        }).join('') + '<option value="__NEW__">+ Crear nuevo grupo...</option>';
+
+        dom.personGroupNewInput.style.display = 'none';
+        dom.personGroupNewInput.value = '';
+
+        dom.modalAccountsContainer.innerHTML = '';
+
+        if (isEdit) {
+          var person = appState.persons.find(function(p) { return p.id === personId; });
+          if (person) {
+            dom.personNameInput.value = person.name;
+            if (distinctGroups.indexOf(person.group) !== -1) {
+              dom.personGroupSelect.value = person.group;
+            } else {
+              dom.personGroupSelect.value = '__NEW__';
+              dom.personGroupNewInput.style.display = 'block';
+              dom.personGroupNewInput.value = person.group;
+            }
+
+            if (person.accounts.length > 0) {
+              person.accounts.forEach(function(acc) {
+                appendAccountRow(acc);
+              });
+            } else {
+              appendAccountRow();
+            }
+          }
+        } else {
+          dom.personNameInput.value = '';
+          dom.personGroupSelect.value = (appState.selectedGroup !== 'ALL') ? appState.selectedGroup : (distinctGroups[0] || 'General');
+          appendAccountRow();
+        }
+
+        openModal(dom.modalPerson);
+        setTimeout(function() { dom.personNameInput.focus(); }, 50);
+      }
+
+      dom.btnNewPerson.addEventListener('click', function() {
+        openPersonModal(null);
+      });
+
+      dom.personGroupSelect.addEventListener('change', function() {
+        if (dom.personGroupSelect.value === '__NEW__') {
+          dom.personGroupNewInput.style.display = 'block';
+          dom.personGroupNewInput.focus();
+        } else {
+          dom.personGroupNewInput.style.display = 'none';
+          dom.personGroupNewInput.value = '';
+        }
+      });
+
+      function appendAccountRow(accData) {
+        accData = accData || { bank: 'Mercado Pago', type: 'CVU', alias: '', cbu: '', titular: '' };
+        var index = dom.modalAccountsContainer.children.length + 1;
+
+        var row = document.createElement('div');
+        row.className = 'account-edit-card';
+        row.innerHTML = [
+          '<div class="account-edit-header">',
+          '  <span class="account-edit-index">Cuenta #' + index + '</span>',
+          '  <button class="dialog-close-btn btn-remove-account" type="button" style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; font-size: 0.9rem;" title="Eliminar esta cuenta">&times;</button>',
+          '</div>',
+          '<div class="account-edit-grid">',
+          '  <div class="form-group">',
+          '    <label class="form-label">Banco / Entidad *</label>',
+          '    <input type="text" list="bank-datalist" class="form-control acc-bank" value="' + escapeHtml(accData.bank) + '" placeholder="Ej: Mercado Pago" required>',
+          '  </div>',
+          '  <div class="form-group">',
+          '    <label class="form-label">Tipo de Cuenta *</label>',
+          '    <select class="form-control acc-type">',
+          '      <option value="CVU"' + (accData.type === 'CVU' ? ' selected' : '') + '>CVU</option>',
+          '      <option value="Caja de Ahorro"' + (accData.type === 'Caja de Ahorro' ? ' selected' : '') + '>Caja de Ahorro $</option>',
+          '      <option value="Caja de Ahorro USD"' + (accData.type === 'Caja de Ahorro USD' ? ' selected' : '') + '>Caja de Ahorro USD</option>',
+          '      <option value="Cuenta Corriente"' + (accData.type === 'Cuenta Corriente' ? ' selected' : '') + '>Cuenta Corriente</option>',
+          '      <option value="Cuenta Única"' + (accData.type === 'Cuenta Única' ? ' selected' : '') + '>Cuenta Única</option>',
+          '    </select>',
+          '  </div>',
+          '  <div class="form-group">',
+          '    <label class="form-label">Alias *</label>',
+          '    <input type="text" class="form-control font-mono acc-alias" value="' + escapeHtml(accData.alias) + '" placeholder="nombre.alias.mp" spellcheck="false" required>',
+          '  </div>',
+          '  <div class="form-group">',
+          '    <label class="form-label">CBU / CVU (22 dígitos)</label>',
+          '    <input type="text" class="form-control font-mono acc-cbu" value="' + escapeHtml(accData.cbu) + '" placeholder="0000003100012345678901" maxlength="22">',
+          '  </div>',
+          '  <div class="form-group" style="grid-column: 1 / -1;">',
+          '    <label class="form-label">Titular Diferente (opcional)</label>',
+          '    <input type="text" class="form-control acc-titular" value="' + escapeHtml(accData.titular) + '" placeholder="Dejar en blanco si es el mismo que la persona">',
+          '  </div>',
+          '</div>'
+        ].join('\n');
+
+        row.querySelector('.btn-remove-account').addEventListener('click', function() {
+          if (dom.modalAccountsContainer.children.length <= 1) {
+            showToast('Debe haber al menos una cuenta en la persona', true);
+            return;
+          }
+          row.remove();
+          // Renumerar índices
+          var allRows = dom.modalAccountsContainer.querySelectorAll('.account-edit-card');
+          allRows.forEach(function(r, idx) {
+            r.querySelector('.account-edit-index').textContent = 'Cuenta #' + (idx + 1);
+          });
+        });
+
+        dom.modalAccountsContainer.appendChild(row);
+      }
+
+      dom.btnAddAccountRow.addEventListener('click', function() {
+        appendAccountRow();
+      });
+
+      /* Quick-Add Auto-detección */
+      dom.btnQuickAddDetect.addEventListener('click', function() {
+        var text = (dom.quickAddText.value || '').trim();
+        if (!text) {
+          showToast('Pegá algún alias o CBU en el área de texto', true);
+          return;
+        }
+
+        // 1. Extraer 22 dígitos para CBU/CVU
+        var cbuMatch = text.match(/\b\d{22}\b/);
+        var detectedCbu = cbuMatch ? cbuMatch[0] : '';
+
+        // 2. Extraer alias (palabra con puntos o guiones, o formato de alias típico)
+        var aliasMatch = text.match(/\b[a-zA-Z0-9_\-]{2,20}\.[a-zA-Z0-9_\-]{2,20}(\.[a-zA-Z0-9_\-]{2,20})?\b/);
+        var detectedAlias = aliasMatch ? aliasMatch[0] : '';
+
+        // 3. Determinar banco y tipo
+        var detectedBank = 'Mercado Pago';
+        var detectedType = 'CVU';
+
+        if (detectedCbu) {
+          var bankFromCbu = detectBankFromCBU(detectedCbu);
+          if (bankFromCbu) {
+            if (bankFromCbu === 'CVU (Fintech)') {
+              detectedBank = detectFintechFromAlias(detectedAlias || text);
+              detectedType = 'CVU';
+            } else {
+              detectedBank = bankFromCbu;
+              detectedType = 'Caja de Ahorro';
+            }
+          }
+        } else if (detectedAlias) {
+          detectedBank = detectFintechFromAlias(detectedAlias);
+          detectedType = 'CVU';
+        }
+
+        // Si la primera fila está vacía, reemplazarla; si no, agregar una nueva fila
+        var firstRow = dom.modalAccountsContainer.children[0];
+        var isFirstRowEmpty = false;
+        if (firstRow) {
+          var fAlias = firstRow.querySelector('.acc-alias').value.trim();
+          var fCbu = firstRow.querySelector('.acc-cbu').value.trim();
+          if (!fAlias && !fCbu) isFirstRowEmpty = true;
+        }
+
+        if (isFirstRowEmpty && firstRow) {
+          firstRow.querySelector('.acc-bank').value = detectedBank;
+          firstRow.querySelector('.acc-type').value = detectedType;
+          firstRow.querySelector('.acc-alias').value = detectedAlias;
+          firstRow.querySelector('.acc-cbu').value = detectedCbu;
+        } else {
+          appendAccountRow({
+            bank: detectedBank,
+            type: detectedType,
+            alias: detectedAlias,
+            cbu: detectedCbu,
+            titular: ''
+          });
+        }
+
+        dom.quickAddText.value = '';
+        showToast('Auto-detectado: ' + detectedBank + ' (' + (detectedAlias || detectedCbu) + ')');
+      });
+
+      /* Guardar Persona en Backend */
+      dom.btnSubmitPerson.addEventListener('click', function() {
+        var name = dom.personNameInput.value.trim();
+        if (!name) {
+          showToast('El nombre de la persona es obligatorio', true);
+          dom.personNameInput.focus();
+          return;
+        }
+
+        var group = dom.personGroupSelect.value;
+        if (group === '__NEW__') {
+          group = dom.personGroupNewInput.value.trim();
+          if (!group) {
+            showToast('Ingresá el nombre del nuevo grupo', true);
+            dom.personGroupNewInput.focus();
+            return;
+          }
+        }
+
+        var personId = dom.personIdInput.value || ('persona_' + Date.now().toString(36));
+
+        // Extraer cuentas
+        var accountCards = dom.modalAccountsContainer.querySelectorAll('.account-edit-card');
+        var accounts = [];
+
+        for (var i = 0; i < accountCards.length; i++) {
+          var card = accountCards[i];
+          var bank = card.querySelector('.acc-bank').value.trim();
+          var type = card.querySelector('.acc-type').value;
+          var alias = card.querySelector('.acc-alias').value.trim();
+          var cbu = card.querySelector('.acc-cbu').value.trim();
+          var titular = card.querySelector('.acc-titular').value.trim();
+
+          if (!bank) {
+            showToast('Por favor indicá el banco en la Cuenta #' + (i + 1), true);
+            card.querySelector('.acc-bank').focus();
+            return;
+          }
+
+          if (!alias && !cbu) {
+            showToast('Por favor completá el Alias o el CBU en la Cuenta #' + (i + 1), true);
+            card.querySelector('.acc-alias').focus();
+            return;
+          }
+
+          accounts.push({
+            id: 'acc_' + personId + '_' + (i + 1),
+            bank: bank,
+            type: type,
+            alias: alias,
+            cbu: cbu,
+            titular: titular
+          });
+        }
+
+        var payload = {
+          id: personId,
+          name: name,
+          group: group,
+          accounts: accounts
+        };
+
+        dom.btnSubmitPerson.disabled = true;
+        dom.btnSubmitPerson.textContent = 'Guardando...';
+
+        var saveUrl = BACKEND_API_URL + '?action=save';
+        if (appState.adminKey) saveUrl += '&adminKey=' + encodeURIComponent(appState.adminKey);
+        saveUrl += '&payload=' + encodeURIComponent(JSON.stringify(payload));
+
+        fetch(saveUrl)
+          .then(function(res) {
+            if (res.status === 403) throw new Error('NO_AUTH');
+            return res.json();
+          })
+          .then(function(json) {
+            dom.btnSubmitPerson.disabled = false;
+            dom.btnSubmitPerson.textContent = 'Guardar Persona';
+
+            if (json && json.success === false && (json.error === 'No autorizado.' || json.error === 'NO_AUTH')) {
+              showToast('Error: Clave de administrador no autorizada', true);
+              openModal(dom.modalAuth);
+              return;
+            }
+
+            // Actualizar datos locales
+            var existingIndex = appState.persons.findIndex(function(p) { return p.id === personId; });
+            var normalizedPerson = {
+              id: personId,
+              name: name,
+              group: group,
+              avatarColor: existingIndex !== -1 ? appState.persons[existingIndex].avatarColor : AVATAR_PALETTE[appState.persons.length % AVATAR_PALETTE.length],
+              accounts: accounts
+            };
+
+            if (existingIndex !== -1) {
+              appState.persons[existingIndex] = normalizedPerson;
+            } else {
+              appState.persons.push(normalizedPerson);
+            }
+
+            closeModal(dom.modalPerson);
+            showToast('Persona guardada exitosamente');
+            renderDashboard();
+          })
+          .catch(function(err) {
+            dom.btnSubmitPerson.disabled = false;
+            dom.btnSubmitPerson.textContent = 'Guardar Persona';
+
+            if (err.message === 'NO_AUTH') {
+              showToast('Error: Clave no autorizada.', true);
+              openModal(dom.modalAuth);
+              return;
+            }
+
+            // Fallback local ante error de red
+            console.warn('Backend save fallback:', err);
+            var existingIdx = appState.persons.findIndex(function(p) { return p.id === personId; });
+            var localPerson = {
+              id: personId,
+              name: name,
+              group: group,
+              avatarColor: existingIdx !== -1 ? appState.persons[existingIdx].avatarColor : AVATAR_PALETTE[appState.persons.length % AVATAR_PALETTE.length],
+              accounts: accounts
+            };
+            if (existingIdx !== -1) appState.persons[existingIdx] = localPerson;
+            else appState.persons.push(localPerson);
+
+            closeModal(dom.modalPerson);
+            showToast('Guardado localmente (sin conexión con backend).', true);
+            renderDashboard();
+          });
+      });
+
+      /* ======================================================================
+         9. ELIMINACIÓN DE PERSONAS & MODAL CONFIRM
+         ====================================================================== */
+      function confirmDestructiveAction(messageHtml, onConfirm) {
+        dom.confirmModalMsg.innerHTML = messageHtml;
+        appState.onConfirmCallback = onConfirm;
+        openModal(dom.modalConfirm);
+      }
+
+      dom.btnExecuteConfirm.addEventListener('click', function() {
+        closeModal(dom.modalConfirm);
+        if (typeof appState.onConfirmCallback === 'function') {
+          appState.onConfirmCallback();
+          appState.onConfirmCallback = null;
+        }
+      });
+
+      function deletePerson(personId) {
+        showToast('Eliminando persona...');
+        var url = BACKEND_API_URL + '?action=deleteFriend&id=' + encodeURIComponent(personId);
+        if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+
+        fetch(url)
+          .then(function(res) {
+            if (res.status === 403) throw new Error('NO_AUTH');
+            return res.json();
+          })
+          .then(function(json) {
+            if (json && json.success === false && (json.error === 'No autorizado.' || json.error === 'NO_AUTH')) {
+              showToast('Error: Clave no autorizada', true);
+              openModal(dom.modalAuth);
+              return;
+            }
+            appState.persons = appState.persons.filter(function(p) { return p.id !== personId; });
+            showToast('Persona eliminada de Google Sheets');
+            renderDashboard();
+          })
+          .catch(function(err) {
+            console.warn('Backend delete fallback:', err);
+            appState.persons = appState.persons.filter(function(p) { return p.id !== personId; });
+            showToast('Persona eliminada localmente (sin conexión)', true);
+            renderDashboard();
+          });
+      }
+
+      /* ======================================================================
+         10. GESTIÓN DE TOKENS DE GRUPO
+         ====================================================================== */
+      function generateTokenString(groupName) {
+        var clean = groupName.toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '')
+          .substring(0, 6);
+        var rand = Math.random().toString(36).substring(2, 6);
+        return clean + '_' + rand;
+      }
+
+      function handleGroupTokenShare(groupName) {
+        // Buscar si existe un token para este grupo
+        var token = null;
+        for (var t in appState.groupTokens) {
+          if (appState.groupTokens[t] === groupName) {
+            token = t;
+            break;
+          }
+        }
+
+        if (!token) {
+          // Generar nuevo token
+          token = generateTokenString(groupName);
+          appState.groupTokens[token] = groupName;
+          saveLocalTokens();
+
+          // Intentar registrar en backend si está disponible
+          var url = BACKEND_API_URL + '?action=generateToken&grupo=' + encodeURIComponent(groupName);
+          if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+          fetch(url).catch(function() {});
+        }
+
+        var shareUrl = getBasePublicUrl() + '?token=' + encodeURIComponent(token);
+        copyToClipboard(shareUrl, null, 'Link del grupo ' + groupName);
+        renderTokensTable();
+      }
+
+      function openTokensModal() {
+        var distinctGroups = getDistinctGroups();
+        dom.tokenGroupSelect.innerHTML = distinctGroups.map(function(g) {
+          return '<option value="' + escapeHtml(g) + '">' + escapeHtml(g) + '</option>';
+        }).join('');
+
+        renderTokensTable();
+        openModal(dom.modalTokens);
+      }
+
+      dom.btnOpenTokens.addEventListener('click', openTokensModal);
+
+      dom.btnGenerateToken.addEventListener('click', function() {
+        var group = dom.tokenGroupSelect.value;
+        if (!group) return;
+
+        var token = generateTokenString(group);
+        appState.groupTokens[token] = group;
+        saveLocalTokens();
+
+        var url = BACKEND_API_URL + '?action=generateToken&grupo=' + encodeURIComponent(group);
+        if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+        fetch(url).catch(function() {});
+
+        renderTokensTable();
+        updateTokensCountUI();
+        showToast('Token generado para el grupo: ' + group);
+      });
+
+      function renderTokensTable() {
+        var tokens = Object.keys(appState.groupTokens);
+        if (tokens.length === 0) {
+          dom.tokensTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); font-style: italic;">No hay tokens activos generados todavía.</td></tr>';
+          return;
+        }
+
+        dom.tokensTableBody.innerHTML = tokens.map(function(t) {
+          var groupName = appState.groupTokens[t];
+          var shareUrl = getBasePublicUrl() + '?token=' + encodeURIComponent(t);
+
+          return [
+            '<tr>',
+            '  <td><strong>' + escapeHtml(groupName) + '</strong></td>',
+            '  <td><code class="font-mono" style="background: var(--surface-muted); padding: 2px 6px; border-radius: 4px;">' + escapeHtml(t) + '</code></td>',
+            '  <td>',
+            '    <div style="display: flex; gap: 6px;">',
+            '      <button class="btn-brutalist btn-sm btn-cyan btn-copy-token-url" type="button" data-url="' + escapeHtml(shareUrl) + '">&#128203; Copiar Link</button>',
+            '      <button class="btn-brutalist btn-sm btn-danger btn-revoke-token" type="button" data-token="' + escapeHtml(t) + '">&#128465; Revocar</button>',
+            '    </div>',
+            '  </td>',
+            '</tr>'
+          ].join('\n');
+        }).join('\n');
+
+        dom.tokensTableBody.querySelectorAll('.btn-copy-token-url').forEach(function(b) {
+          b.addEventListener('click', function() {
+            var u = b.getAttribute('data-url');
+            copyToClipboard(u, b, 'Link de acceso');
+          });
+        });
+
+        dom.tokensTableBody.querySelectorAll('.btn-revoke-token').forEach(function(b) {
+          b.addEventListener('click', function() {
+            var tok = b.getAttribute('data-token');
+            confirmDestructiveAction(
+              '¿Deseás revocar el token <code>' + escapeHtml(tok) + '</code>? El enlace dejará de funcionar inmediatamente.',
+              function() {
+                delete appState.groupTokens[tok];
+                saveLocalTokens();
+
+                var url = BACKEND_API_URL + '?action=revokeToken&token=' + encodeURIComponent(tok);
+                if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+                fetch(url).catch(function() {});
+
+                renderTokensTable();
+                updateTokensCountUI();
+                showToast('Token revocado');
+              }
+            );
+          });
+        });
+      }
+
+      /* ======================================================================
+         11. GESTIÓN DE GRUPOS & RENOMBRADO BATCH
+         ====================================================================== */
+      function openGroupsModal() {
+        var distinctGroups = getDistinctGroups();
+        dom.groupsTableBody.innerHTML = distinctGroups.map(function(g) {
+          var count = appState.persons.filter(function(p) { return p.group === g; }).length;
+          return [
+            '<tr>',
+            '  <td><strong>' + escapeHtml(g) + '</strong></td>',
+            '  <td>' + count + ' ' + (count === 1 ? 'persona' : 'personas') + '</td>',
+            '  <td>',
+            '    <div style="display: flex; gap: 6px;">',
+            '      <button class="btn-brutalist btn-sm btn-rename-grp-action" type="button" data-group-name="' + escapeHtml(g) + '">&#9998; Renombrar</button>',
+            '      <button class="btn-brutalist btn-sm btn-cyan btn-group-token-action" type="button" data-group-name="' + escapeHtml(g) + '">&#128273; Link</button>',
+            '    </div>',
+            '  </td>',
+            '</tr>'
+          ].join('\n');
+        }).join('\n');
+
+        dom.groupsTableBody.querySelectorAll('.btn-rename-grp-action').forEach(function(b) {
+          b.addEventListener('click', function() {
+            var g = b.getAttribute('data-group-name');
+            closeModal(dom.modalGroups);
+            promptRenameGroup(g);
+          });
+        });
+
+        dom.groupsTableBody.querySelectorAll('.btn-group-token-action').forEach(function(b) {
+          b.addEventListener('click', function() {
+            var g = b.getAttribute('data-group-name');
+            handleGroupTokenShare(g);
+          });
+        });
+
+        openModal(dom.modalGroups);
+      }
+
+      dom.btnOpenGroups.addEventListener('click', openGroupsModal);
+
+      function promptRenameGroup(oldName) {
+        var newName = prompt('Ingresá el nuevo nombre para el grupo "' + oldName + '":', oldName);
+        if (!newName || newName.trim() === '' || newName.trim() === oldName) return;
+        newName = newName.trim();
+
+        // Actualizar localmente
+        var affected = 0;
+        appState.persons.forEach(function(p) {
+          if (p.group === oldName) {
+            p.group = newName;
+            affected++;
+            // Enviar guardado asíncrono
+            var saveUrl = BACKEND_API_URL + '?action=save';
+            if (appState.adminKey) saveUrl += '&adminKey=' + encodeURIComponent(appState.adminKey);
+            saveUrl += '&payload=' + encodeURIComponent(JSON.stringify(p));
+            fetch(saveUrl).catch(function() {});
+          }
+        });
+
+        // Actualizar tokens
+        for (var t in appState.groupTokens) {
+          if (appState.groupTokens[t] === oldName) {
+            appState.groupTokens[t] = newName;
+          }
+        }
+        saveLocalTokens();
+
+        showToast('Grupo "' + oldName + '" renombrado a "' + newName + '" (' + affected + ' personas)');
+        renderDashboard();
+      }
+
+      /* ======================================================================
+         12. IMPORTAR Y EXPORTAR CSV
+         ====================================================================== */
+      dom.btnExportCsv.addEventListener('click', function() {
+        if (appState.persons.length === 0) {
+          showToast('No hay personas para exportar', true);
+          return;
+        }
+
+        var lines = ['nombre,grupo,banco,tipo,alias,cbu,titular'];
+
+        appState.persons.forEach(function(p) {
+          if (p.accounts.length === 0) {
+            lines.push([
+              escapeCsvField(p.name),
+              escapeCsvField(p.group),
+              '', '', '', '', ''
+            ].join(','));
+          } else {
+            p.accounts.forEach(function(acc) {
+              lines.push([
+                escapeCsvField(p.name),
+                escapeCsvField(p.group),
+                escapeCsvField(acc.bank),
+                escapeCsvField(acc.type),
+                escapeCsvField(acc.alias),
+                escapeCsvField(acc.cbu),
+                escapeCsvField(acc.titular)
+              ].join(','));
+            });
+          }
+        });
+
+        var csvContent = lines.join('\r\n');
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'aliasdb_export_' + (new Date().toISOString().slice(0, 10)) + '.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        showToast('Archivo CSV exportado exitosamente');
+      });
+
+      function escapeCsvField(val) {
+        if (!val) return '';
+        var str = String(val);
+        if (str.indexOf(',') !== -1 || str.indexOf('"') !== -1 || str.indexOf('\n') !== -1) {
+          return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      }
+
+      /* Importar CSV */
+      dom.btnOpenImport.addEventListener('click', function() {
+        dom.csvFileInput.value = '';
+        dom.importPreviewBox.style.display = 'none';
+        dom.btnConfirmImport.disabled = true;
+        appState.parsedImportData = [];
+        openModal(dom.modalImport);
+      });
+
+      dom.csvDropzone.addEventListener('click', function() {
+        dom.csvFileInput.click();
+      });
+
+      dom.csvFileInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (file) handleCsvFile(file);
+      });
+
+      dom.csvDropzone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dom.csvDropzone.classList.add('dragover');
+      });
+
+      dom.csvDropzone.addEventListener('dragleave', function() {
+        dom.csvDropzone.classList.remove('dragover');
+      });
+
+      dom.csvDropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dom.csvDropzone.classList.remove('dragover');
+        var file = e.dataTransfer.files[0];
+        if (file) handleCsvFile(file);
+      });
+
+      function parseCsvLine(text) {
+        var p = '', c = '', r = [];
+        var q = false;
+        for (var i = 0; i < text.length; i++) {
+          c = text[i];
+          var next = text[i + 1];
+          if (c === '"') {
+            if (q && next === '"') { p += '"'; i++; }
+            else { q = !q; }
+          } else if (c === ',' && !q) {
+            r.push(p.trim());
+            p = '';
+          } else {
+            p += c;
+          }
+        }
+        r.push(p.trim());
+        return r;
+      }
+
+      function handleCsvFile(file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var content = e.target.result;
+          var lines = content.split(/\\r?\\n/).filter(function(l) { return l.trim().length > 0; });
+          if (lines.length <= 1) {
+            showToast('El archivo CSV está vacío o sin datos', true);
+            return;
+          }
+
+          var headerRow = parseCsvLine(lines[0]).map(function(h) { return h.toLowerCase().trim(); });
+          var nameIdx = headerRow.indexOf('nombre');
+          var groupIdx = headerRow.indexOf('grupo');
+          var bankIdx = headerRow.indexOf('banco');
+          var typeIdx = headerRow.indexOf('tipo');
+          var aliasIdx = headerRow.indexOf('alias');
+          var cbuIdx = headerRow.indexOf('cbu');
+          var titularIdx = headerRow.indexOf('titular');
+
+          if (nameIdx === -1) {
+            showToast('El CSV debe contener al menos la columna "nombre"', true);
+            return;
+          }
+
+          var parsedRows = [];
+          for (var i = 1; i < lines.length; i++) {
+            var cols = parseCsvLine(lines[i]);
+            var name = cols[nameIdx] || '';
+            if (!name) continue;
+
+            parsedRows.push({
+              name: name,
+              group: (groupIdx !== -1 ? cols[groupIdx] : '') || 'General',
+              bank: (bankIdx !== -1 ? cols[bankIdx] : '') || 'Mercado Pago',
+              type: (typeIdx !== -1 ? cols[typeIdx] : '') || 'CVU',
+              alias: (aliasIdx !== -1 ? cols[aliasIdx] : '') || '',
+              cbu: (cbuIdx !== -1 ? cols[cbuIdx] : '') || '',
+              titular: (titularIdx !== -1 ? cols[titularIdx] : '') || ''
+            });
+          }
+
+          if (parsedRows.length === 0) {
+            showToast('No se encontraron filas con nombres válidos en el CSV', true);
+            return;
+          }
+
+          appState.parsedImportData = parsedRows;
+          dom.importCountLabel.textContent = parsedRows.length + ' filas detectadas';
+          dom.importPreviewBody.innerHTML = parsedRows.slice(0, 10).map(function(r) {
+            return [
+              '<tr>',
+              '  <td>' + escapeHtml(r.name) + '</td>',
+              '  <td>' + escapeHtml(r.group) + '</td>',
+              '  <td>' + escapeHtml(r.bank) + '</td>',
+              '  <td>' + escapeHtml(r.alias) + '</td>',
+              '  <td>' + escapeHtml(r.cbu) + '</td>',
+              '</tr>'
+            ].join('\n');
+          }).join('\n');
+
+          dom.importPreviewBox.style.display = 'flex';
+          dom.btnConfirmImport.disabled = false;
+        };
+        reader.readAsText(file);
+      }
+
+      dom.btnConfirmImport.addEventListener('click', function() {
+        if (!appState.parsedImportData || appState.parsedImportData.length === 0) return;
+
+        dom.btnConfirmImport.disabled = true;
+        dom.btnConfirmImport.textContent = 'Importando...';
+
+        // Agrupar filas por persona (nombre + grupo)
+        var personMap = new Map();
+        appState.parsedImportData.forEach(function(row) {
+          var key = (row.name + '___' + row.group).toLowerCase();
+          if (!personMap.has(key)) {
+            personMap.set(key, {
+              id: 'persona_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+              name: row.name,
+              group: row.group,
+              accounts: []
+            });
+          }
+          if (row.alias || row.cbu || row.bank) {
+            var p = personMap.get(key);
+            p.accounts.push({
+              id: 'acc_' + p.id + '_' + (p.accounts.length + 1),
+              bank: row.bank,
+              type: row.type,
+              alias: row.alias,
+              cbu: row.cbu,
+              titular: row.titular
+            });
+          }
+        });
+
+        var importedPersons = Array.from(personMap.values());
+        var total = importedPersons.length;
+        var completed = 0;
+
+        importedPersons.forEach(function(person) {
+          // Guardar en backend
+          var saveUrl = BACKEND_API_URL + '?action=save';
+          if (appState.adminKey) saveUrl += '&adminKey=' + encodeURIComponent(appState.adminKey);
+          saveUrl += '&payload=' + encodeURIComponent(JSON.stringify(person));
+
+          fetch(saveUrl)
+            .then(function() {
+              completed++;
+              if (completed === total) {
+                finishImport(importedPersons);
+              }
+            })
+            .catch(function() {
+              completed++;
+              if (completed === total) {
+                finishImport(importedPersons);
+              }
+            });
+        });
+      });
+
+      function finishImport(importedPersons) {
+        dom.btnConfirmImport.disabled = false;
+        dom.btnConfirmImport.textContent = 'Confirmar e Importar';
+        closeModal(dom.modalImport);
+        showToast('Importación finalizada (' + importedPersons.length + ' personas)');
+        loadData();
+      }
+
+      /* ======================================================================
+         13. INICIALIZACIÓN DE LA APLICACIÓN
+         ====================================================================== */
+      initAuth();
+      loadLocalTokens();
+      loadData();
+
+    })();
+  </script>
+</body>
+</html>
+`;
+
+fs.writeFileSync(path.join(__dirname, '..', 'admin.html'), adminHtml, 'utf8');
+console.log('Successfully generated admin.html');
