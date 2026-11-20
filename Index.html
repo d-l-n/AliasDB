@@ -1488,8 +1488,14 @@
         if (typeof google !== 'undefined' && google.script && google.script.run) {
           google.script.run
             .withSuccessHandler(function(serverData) {
-              if (Array.isArray(serverData) && serverData.length > 0) {
-                friendsData = serverData;
+              var list = null;
+              if (Array.isArray(serverData)) {
+                list = serverData;
+              } else if (serverData && serverData.success && Array.isArray(serverData.data)) {
+                list = serverData.data;
+              }
+              if (list && list.length > 0) {
+                friendsData = list;
                 renderCards();
               }
             })
