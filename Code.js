@@ -99,7 +99,7 @@ const DEMO_FRIENDS = [
 
 /**
  * Se ejecuta automáticamente al abrir la hoja de cálculo de Google Sheets.
- * Despliega la barra lateral fija (sticky sidebar) con el panel de administración
+ * Despliega el panel de administración en formato popup (diálogo modal)
  * y registra el menú personalizado 'AliasDB'.
  * @param {Object} e Evento de apertura de la hoja de cálculo
  */
@@ -114,7 +114,8 @@ function onOpen(e) {
 
     const ui = SpreadsheetApp.getUi();
     ui.createMenu('AliasDB')
-      .addItem('🚀 Abrir Panel de Administración (Sidebar)', 'showAdminSidebar')
+      .addItem('⚡ Abrir Panel de Administración (Popup)', 'showAdminPopup')
+      .addItem('📌 Abrir en Barra Lateral (Sidebar)', 'showAdminSidebar')
       .addItem('🌐 Abrir Admin Panel Web (Nueva Pestaña)', 'openAdminWebTab')
       .addItem('📱 Abrir App Pública (Nueva Pestaña)', 'openPublicAppTab')
       .addSeparator()
@@ -122,11 +123,35 @@ function onOpen(e) {
       .addItem('🔄 Reinicializar Datos Demo', 'resetToDemoData')
       .addToUi();
 
-    // Apertura automática de la barra lateral (sticky sidebar)
-    showAdminSidebar();
+    // Apertura automática del panel en formato popup (diálogo modal)
+    showAdminPopup();
   } catch (err) {
     console.error('Error inicializando interfaz en onOpen:', err);
   }
+}
+
+/**
+ * Despliega el panel de administración en formato popup (cuadro de diálogo modal) en Google Sheets.
+ */
+function showAdminPopup() {
+  try {
+    const template = HtmlService.createTemplateFromFile('admin');
+    const htmlOutput = template.evaluate()
+      .setTitle('AliasDB // Panel Admin')
+      .setWidth(1050)
+      .setHeight(650)
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'AliasDB // Panel de Administración');
+  } catch (err) {
+    console.error('Error desplegando popup de administración:', err);
+  }
+}
+
+/**
+ * Alias para showAdminPopup()
+ */
+function showAdminDialog() {
+  showAdminPopup();
 }
 
 /**

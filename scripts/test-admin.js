@@ -208,10 +208,12 @@ scriptMatches.forEach((m, idx) => {
 console.log('\n--- Todas las 9 verificaciones pasaron con éxito (PASS) ---');
 
 
-// 10. Verificación de Integración con Google Sheets (Sticky Sidebar & onOpen)
-console.log('10. Verificando funciones de integración de Sidebar en Code.js...');
+// 10. Verificación de Integración con Google Sheets (Popup Modal, Sidebar & onOpen)
+console.log('10. Verificando funciones de integración de Popup y Sidebar en Code.js...');
 const codeContent = fs.readFileSync(path.join(__dirname, '..', 'Code.js'), 'utf8');
 assert(codeContent.includes('function onOpen('), 'Code.js debe declarar función onOpen');
+assert(codeContent.includes('function showAdminPopup('), 'Code.js debe declarar función showAdminPopup');
+assert(codeContent.includes('showModalDialog('), 'Code.js debe invocar showModalDialog para el popup');
 assert(codeContent.includes('function showAdminSidebar('), 'Code.js debe declarar función showAdminSidebar');
 assert(codeContent.includes('function openAdminWebTab('), 'Code.js debe declarar función openAdminWebTab');
 assert(codeContent.includes('function openPublicAppTab('), 'Code.js debe declarar función openPublicAppTab');
