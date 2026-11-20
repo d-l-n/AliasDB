@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "AliasDB - WebApp Neo-Brutalista con Backend Google Apps Script & Google Sheets",
   "scripts": {
-    "push": "npx @google/clasp push",
-    "deploy:backend": "npx @google/clasp deploy --deploymentId AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg --description \"Production Live Update\"",
-    "deploy:all": "npx @google/clasp push && npx @google/clasp deploy --deploymentId AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg --description \"Production Live Update\" && git push origin master"
+    "push": "npx @google/clasp push -f",
+    "check:access": "node scripts/check-access.js",
+    "deploy": "npx @google/clasp push -f && node scripts/check-access.js && git push origin master"
   },
   "keywords": [
     "apps-script",

@@ -43,6 +43,9 @@ AliasDB/
 ├── Code.js              # Controlador de Apps Script (doGet, RPCs, gestión de Google Sheets y Seeding)
 ├── index.html           # Interfaz SPA Mobile-First Neo-Brutalista (HTML, CSS y JS integrados)
 ├── appsscript.json      # Manifiesto de configuración de Google Apps Script (V8 Runtime)
+├── scripts/
+│   └── check-access.js  # Verificador automatizado de acceso anónimo público ("Cualquier usuario")
+├── package.json         # Scripts de ciclo de vida seguros y automatización clasp/git
 └── README.md            # Documentación técnica e instrucciones de despliegue
 ```
 
@@ -75,14 +78,17 @@ AliasDB/
 
 ### Actualización de Código en Producción
 
-- **Vía Terminal (Recomendado)**:
+- **Vía Terminal (Recomendado y Seguro)**:
   ```bash
-  npm run deploy:all
+  npm run deploy
   ```
-  Sincroniza el código a Apps Script, actualiza la misma implementación activa (`AKfycbz7Pp_...`) y publica en GitHub Pages.
+  Ejecuta secuencialmente:
+  1. `npx @google/clasp push -f`: sincroniza el código a Apps Script sin invocar la API de deployment (evita el bug de Apps Script que revierte permisos a privado).
+  2. `node scripts/check-access.js`: valida de forma autónoma mediante petición HTTP sin credenciales que el endpoint responda JSON públicamente con *"Cualquier usuario"*.
+  3. `git push origin master`: publica las actualizaciones del frontend directamente en GitHub Pages.
 
-- **Vía Consola Web de Apps Script**:
-  1. En el editor, vaya a **Implementar** > **Administrar implementaciones**.
+- **Vía Consola Web de Apps Script (Si se requiere crear una nueva versión de producción en la misma implementación)**:
+  1. En el editor de Apps Script, vaya a **Implementar** > **Administrar implementaciones**.
   2. Seleccione la implementación activa (`AKfycbz7Pp_...`) y pulse **Editar** (✏️).
   3. En **Versión**, seleccione **Nueva versión**.
   4. Confirme que **Quién tiene acceso** permanezca en **Cualquier usuario** (*Anyone*).
