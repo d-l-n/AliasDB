@@ -10,7 +10,7 @@ function assert(condition, message) {
 }
 
 assert(html.includes('group-header-badge'), 'Badge neo-brutalista de grupo en header');
-assert(html.includes('admin-link-btn'), 'Botón enlace a admin.html');
+assert(html.includes('brandTapCount >= 10'), 'Acceso a admin mediante atajo secreto de 10 toques');
 assert(html.includes('group-filter-container'), 'Contenedor de chips de grupos');
 assert(html.includes('showGroupBranding'), 'Función showGroupBranding');
 assert(html.includes('renderGroupFilterChips'), 'Función renderGroupFilterChips');
