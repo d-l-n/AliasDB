@@ -266,6 +266,67 @@
       text-transform: uppercase;
     }
 
+    /* Badge Neo-Brutalista de Grupo en Header */
+    .group-header-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0px var(--shadow);
+      line-height: 1.2;
+    }
+
+    [data-theme="dark"] .group-header-badge {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
+    /* Enlace discreto a Panel Admin */
+    .admin-link-btn {
+      height: var(--touch-min);
+      min-height: var(--touch-min);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 12px;
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      font-size: 0.8125rem;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition-tap);
+      white-space: nowrap;
+    }
+
+    .admin-link-btn:hover {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      transform: translate(-1px, -1px);
+      box-shadow: calc(var(--shadow-offset-sm) + 1px) calc(var(--shadow-offset-sm) + 1px) 0px var(--shadow);
+    }
+
+    [data-theme="dark"] .admin-link-btn:hover {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
+    .admin-link-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow);
+    }
+
     /* Theme Switch Toggle Button */
     .theme-toggle-btn {
       width: var(--touch-min);
@@ -444,6 +505,35 @@
     [data-theme="dark"] .filter-chip.active {
       background: var(--accent-cyan);
       color: #0D0D11;
+    }
+
+    /* Group Chips (Acento distintivo verde menta) */
+    .filter-chip.group-chip.active {
+      background: var(--accent-mint);
+      color: #0D0D11;
+      border-color: var(--border);
+    }
+
+    [data-theme="dark"] .filter-chip.group-chip.active {
+      background: var(--accent-mint);
+      color: #0D0D11;
+    }
+
+    .group-filter-container {
+      margin-bottom: -2px;
+    }
+
+    .friend-group-badge {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 1px 6px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+      color: var(--text-muted);
     }
 
     /* ==========================================================================
@@ -1053,7 +1143,10 @@
       <div class="brand-group">
         <div class="brand-icon" aria-hidden="true">$</div>
         <div>
-          <h1 class="brand-title">AliasDB</h1>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <h1 class="brand-title">AliasDB</h1>
+            <span id="group-header-badge" class="group-header-badge font-mono" style="display: none;"></span>
+          </div>
           <p class="brand-tagline">Directorio de Pagos R&aacute;pidos</p>
         </div>
       </div>
@@ -1061,6 +1154,9 @@
       <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
         <span id="sync-status" class="sync-badge font-mono" style="font-size: 11px; padding: 4px 8px; border: 2px solid var(--border); font-weight: 700; border-radius: 4px; background: var(--surface-muted); color: var(--text-muted);" title="Estado de sincronización con Google Sheets">● Conectando...</span>
         
+        <!-- Enlace al Panel de Administración -->
+        <a href="admin.html" class="admin-link-btn font-mono" title="Panel de Administración" aria-label="Ir al panel de administración">⚙️ Admin</a>
+
         <!-- Theme Switch Button (>=44x44px tap zone) -->
         <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Alternar entre modo claro y modo oscuro">
           <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
@@ -1101,8 +1197,11 @@
         <button id="search-clear" class="search-clear-btn" type="button" aria-label="Limpiar b&uacute;squeda">&times;</button>
       </div>
 
+      <!-- Group Filter Pills (Horizontally Scrollable - Modo Directorio Completo) -->
+      <div id="group-filter-container" class="filter-scroll-container group-filter-container" role="toolbar" aria-label="Filtrar por grupo" style="display: none;"></div>
+
       <!-- Bank Filter Pills (Horizontally Scrollable) -->
-      <div class="filter-scroll-container" role="toolbar" aria-label="Filtrar por entidad bancaria">
+      <div id="bank-filter-container" class="filter-scroll-container bank-filter-container" role="toolbar" aria-label="Filtrar por entidad bancaria">
         <button class="filter-chip active" data-bank="ALL" type="button" aria-pressed="true">Todos</button>
         <button class="filter-chip" data-bank="MERCADO_PAGO" type="button" aria-pressed="false">Mercado Pago</button>
         <button class="filter-chip" data-bank="GALICIA" type="button" aria-pressed="false">Galicia</button>
@@ -1147,6 +1246,7 @@
         {
           id: '1',
           name: 'Mateo Rossi',
+          group: 'Fútbol',
           avatarColor: 'var(--accent-cyan)',
           accounts: [
             {
@@ -1170,6 +1270,7 @@
         {
           id: '2',
           name: 'Sof\u00eda Mart\u00ednez',
+          group: 'Facultad',
           avatarColor: 'var(--accent-yellow)',
           accounts: [
             {
@@ -1193,6 +1294,7 @@
         {
           id: '3',
           name: 'Lucas Ben\u00edtez',
+          group: 'Trabajo',
           avatarColor: 'var(--accent-mint)',
           accounts: [
             {
@@ -1216,6 +1318,7 @@
         {
           id: '4',
           name: 'Camila Fern\u00e1ndez',
+          group: 'Familia',
           avatarColor: 'var(--accent-pink)',
           accounts: [
             {
@@ -1239,6 +1342,7 @@
         {
           id: '5',
           name: 'Joaqu\u00edn Navarro',
+          group: 'Fútbol',
           avatarColor: 'var(--accent-purple)',
           accounts: [
             {
@@ -1261,10 +1365,17 @@
         }
       ];
 
+      /* Segmentación por URL y lectura de parámetros */
+      var urlParams = new URLSearchParams(window.location.search);
+      var grupoParam = urlParams.get('grupo') || '';
+      var tokenParam = urlParams.get('token') || '';
+      var isSegmentedMode = !!(tokenParam || grupoParam);
+
       /* App State */
       var friendsData = DEFAULT_FRIENDS_DATA.slice();
       var expandedCards = {};
       var activeFilter = 'ALL';
+      var activeGroupFilter = 'ALL';
       var searchQuery = '';
       var toastTimeout = null;
       var lastAnnouncedText = '';
@@ -1275,7 +1386,9 @@
       var cardsContainer = document.getElementById('cards-container');
       var searchInput = document.getElementById('search-input');
       var searchClearBtn = document.getElementById('search-clear');
-      var filterChips = document.querySelectorAll('.filter-chip');
+      var bankFilterChips = document.querySelectorAll('#bank-filter-container .filter-chip');
+      var groupFilterContainer = document.getElementById('group-filter-container');
+      var groupHeaderBadge = document.getElementById('group-header-badge');
       var themeToggleBtn = document.getElementById('theme-toggle');
       var metaColorScheme = document.querySelector('meta[name="color-scheme"]');
       var metaThemeColor = document.getElementById('meta-theme-color');
@@ -1407,18 +1520,87 @@
       themeToggleBtn.addEventListener('click', toggleTheme);
 
       /* ======================================================================
-         6. RENDERIZADO MODULAR DE COMPONENTES NEO-BRUTALISTAS
+         6. BRANDING DE GRUPO ACTIVO & CHIPS DE FILTRO POR GRUPO
+         ====================================================================== */
+      function showGroupBranding(groupName) {
+        if (!groupName) return;
+        if (groupHeaderBadge) {
+          groupHeaderBadge.textContent = 'GRUPO: ' + groupName;
+          groupHeaderBadge.style.display = 'inline-flex';
+          groupHeaderBadge.setAttribute('aria-label', 'Grupo ' + groupName);
+        }
+        document.title = 'AliasDB // ' + groupName;
+      }
+
+      function renderGroupFilterChips() {
+        if (!groupFilterContainer) return;
+
+        // Si existe filtro en URL (modo grupo segmentado), no mostrar chips de selección de grupo
+        if (isSegmentedMode) {
+          groupFilterContainer.style.display = 'none';
+          return;
+        }
+
+        var groupsMap = {};
+        friendsData.forEach(function(friend) {
+          if (friend.group && friend.group.trim()) {
+            groupsMap[friend.group.trim()] = true;
+          }
+        });
+        var uniqueGroups = Object.keys(groupsMap).sort();
+
+        if (uniqueGroups.length === 0) {
+          groupFilterContainer.style.display = 'none';
+          return;
+        }
+
+        groupFilterContainer.style.display = 'flex';
+
+        var isAllActive = activeGroupFilter === 'ALL';
+        var html = '<button class="filter-chip group-chip' + (isAllActive ? ' active' : '') + '" data-group="ALL" type="button" aria-pressed="' + isAllActive + '">Todos</button>';
+
+        uniqueGroups.forEach(function(grp) {
+          var isGrpActive = activeGroupFilter.toLowerCase() === grp.toLowerCase();
+          html += '<button class="filter-chip group-chip' + (isGrpActive ? ' active' : '') + '" data-group="' + grp + '" type="button" aria-pressed="' + isGrpActive + '">' + grp + '</button>';
+        });
+
+        groupFilterContainer.innerHTML = html;
+
+        groupFilterContainer.querySelectorAll('.group-chip').forEach(function(chip) {
+          chip.addEventListener('click', function() {
+            var selectedGroup = chip.dataset.group;
+            activeGroupFilter = selectedGroup;
+
+            groupFilterContainer.querySelectorAll('.group-chip').forEach(function(c) {
+              var isMatch = c.dataset.group === selectedGroup;
+              c.classList.toggle('active', isMatch);
+              c.setAttribute('aria-pressed', isMatch.toString());
+            });
+
+            renderCards();
+            announceScreenReader('Filtrado por grupo: ' + (selectedGroup === 'ALL' ? 'Todos los grupos' : selectedGroup));
+          });
+        });
+      }
+
+      /* ======================================================================
+         7. RENDERIZADO MODULAR DE COMPONENTES NEO-BRUTALISTAS
          ====================================================================== */
       function renderCards() {
         var q = searchQuery.toLowerCase().trim();
 
         var filtered = friendsData.filter(function(friend) {
+          var matchesGroup = isSegmentedMode || activeGroupFilter === 'ALL' || (
+            friend.group && friend.group.toLowerCase() === activeGroupFilter.toLowerCase()
+          );
+
           var matchesBank = activeFilter === 'ALL' || friend.accounts.some(function(acc) {
             return acc.bankId === activeFilter;
           });
 
           var matchesQuery = !q || (
             friend.name.toLowerCase().indexOf(q) !== -1 ||
+            (friend.group && friend.group.toLowerCase().indexOf(q) !== -1) ||
             friend.accounts.some(function(acc) {
               return acc.alias.toLowerCase().indexOf(q) !== -1 || 
                      acc.bankName.toLowerCase().indexOf(q) !== -1 ||
@@ -1426,7 +1608,7 @@
             })
           );
 
-          return matchesBank && matchesQuery;
+          return matchesGroup && matchesBank && matchesQuery;
         });
 
         if (filtered.length === 0) {
@@ -1446,11 +1628,19 @@
               searchQuery = '';
               searchClearBtn.classList.remove('visible');
               activeFilter = 'ALL';
-              filterChips.forEach(function(chip) {
+              activeGroupFilter = 'ALL';
+              bankFilterChips.forEach(function(chip) {
                 var isAll = chip.dataset.bank === 'ALL';
                 chip.classList.toggle('active', isAll);
                 chip.setAttribute('aria-pressed', isAll.toString());
               });
+              if (groupFilterContainer) {
+                groupFilterContainer.querySelectorAll('.group-chip').forEach(function(chip) {
+                  var isAll = chip.dataset.group === 'ALL';
+                  chip.classList.toggle('active', isAll);
+                  chip.setAttribute('aria-pressed', isAll.toString());
+                });
+              }
               renderCards();
               searchInput.focus();
             });
@@ -1461,7 +1651,7 @@
         cardsContainer.innerHTML = filtered.map(function(friend) {
           var initials = friend.name.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
           var hasMultiple = friend.accounts.length >= 2;
-          var isSearchingOrFiltering = searchQuery !== '' || activeFilter !== 'ALL';
+          var isSearchingOrFiltering = searchQuery !== '' || activeFilter !== 'ALL' || activeGroupFilter !== 'ALL';
           // Si tiene 2 o más cuentas: plegado/cerrado por defecto en carga inicial
           var isExpanded = hasMultiple ? (isSearchingOrFiltering || !!expandedCards[friend.id]) : true;
 
@@ -1528,7 +1718,10 @@
             '      <div class="friend-avatar" style="background: ' + friend.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
             '      <div class="friend-info">',
             '        <h2 class="friend-name">' + friend.name + '</h2>',
-            '        <span class="friend-meta">' + friend.accounts.length + ' ' + (friend.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
+            '        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">',
+            (friend.group ? '          <span class="friend-group-badge font-mono">' + friend.group + '</span>' : ''),
+            '          <span class="friend-meta">' + friend.accounts.length + ' ' + (friend.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
+            '        </div>',
             bankPreviewHtml,
             '      </div>',
             '    </div>',
@@ -1654,9 +1847,9 @@
         searchInput.focus();
       });
 
-      filterChips.forEach(function(chip) {
+      bankFilterChips.forEach(function(chip) {
         chip.addEventListener('click', function() {
-          filterChips.forEach(function(c) {
+          bankFilterChips.forEach(function(c) {
             c.classList.remove('active');
             c.setAttribute('aria-pressed', 'false');
           });
@@ -1664,11 +1857,12 @@
           chip.setAttribute('aria-pressed', 'true');
           activeFilter = chip.dataset.bank;
           renderCards();
+          announceScreenReader('Filtrado por entidad: ' + (activeFilter === 'ALL' ? 'Todas' : chip.textContent.trim()));
         });
       });
 
       /* ======================================================================
-         8. INTEGRACIÓN BIDIRECCIONAL CON GOOGLE APPS SCRIPT
+         8. INTEGRACIÓN BIDIRECCIONAL CON GOOGLE APPS SCRIPT & API
          ====================================================================== */
       var AVATAR_PALETTE = [
         'var(--accent-cyan)',
@@ -1727,7 +1921,7 @@
           return {
             id: friend.id || ('friend_' + idx),
             name: friend.name || 'Sin Nombre',
-            group: friend.group || 'General',
+            group: friend.group || friend.grupo || 'General',
             avatarColor: friend.avatarColor || AVATAR_PALETTE[idx % AVATAR_PALETTE.length],
             accounts: accounts
           };
@@ -1757,20 +1951,45 @@
         } else if (serverData && serverData.success && Array.isArray(serverData.data)) {
           list = serverData.data;
         }
+
+        if (serverData && serverData.grupo) {
+          showGroupBranding(serverData.grupo);
+        }
+
         if (list && list.length > 0) {
           friendsData = normalizeFriendData(list);
+          if (grupoParam && (!serverData || !serverData.grupo)) {
+            friendsData = friendsData.filter(function(friend) {
+              return (friend.group || '').toLowerCase() === grupoParam.toLowerCase();
+            });
+          }
           updateSyncStatus(true, sourceLabel || 'Sincronizado');
+          renderGroupFilterChips();
           renderCards();
         } else {
-          updateSyncStatus(false, 'Modo Demo');
-          renderCards();
+          if (list && list.length === 0 && isSegmentedMode) {
+            friendsData = [];
+            updateSyncStatus(true, sourceLabel || 'Sincronizado');
+            renderCards();
+          } else {
+            updateSyncStatus(false, 'Modo Demo');
+            if (grupoParam) {
+              friendsData = normalizeFriendData(DEFAULT_FRIENDS_DATA).filter(function(friend) {
+                return (friend.group || '').toLowerCase() === grupoParam.toLowerCase();
+              });
+            } else {
+              friendsData = normalizeFriendData(DEFAULT_FRIENDS_DATA);
+            }
+            renderGroupFilterChips();
+            renderCards();
+          }
         }
       }
 
       function loadData() {
         // 1. Si se ejecuta dentro del contenedor de Google Apps Script
         if (typeof google !== 'undefined' && google.script && google.script.run) {
-          google.script.run
+          var runner = google.script.run
             .withSuccessHandler(function(serverData) {
               handleReceivedData(serverData, 'Apps Script');
             })
@@ -1778,14 +1997,26 @@
               console.warn('Apps Script backend fallback:', err);
               updateSyncStatus(false, 'Modo Demo');
               renderCards();
-            })
-            .getFriendsData();
+            });
+
+          if (typeof runner.getFriendsDataSegmented === 'function' && (tokenParam || grupoParam)) {
+            runner.getFriendsDataSegmented(grupoParam, tokenParam);
+          } else {
+            runner.getFriendsData(grupoParam || tokenParam || undefined);
+          }
           return;
         }
 
         // 2. Si se ejecuta en GitHub Pages u host web independiente: consumir API REST
         if (BACKEND_API_URL) {
-          fetch(BACKEND_API_URL + '?action=getFriends')
+          var fetchUrl = BACKEND_API_URL + '?action=getFriends';
+          if (tokenParam) {
+            fetchUrl += '&token=' + encodeURIComponent(tokenParam);
+          } else if (grupoParam) {
+            fetchUrl += '&grupo=' + encodeURIComponent(grupoParam);
+          }
+
+          fetch(fetchUrl)
             .then(function(response) {
               if (!response.ok) throw new Error('HTTP ' + response.status);
               return response.json();
@@ -1807,6 +2038,11 @@
       }
 
       // Initial Execution
+      if (grupoParam) {
+        showGroupBranding(grupoParam);
+      }
+      renderGroupFilterChips();
+      renderCards();
       loadData();
 
     })();

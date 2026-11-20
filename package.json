@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AliasDB - WebApp Neo-Brutalista con Backend Google Apps Script & Google Sheets",
   "scripts": {
+    "test": "node scripts/test-admin.js && node scripts/test-phase2.js",
     "push": "npx @google/clasp push -f",
     "check:access": "node scripts/check-access.js",
     "deploy": "npx @google/clasp push -f && node scripts/check-access.js && git push origin master"
