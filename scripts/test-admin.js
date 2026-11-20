@@ -90,6 +90,8 @@ const requiredElementIds = [
   'btn-open-groups',
   'btn-export-csv',
   'btn-open-import',
+  'shortcut-open-admin-tab',
+  'shortcut-open-app-tab',
   'groups-container',
   'brutalist-toast'
 ];
@@ -205,7 +207,10 @@ console.log('10. Verificando funciones de integración de Sidebar en Code.js...'
 const codeContent = fs.readFileSync(path.join(__dirname, '..', 'Code.js'), 'utf8');
 assert(codeContent.includes('function onOpen('), 'Code.js debe declarar función onOpen');
 assert(codeContent.includes('function showAdminSidebar('), 'Code.js debe declarar función showAdminSidebar');
+assert(codeContent.includes('function openAdminWebTab('), 'Code.js debe declarar función openAdminWebTab');
+assert(codeContent.includes('function openPublicAppTab('), 'Code.js debe declarar función openPublicAppTab');
 assert(codeContent.includes('showSidebar('), 'Code.js debe invocar showSidebar en Google Sheets');
+assert(html.includes('sidebar-shortcut-banner'), 'admin.html debe contener el banner de atajo directo');
 
 // 11. Verificación de Sticky Header en index.html y admin.html
 console.log('11. Verificando Sticky Header y atajo de 10 toques...');

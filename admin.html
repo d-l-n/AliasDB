@@ -426,6 +426,73 @@
       font-size: 0.75rem;
     }
 
+    /* ==========================================================================
+       SIDEBAR SHORTCUT BANNER (OPTIMIZADO PARA GOOGLE SHEETS & STANDALONE)
+       ========================================================================== */
+    .sidebar-shortcut-banner {
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .shortcut-banner-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .shortcut-banner-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 1px 1px 0px var(--shadow);
+    }
+
+    .shortcut-banner-title {
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .shortcut-banner-desc {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .shortcut-banner-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    @media (min-width: 600px) {
+      .shortcut-banner-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .shortcut-cta-btn {
+      width: 100%;
+      text-align: center;
+      font-size: 0.8125rem;
+      text-decoration: none;
+    }
+
     /* Theme Toggle Button */
     .theme-toggle-btn {
       width: var(--touch-min);
@@ -1379,6 +1446,28 @@
       </div>
     </header>
 
+    <!-- Atajo Directo al Admin Panel (Sidebar Launcher) -->
+    <section class="sidebar-shortcut-banner" aria-label="Atajo Directo al Admin Panel">
+      <div class="shortcut-banner-header">
+        <span class="shortcut-banner-pill">
+          <svg class="reicon reicon-sm" viewBox="0 0 24 24" fill="none" width="12" height="12" aria-hidden="true" style="margin-right:3px;vertical-align:-1px;"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/></svg>
+          ATAJO DIRECTO
+        </span>
+        <span class="shortcut-banner-title">PANEL DE CONTROL</span>
+      </div>
+      <p class="shortcut-banner-desc">Acceso rápido al panel de administración central de AliasDB:</p>
+      <div class="shortcut-banner-grid">
+        <a href="https://d-l-n.github.io/AliasDB/admin.html" target="_blank" rel="noopener noreferrer" class="btn-brutalist btn-primary shortcut-cta-btn" id="shortcut-open-admin-tab">
+          <svg class="reicon reicon-sm" viewBox="0 0 24 24" fill="none" width="14" height="14" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M14 3.25C13.5858 3.25 13.25 3.58579 13.25 4C13.25 4.41421 13.5858 4.75 14 4.75H18.1893L9.46967 13.4697C9.17678 13.7626 9.17678 14.2374 9.46967 14.5303C9.76256 14.8232 10.2374 14.8232 10.5303 14.5303L19.25 5.81066V10C19.25 10.4142 19.5858 10.75 20 10.75C20.4142 10.75 20.75 10.4142 20.75 10V4C20.75 3.58579 20.4142 3.25 20 3.25H14ZM4.75 5C3.7835 5 3 5.7835 3 6.75V19.25C3 20.2165 3.7835 21 4.75 21H17.25C18.2165 21 19 20.2165 19 19.25V14C19 13.5858 18.6642 13.25 18.25 13.25C17.8358 13.25 17.5 13.5858 17.5 14V19.25C17.5 19.3881 17.3881 19.5 17.25 19.5H4.75C4.61193 19.5 4.5 19.3881 4.5 19.25V6.75C4.5 6.61193 4.61193 6.5 4.75 6.5H10C10.4142 6.5 10.75 6.16421 10.75 5.75C10.75 5.33579 10.4142 5 10 5H4.75Z" fill="currentColor"/></svg>
+          <span>Abrir Admin Panel Web ↗</span>
+        </a>
+        <a href="https://d-l-n.github.io/AliasDB/" target="_blank" rel="noopener noreferrer" class="btn-brutalist btn-mint shortcut-cta-btn" id="shortcut-open-app-tab">
+          <svg class="reicon reicon-sm" viewBox="0 0 24 24" fill="none" width="14" height="14" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 8.25C9.92893 8.25 8.25 9.92893 8.25 12C8.25 14.0711 9.92893 15.75 12 15.75C14.0711 15.75 15.75 14.0711 15.75 12C15.75 9.92893 14.0711 8.25 12 8.25ZM9.75 12C9.75 10.7574 10.7574 9.75 12 9.75C13.2426 9.75 14.25 10.7574 14.25 12C14.25 13.2426 13.2426 14.25 12 14.25C10.7574 14.25 9.75 13.2426 9.75 12Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.25C7.48587 3.25 4.44529 5.9542 2.68057 8.24686L2.64874 8.2882C2.24964 8.80653 1.88206 9.28392 1.63269 9.8484C1.36564 10.4529 1.25 11.1117 1.25 12C1.25 12.8883 1.36564 13.5471 1.63269 14.1516C1.88206 14.7161 2.24964 15.1935 2.64875 15.7118L2.68057 15.7531C4.44529 18.0458 7.48587 20.75 12 20.75C16.5141 20.75 19.5547 18.0458 21.3194 15.7531L21.3512 15.7118C21.7504 15.1935 22.1179 14.7161 22.3673 14.1516C22.6344 13.5471 22.75 12.8883 22.75 12C22.75 11.1117 22.6344 10.4529 22.3673 9.8484C22.1179 9.28391 21.7504 8.80652 21.3512 8.28818L21.3194 8.24686C19.5547 5.9542 16.5141 3.25 12 3.25ZM3.86922 9.1618C5.49864 7.04492 8.15036 4.75 12 4.75C15.8496 4.75 18.5014 7.04492 20.1308 9.1618C20.5694 9.73159 20.8263 10.0721 20.9952 10.4545C21.1532 10.812 21.25 11.2489 21.25 12C21.25 12.7511 21.1532 13.188 20.9952 13.5455C20.8263 13.9279 20.5694 14.2684 20.1308 14.8382C18.5014 16.9551 15.8496 19.25 12 19.25C8.15036 19.25 5.49864 16.9551 3.86922 14.8382C3.43064 14.2684 3.17374 13.9279 3.00476 13.5455C2.84684 13.188 2.75 12.7511 2.75 12C2.75 11.2489 2.84684 10.812 3.00476 10.4545C3.17374 10.0721 3.43063 9.73159 3.86922 9.1618Z" fill="currentColor"/></svg>
+          <span>Ver App Pública ↗</span>
+        </a>
+      </div>
+    </section>
+
     <!-- Stats Summary Cards -->
     <section class="stats-grid" aria-label="Resumen de datos">
       <div class="stat-card stat-yellow">
@@ -1928,6 +2017,8 @@
 
       /* Referencias al DOM */
       var dom = {
+        shortcutOpenAdminTab: document.getElementById('shortcut-open-admin-tab'),
+        shortcutOpenAppTab: document.getElementById('shortcut-open-app-tab'),
         adminAuthBtn: document.getElementById('admin-auth-btn'),
         keyLabel: document.getElementById('key-label'),
         openSheetBtn: document.getElementById('open-sheet-btn'),
@@ -3541,6 +3632,13 @@
       /* ======================================================================
          13. INICIALIZACIÓN DE LA APLICACIÓN
          ====================================================================== */
+      try {
+        var isGoogleSheetsSidebar = window.location.host.indexOf('google') !== -1 || (typeof google !== 'undefined' && google.script && google.script.host);
+        if (isGoogleSheetsSidebar && dom.openSheetBtn) {
+          dom.openSheetBtn.style.display = 'none';
+        }
+      } catch (e) {}
+
       initAuth();
       loadLocalTokens();
       loadData();

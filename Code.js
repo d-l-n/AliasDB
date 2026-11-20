@@ -114,9 +114,12 @@ function onOpen(e) {
 
     const ui = SpreadsheetApp.getUi();
     ui.createMenu('AliasDB')
-      .addItem('Abrir Panel de Administración', 'showAdminSidebar')
-      .addItem('Configurar Clave Admin', 'promptSetAdminKey')
-      .addItem('Reinicializar Datos Demo', 'resetToDemoData')
+      .addItem('🚀 Abrir Panel de Administración (Sidebar)', 'showAdminSidebar')
+      .addItem('🌐 Abrir Admin Panel Web (Nueva Pestaña)', 'openAdminWebTab')
+      .addItem('📱 Abrir App Pública (Nueva Pestaña)', 'openPublicAppTab')
+      .addSeparator()
+      .addItem('🔑 Configurar Clave Admin', 'promptSetAdminKey')
+      .addItem('🔄 Reinicializar Datos Demo', 'resetToDemoData')
       .addToUi();
 
     // Apertura automática de la barra lateral (sticky sidebar)
@@ -138,6 +141,42 @@ function showAdminSidebar() {
     SpreadsheetApp.getUi().showSidebar(htmlOutput);
   } catch (err) {
     console.error('Error desplegando sidebar de administración:', err);
+  }
+}
+
+/**
+ * Abre el panel de administración web en una nueva pestaña del navegador.
+ */
+function openAdminWebTab() {
+  try {
+    const html = HtmlService.createHtmlOutput(
+      '<html><body style="font-family:sans-serif;padding:12px;text-align:center;">' +
+      '<p style="font-weight:700;margin-bottom:12px;">Redirigiendo a AliasDB Admin...</p>' +
+      '<script>window.open("https://d-l-n.github.io/AliasDB/admin.html", "_blank");setTimeout(function(){google.script.host.close();}, 1200);</script>' +
+      '<a href="https://d-l-n.github.io/AliasDB/admin.html" target="_blank" style="display:inline-block;padding:8px 16px;background:#FFE600;color:#0D0D11;font-weight:800;border:2px solid #0D0D11;text-decoration:none;">Abrir manualmente</a>' +
+      '</body></html>'
+    ).setWidth(320).setHeight(130);
+    SpreadsheetApp.getUi().showModalDialog(html, 'AliasDB // Panel Admin');
+  } catch (err) {
+    console.error('Error abriendo pestaña admin:', err);
+  }
+}
+
+/**
+ * Abre la aplicación pública de consulta en una nueva pestaña del navegador.
+ */
+function openPublicAppTab() {
+  try {
+    const html = HtmlService.createHtmlOutput(
+      '<html><body style="font-family:sans-serif;padding:12px;text-align:center;">' +
+      '<p style="font-weight:700;margin-bottom:12px;">Redirigiendo a AliasDB...</p>' +
+      '<script>window.open("https://d-l-n.github.io/AliasDB/", "_blank");setTimeout(function(){google.script.host.close();}, 1200);</script>' +
+      '<a href="https://d-l-n.github.io/AliasDB/" target="_blank" style="display:inline-block;padding:8px 16px;background:#2DF8C5;color:#0D0D11;font-weight:800;border:2px solid #0D0D11;text-decoration:none;">Abrir manualmente</a>' +
+      '</body></html>'
+    ).setWidth(320).setHeight(130);
+    SpreadsheetApp.getUi().showModalDialog(html, 'AliasDB // App Pública');
+  } catch (err) {
+    console.error('Error abriendo pestaña pública:', err);
   }
 }
 
