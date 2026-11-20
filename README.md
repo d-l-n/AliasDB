@@ -1,6 +1,10 @@
-# Amigos & Alias | WebApp de Pagos Rápidos (Google Apps Script)
+# Amigos & Alias | WebApp de Pagos Rápidos (GitHub Pages + Apps Script API)
 
-Aplicación web *mobile-first* construida para **Google Apps Script** con estilo **Neo-Brutalista** (Modo Claro y Modo Oscuro), diseñada para gestionar y compartir de forma inmediata los alias bancarios y CBU/CVU de un grupo de amigos.
+Aplicación web *mobile-first* desplegada en **GitHub Pages** con estilo **Neo-Brutalista** (Modo Claro y Modo Oscuro) y sincronización con **Google Apps Script & Google Sheets**, diseñada para gestionar y compartir de forma inmediata los alias bancarios y CBU/CVU de un grupo de amigos.
+
+- **Frontend en Producción**: [https://d-l-n.github.io/amigos-alias/](https://d-l-n.github.io/amigos-alias/)
+- **Repositorio GitHub**: [https://github.com/d-l-n/amigos-alias](https://github.com/d-l-n/amigos-alias)
+- **Backend API (Apps Script)**: `https://script.google.com/macros/s/AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg/exec`
 
 Permite que cada contacto tenga **1 o más cuentas bancarias/billeteras virtuales**, con copiado en **1 solo clic** tanto tocando directamente el alias como pulsando el botón dedicado.
 
