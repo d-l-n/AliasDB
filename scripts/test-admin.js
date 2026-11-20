@@ -198,3 +198,18 @@ scriptMatches.forEach((m, idx) => {
 });
 
 console.log('\n--- Todas las 9 verificaciones pasaron con éxito (PASS) ---');
+
+
+// 10. Verificación de Integración con Google Sheets (Sticky Sidebar & onOpen)
+console.log('10. Verificando funciones de integración de Sidebar en Code.js...');
+const codeContent = fs.readFileSync(path.join(__dirname, '..', 'Code.js'), 'utf8');
+assert(codeContent.includes('function onOpen('), 'Code.js debe declarar función onOpen');
+assert(codeContent.includes('function showAdminSidebar('), 'Code.js debe declarar función showAdminSidebar');
+assert(codeContent.includes('showSidebar('), 'Code.js debe invocar showSidebar en Google Sheets');
+
+// 11. Verificación de Sticky Header en index.html y admin.html
+console.log('11. Verificando Sticky Header y atajo de 10 toques...');
+const indexContent = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+assert(indexContent.includes('position: sticky'), 'index.html debe tener header sticky');
+assert(html.includes('position: sticky'), 'admin.html debe tener header sticky');
+assert(indexContent.includes('brandTapCount >= 10'), 'index.html debe incluir atajo de 10 toques');

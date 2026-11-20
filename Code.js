@@ -90,6 +90,82 @@ const DEMO_FRIENDS = [
   }
 ];
 
+
+/**
+ * ===================================================================
+ * INTEGRACIÓN CON GOOGLE SHEETS UI (SIDEBAR STICKY & MENÚS)
+ * ===================================================================
+ */
+
+/**
+ * Se ejecuta automáticamente al abrir la hoja de cálculo de Google Sheets.
+ * Despliega la barra lateral fija (sticky sidebar) con el panel de administración
+ * y registra el menú personalizado 'AliasDB'.
+ * @param {Object} e Evento de apertura de la hoja de cálculo
+ */
+function onOpen(e) {
+  try {
+    try {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      if (ss) {
+        PropertiesService.getScriptProperties().setProperty(SPREADSHEET_PROP_KEY, ss.getId());
+      }
+    } catch (ssErr) {}
+
+    const ui = SpreadsheetApp.getUi();
+    ui.createMenu('AliasDB')
+      .addItem('Abrir Panel de Administración', 'showAdminSidebar')
+      .addItem('Configurar Clave Admin', 'promptSetAdminKey')
+      .addItem('Reinicializar Datos Demo', 'resetToDemoData')
+      .addToUi();
+
+    // Apertura automática de la barra lateral (sticky sidebar)
+    showAdminSidebar();
+  } catch (err) {
+    console.error('Error inicializando interfaz en onOpen:', err);
+  }
+}
+
+/**
+ * Despliega la barra lateral (sidebar) fija en Google Sheets con el panel de administración.
+ */
+function showAdminSidebar() {
+  try {
+    const template = HtmlService.createTemplateFromFile('admin');
+    const htmlOutput = template.evaluate()
+      .setTitle('AliasDB // Panel Admin')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    SpreadsheetApp.getUi().showSidebar(htmlOutput);
+  } catch (err) {
+    console.error('Error desplegando sidebar de administración:', err);
+  }
+}
+
+/**
+ * Diálogo interactivo en Google Sheets para configurar la clave de administrador.
+ */
+function promptSetAdminKey() {
+  try {
+    const ui = SpreadsheetApp.getUi();
+    const response = ui.prompt(
+      'Configurar Clave Admin',
+      'Ingresá la nueva clave de administrador para AliasDB:',
+      ui.ButtonSet.OK_CANCEL
+    );
+    if (response.getSelectedButton() === ui.Button.OK) {
+      const key = response.getResponseText().trim();
+      if (key) {
+        setAdminKey(key);
+        ui.alert('Éxito', 'Clave de administración configurada correctamente.', ui.ButtonSet.OK);
+      } else {
+        ui.alert('Atención', 'La clave no puede estar vacía.', ui.ButtonSet.OK);
+      }
+    }
+  } catch (err) {
+    console.error('Error configurando clave desde prompt:', err);
+  }
+}
+
 // ===================================================================
 // CONTROLADOR WEB (doGet / doPost) E INCLUDES
 // ===================================================================
