@@ -7,6 +7,9 @@
 
 const SHEET_NAME = 'Cuentas';
 const SPREADSHEET_PROP_KEY = 'SPREADSHEET_ID';
+const TOKEN_MAP_KEY = 'GROUP_TOKENS';
+const ADMIN_KEY_PROP = 'ADMIN_KEY';
+const DEFAULT_ADMIN_KEY = 'aliasdb_admin_2026';
 
 const HEADERS = [
   'id_persona',
@@ -88,21 +91,121 @@ const DEMO_FRIENDS = [
 ];
 
 // ===================================================================
-// CONTROLADOR WEB (doGet) E INCLUDES
+// CONTROLADOR WEB (doGet / doPost) E INCLUDES
 // ===================================================================
 
 /**
- * Manejador de solicitudes HTTP GET para servir la Single Page Application (SPA).
+ * Manejador de solicitudes HTTP GET para servir la SPA o actuar como Router REST.
  * @param {Object} e Evento de petición HTTP
- * @returns {HtmlOutput} Interfaz web configurada
+ * @returns {HtmlOutput|TextOutput} Interfaz web configurada o payload JSON
  */
 function doGet(e) {
   try {
-    // Modo API REST: Servir JSON público para clientes externos (ej: GitHub Pages)
-    if (e && e.parameter && (e.parameter.action === 'getFriends' || e.parameter.action === 'getPersons' || e.parameter.action === 'getPersonas' || e.parameter.format === 'json')) {
-      const friends = getFriendsDataInternal();
-      return ContentService.createTextOutput(JSON.stringify({ success: true, data: friends }))
-        .setMimeType(ContentService.MimeType.JSON);
+    const isRest = e && e.parameter && (e.parameter.action || e.parameter.format === 'json');
+
+    if (isRest) {
+      const action = e.parameter.action || 'getFriends';
+
+      switch (action) {
+        // --- Endpoints Públicos de Consulta ---
+        case 'getFriends':
+        case 'getPersons':
+        case 'getPersonas': {
+          let groupFilter = null;
+          if (e.parameter.token) {
+            groupFilter = resolveGroupFromToken(e.parameter.token);
+            if (!groupFilter) {
+              return jsonResponse({ success: false, error: 'Token inválido o expirado.' });
+            }
+          } else if (e.parameter.grupo) {
+            groupFilter = e.parameter.grupo;
+          }
+
+          const friends = getFriendsDataInternal(groupFilter);
+          return jsonResponse({ success: true, data: friends, grupo: groupFilter });
+        }
+
+        case 'getGroups': {
+          return jsonResponse({ success: true, data: getDistinctGroups() });
+        }
+
+        // --- Endpoints de Administración (Requieren adminKey) ---
+        case 'save':
+        case 'savePerson':
+        case 'saveFriend': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+
+          let body = null;
+          if (e.parameter.payload) {
+            try {
+              body = typeof e.parameter.payload === 'string' ? JSON.parse(e.parameter.payload) : e.parameter.payload;
+            } catch (err) {
+              return jsonResponse({ success: false, error: 'Payload JSON inválido: ' + err.message });
+            }
+          } else {
+            body = e.parameter;
+          }
+          return jsonResponse(saveFriendWithAccounts(body));
+        }
+
+        case 'deleteFriend':
+        case 'deletePerson':
+        case 'deletePersona': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+          return jsonResponse(deleteFriend(e.parameter.id));
+        }
+
+        case 'deleteAccount': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+          return jsonResponse(deleteAccount(e.parameter.id));
+        }
+
+        case 'getTokens': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+          return jsonResponse({ success: true, data: getAllGroupTokens() });
+        }
+
+        case 'generateToken': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+          const grupo = e.parameter.grupo;
+          if (!grupo) {
+            return jsonResponse({ success: false, error: 'Parámetro grupo requerido.' });
+          }
+          const token = generateGroupToken(grupo);
+          return jsonResponse({ success: true, token: token, grupo: grupo });
+        }
+
+        case 'revokeToken': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+          const token = e.parameter.token;
+          if (!token) {
+            return jsonResponse({ success: false, error: 'Parámetro token requerido.' });
+          }
+          revokeGroupToken(token);
+          return jsonResponse({ success: true, token: token, revoked: true });
+        }
+
+        case 'renameGroup': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+          return jsonResponse(renameGroupInternal(e.parameter.oldName, e.parameter.newName));
+        }
+
+        case 'getSpreadsheetInfo': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+          return jsonResponse(getSpreadsheetInfo());
+        }
+
+        default:
+          return jsonResponse({ success: false, error: 'Acción desconocida: ' + action });
+      }
     }
 
     const template = HtmlService.createTemplateFromFile('index');
@@ -111,9 +214,8 @@ function doGet(e) {
       .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (error) {
-    if (e && e.parameter && (e.parameter.action === 'getFriends' || e.parameter.action === 'getPersons' || e.parameter.action === 'getPersonas' || e.parameter.format === 'json')) {
-      return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.message || String(error) }))
-        .setMimeType(ContentService.MimeType.JSON);
+    if (e && e.parameter && (e.parameter.action || e.parameter.format === 'json')) {
+      return jsonResponse({ success: false, error: error.message || String(error) });
     }
     console.error('Error renderizando index.html:', error);
     return HtmlService.createHtmlOutput(
@@ -122,6 +224,286 @@ function doGet(e) {
       '<p>No se pudo cargar la vista principal: ' + error.message + '</p>' +
       '</div>'
     );
+  }
+}
+
+/**
+ * Manejador de solicitudes HTTP POST. Delega al router GET procesando JSON body si existe.
+ * @param {Object} e Evento de petición HTTP
+ * @returns {TextOutput} Salida HTTP JSON
+ */
+function doPost(e) {
+  if (e && e.postData && e.postData.contents) {
+    try {
+      const parsed = JSON.parse(e.postData.contents);
+      e.parameter = Object.assign({}, e.parameter || {}, parsed);
+      if (parsed.payload && typeof parsed.payload === 'object') {
+        e.parameter.payload = JSON.stringify(parsed.payload);
+      }
+    } catch (err) {
+      // Contenido no JSON; continuar con parámetros estándar
+    }
+  }
+  return doGet(e);
+}
+
+/**
+ * Serializa un objeto a formato JSON con cabecera Content-Type correcta.
+ * @param {Object} obj Datos a serializar
+ * @returns {TextOutput} Objeto ContentService
+ */
+function jsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===================================================================
+// AUTENTICACIÓN Y SEGURIDAD ADMINISTRATIVA
+// ===================================================================
+
+/**
+ * Valida la clave de administrador provista en la petición HTTP.
+ * Si no hay clave configurada en ScriptProperties, inicializa DEFAULT_ADMIN_KEY.
+ * @param {Object} e Evento de petición HTTP
+ * @returns {TextOutput|null} null si la clave es válida; salida JSON con error si es inválida
+ */
+function requireAdmin(e) {
+  const adminKey = (e && e.parameter && e.parameter.adminKey) ? String(e.parameter.adminKey).trim() : '';
+  const scriptProps = PropertiesService.getScriptProperties();
+  let storedKey = scriptProps.getProperty(ADMIN_KEY_PROP);
+
+  if (!storedKey) {
+    storedKey = DEFAULT_ADMIN_KEY;
+    try {
+      scriptProps.setProperty(ADMIN_KEY_PROP, storedKey);
+    } catch (err) {
+      console.warn('No se pudo inicializar ADMIN_KEY por defecto:', err);
+    }
+  }
+
+  if (!adminKey || adminKey !== storedKey) {
+    return jsonResponse({ success: false, error: 'No autorizado. adminKey inválida.' });
+  }
+
+  return null;
+}
+
+/**
+ * Configura o actualiza la clave secreta de administración en ScriptProperties.
+ * @param {string} key Nueva clave de administración
+ * @returns {Object} Resultado de la operación
+ */
+function setAdminKey(key) {
+  if (!key || typeof key !== 'string' || !key.trim()) {
+    return { success: false, error: 'La clave de administración no puede estar vacía.' };
+  }
+  const cleanKey = key.trim();
+  PropertiesService.getScriptProperties().setProperty(ADMIN_KEY_PROP, cleanKey);
+  return { success: true, message: 'ADMIN_KEY actualizada correctamente.' };
+}
+
+// ===================================================================
+// SISTEMA DE GRUPOS Y TOKENS PRIVADOS
+// ===================================================================
+
+/**
+ * Resuelve el nombre del grupo a partir de un token de acceso privado.
+ * @param {string} token Token único del grupo
+ * @returns {string|null} Nombre del grupo o null si el token no existe
+ */
+function resolveGroupFromToken(token) {
+  if (!token) return null;
+  const scriptProps = PropertiesService.getScriptProperties();
+  const raw = scriptProps.getProperty(TOKEN_MAP_KEY);
+  if (!raw) return null;
+  try {
+    const map = JSON.parse(raw);
+    const trimmed = String(token).trim();
+    return map[trimmed] || null;
+  } catch (e) {
+    console.error('Error resolviendo token de grupo:', e);
+    return null;
+  }
+}
+
+/**
+ * Genera y almacena un nuevo token de acceso para un grupo.
+ * @param {string} groupName Nombre del grupo
+ * @returns {string} Token generado (ej: 'futbol_a1b2')
+ */
+function generateGroupToken(groupName) {
+  const cleanGroup = String(groupName || 'General').trim();
+  const prefix = cleanGroup
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .slice(0, 6) || 'grp';
+  const token = prefix + '_' + Utilities.getUuid().slice(0, 4);
+
+  const scriptProps = PropertiesService.getScriptProperties();
+  const raw = scriptProps.getProperty(TOKEN_MAP_KEY);
+  let map = {};
+  if (raw) {
+    try {
+      map = JSON.parse(raw);
+    } catch (e) {
+      map = {};
+    }
+  }
+  map[token] = cleanGroup;
+  scriptProps.setProperty(TOKEN_MAP_KEY, JSON.stringify(map));
+  return token;
+}
+
+/**
+ * Revoca y elimina un token de acceso de ScriptProperties.
+ * @param {string} token Token a revocar
+ * @returns {boolean} true si fue revocado, false si no existía
+ */
+function revokeGroupToken(token) {
+  if (!token) return false;
+  const trimmed = String(token).trim();
+  const scriptProps = PropertiesService.getScriptProperties();
+  const raw = scriptProps.getProperty(TOKEN_MAP_KEY);
+  if (!raw) return false;
+  try {
+    const map = JSON.parse(raw);
+    if (Object.prototype.hasOwnProperty.call(map, trimmed)) {
+      delete map[trimmed];
+      scriptProps.setProperty(TOKEN_MAP_KEY, JSON.stringify(map));
+      return true;
+    }
+  } catch (e) {
+    console.error('Error revocando token de grupo:', e);
+  }
+  return false;
+}
+
+/**
+ * Retorna todos los tokens activos asociados a sus respectivos grupos.
+ * @returns {Object} Mapa { [token]: groupName }
+ */
+function getAllGroupTokens() {
+  const scriptProps = PropertiesService.getScriptProperties();
+  const raw = scriptProps.getProperty(TOKEN_MAP_KEY);
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Error obteniendo tokens:', e);
+    return {};
+  }
+}
+
+/**
+ * Obtiene la lista de nombres de grupos distintos registrados en la base de datos.
+ * @returns {Array<string>} Lista ordenada de grupos
+ */
+function getDistinctGroups() {
+  const sheet = getAccountsSheet();
+  const fullData = sheet.getDataRange().getValues();
+  if (fullData.length <= 1) {
+    return ['General'];
+  }
+  const groups = new Set();
+  for (let i = 1; i < fullData.length; i++) {
+    const g = String(fullData[i][2] || '').trim();
+    if (g) groups.add(g);
+  }
+  if (groups.size === 0) {
+    return ['General'];
+  }
+  return Array.from(groups).sort(function(a, b) {
+    return a.localeCompare(b, 'es', { sensitivity: 'base' });
+  });
+}
+
+/**
+ * Renombra un grupo en todas las filas de la hoja 'Cuentas' y actualiza sus tokens.
+ * @param {string} oldName Nombre actual del grupo
+ * @param {string} newName Nuevo nombre del grupo
+ * @returns {Object} Resultado con la cantidad de filas actualizadas
+ */
+function renameGroupInternal(oldName, newName) {
+  const lock = LockService.getScriptLock();
+  try {
+    const hasLock = lock.tryLock(15000);
+    if (!hasLock) {
+      return { success: false, error: 'Base de datos ocupada. Intente nuevamente en unos instantes.' };
+    }
+
+    const cleanOld = String(oldName || '').trim();
+    const cleanNew = String(newName || '').trim();
+
+    if (!cleanOld || !cleanNew) {
+      return { success: false, error: 'Nombres de grupo origen y destino requeridos.' };
+    }
+
+    if (cleanOld === cleanNew) {
+      return { success: true, updatedCount: 0, message: 'El nuevo nombre es idéntico al actual.' };
+    }
+
+    const sheet = getAccountsSheet();
+    const fullData = sheet.getDataRange().getValues();
+    if (fullData.length <= 1) {
+      return { success: true, updatedCount: 0 };
+    }
+
+    const normOld = cleanOld.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    let updatedCount = 0;
+    const rowsToUpdate = [];
+
+    for (let i = 1; i < fullData.length; i++) {
+      const row = fullData[i];
+      const currentGroup = String(row[2] || '').trim();
+      const normCurrent = currentGroup.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      if (normCurrent === normOld) {
+        row[2] = cleanNew;
+        updatedCount++;
+      }
+      rowsToUpdate.push(row);
+    }
+
+    if (updatedCount > 0) {
+      sheet.getRange(2, 1, rowsToUpdate.length, HEADERS.length).setNumberFormat('@');
+      sheet.getRange(2, 1, rowsToUpdate.length, HEADERS.length).setValues(rowsToUpdate);
+    }
+
+    // Actualizar también los tokens en ScriptProperties que apunten a cleanOld
+    const scriptProps = PropertiesService.getScriptProperties();
+    const rawTokens = scriptProps.getProperty(TOKEN_MAP_KEY);
+    if (rawTokens) {
+      try {
+        const tokenMap = JSON.parse(rawTokens);
+        let tokensUpdated = false;
+        Object.keys(tokenMap).forEach(function(token) {
+          const tGroup = String(tokenMap[token] || '').trim();
+          const normTGroup = tGroup.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          if (normTGroup === normOld) {
+            tokenMap[token] = cleanNew;
+            tokensUpdated = true;
+          }
+        });
+        if (tokensUpdated) {
+          scriptProps.setProperty(TOKEN_MAP_KEY, JSON.stringify(tokenMap));
+        }
+      } catch (err) {
+        console.warn('Error actualizando tokens durante renombre de grupo:', err);
+      }
+    }
+
+    return {
+      success: true,
+      updatedCount: updatedCount,
+      oldName: cleanOld,
+      newName: cleanNew
+    };
+  } catch (error) {
+    console.error('Error en renameGroupInternal:', error);
+    return { success: false, error: error.message || String(error) };
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -244,12 +626,13 @@ function seedDemoData(sheet) {
 // ===================================================================
 
 /**
- * Devuelve todas las personas con sus cuentas agrupadas.
+ * Devuelve todas las personas con sus cuentas agrupadas, con soporte opcional de filtro por grupo.
+ * @param {string} [groupFilter] Filtro opcional por grupo
  * Respuesta: { success: true, data: [{ id, name, group, avatar, accounts: [...] }] }
  */
-function getFriendsData() {
+function getFriendsData(groupFilter) {
   try {
-    const friends = getFriendsDataInternal();
+    const friends = getFriendsDataInternal(groupFilter);
     return { success: true, data: friends };
   } catch (error) {
     console.error('Error en getFriendsData:', error);
@@ -258,8 +641,8 @@ function getFriendsData() {
 }
 
 /** Alias para compatibilidad terminológica */
-function getPersonasData() {
-  return getFriendsData();
+function getPersonasData(groupFilter) {
+  return getFriendsData(groupFilter);
 }
 
 /**
@@ -571,10 +954,11 @@ function getSpreadsheetInfo() {
 // ===================================================================
 
 /**
- * Extrae y agrupa todas las personas con sus cuentas bancarias desde la hoja.
+ * Extrae y agrupa las personas con sus cuentas bancarias desde la hoja, con soporte de filtrado por grupo.
+ * @param {string} [groupFilter] Filtro opcional de grupo (insensible a mayúsculas y acentos)
  * @returns {Array<Object>} Lista de personas agrupadas
  */
-function getFriendsDataInternal() {
+function getFriendsDataInternal(groupFilter) {
   const sheet = getAccountsSheet();
   const fullData = sheet.getDataRange().getValues();
   if (fullData.length <= 1) {
@@ -582,14 +966,29 @@ function getFriendsDataInternal() {
   }
 
   const friendsMap = new Map();
+  const normalizedFilter = groupFilter
+    ? String(groupFilter).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    : null;
 
   for (let i = 1; i < fullData.length; i++) {
     const row = fullData[i];
     const friendId = String(row[0] || '').trim();
     if (!friendId) continue;
 
-    const friendName = String(row[1] || '').trim();
     const friendGroup = String(row[2] || '').trim() || 'General';
+
+    // Filtrar por grupo si se especificó groupFilter
+    if (normalizedFilter) {
+      const normalizedGroup = friendGroup
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+      if (normalizedGroup !== normalizedFilter) {
+        continue;
+      }
+    }
+
+    const friendName = String(row[1] || '').trim();
     const accountId = String(row[3] || '').trim();
     const bank = String(row[4] || '').trim();
     const type = String(row[5] || '').trim();
