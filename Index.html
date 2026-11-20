@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Amigos & Alias | Pagos Rápidos</title>
+
+  <!-- Prevención de FOUC y soporte de esquema de color nativo -->
+  <meta name="color-scheme" content="light dark">
+  <script>
+    (function() {
+      try {
+        const saved = localStorage.getItem('alias_app_theme');
+        if (saved) {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <style>
+    /* ==========================================================================
+       NEO-BRUTALIST DESIGN TOKENS (LIGHT & DARK MODE)
+       ========================================================================== */
+    :root {
+      color-scheme: light dark;
+
+      --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, Monaco, monospace;
+
+      /* PALETA MODO CLARO */
+      --canvas: #FFFDF8;
+      --surface: #FFFFFF;
+      --surface-alt: #F4F1EA;
+      --text-primary: #0A0A0A;
+      --text-secondary: #4A4A4A;
+      --border-color: #0A0A0A;
+      --shadow-color: #0A0A0A;
+
+      /* Acentos Neo-Brutalistas */
+      --accent-yellow: #FFE600;
+      --accent-cyan: #00E5FF;
+      --accent-mint: #00F5A0;
+      --accent-pink: #FF66CC;
+      --accent-purple: #B388FF;
+      --accent-orange: #FF6B00;
+      --accent-danger: #FF3B30;
+
+      /* Geometría e Interacción */
+      --border-width: 2.5px;
+      --shadow-offset: 4px;
+      --shadow-offset-sm: 2px;
+      --border-radius: 14px;
+
+      /* Badges Entidades Bancarias (Light) */
+      --bank-mp: #00E5FF;
+      --bank-mp-text: #000000;
+      --bank-galicia: #FF6B00;
+      --bank-galicia-text: #FFFFFF;
+      --bank-santander: #FF2E2E;
+      --bank-santander-text: #FFFFFF;
+      --bank-brubank: #9B51E0;
+      --bank-brubank-text: #FFFFFF;
+      --bank-lemon: #A6FF00;
+      --bank-lemon-text: #000000;
+      --bank-bbva: #004481;
+      --bank-bbva-text: #FFFFFF;
+      --bank-uala: #FF4081;
+      --bank-uala-text: #FFFFFF;
+      --bank-macro: #003882;
+      --bank-macro-text: #FFFFFF;
+      --bank-generic: #E0E0E0;
+      --bank-generic-text: #000000;
+    }
+
+    /* PALETA MODO OSCURO */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --canvas: #0F0F12;
+        --surface: #18181D;
+        --surface-alt: #22222A;
+        --text-primary: #F8F8F8;
+        --text-secondary: #B0B0B8;
+        --border-color: #F8F8F8;
+        --shadow-color: #F8F8F8;
+
+        /* Acentos Dark */
+        --accent-yellow: #FFE600;
+        --accent-cyan: #00F0FF;
+        --accent-mint: #00FF9D;
+        --accent-pink: #FF66D9;
+        --accent-purple: #C89BFF;
+        --accent-orange: #FF771C;
+
+        --bank-mp: #00C8E0;
+        --bank-mp-text: #000000;
+        --bank-galicia: #FF5A00;
+        --bank-galicia-text: #FFFFFF;
+        --bank-santander: #FF3B3B;
+        --bank-santander-text: #FFFFFF;
+        --bank-brubank: #8A3FD8;
+        --bank-brubank-text: #FFFFFF;
+        --bank-lemon: #95E800;
+        --bank-lemon-text: #000000;
+        --bank-bbva: #0A5BA6;
+        --bank-bbva-text: #FFFFFF;
+        --bank-uala: #F53678;
+        --bank-uala-text: #FFFFFF;
+        --bank-macro: #0D4E9B;
+        --bank-macro-text: #FFFFFF;
+        --bank-generic: #3A3A44;
+        --bank-generic-text: #FFFFFF;
+      }
+    }
+
+    [data-theme="dark"] {
+      --canvas: #0F0F12;
+      --surface: #18181D;
+      --surface-alt: #22222A;
+      --text-primary: #F8F8F8;
+      --text-secondary: #B0B0B8;
+      --border-color: #F8F8F8;
+      --shadow-color: #F8F8F8;
+
+      --accent-yellow: #FFE600;
+      --accent-cyan: #00F0FF;
+      --accent-mint: #00FF9D;
+      --accent-pink: #FF66D9;
+      --accent-purple: #C89BFF;
+      --accent-orange: #FF771C;
+
+      --bank-mp: #00C8E0;
+      --bank-mp-text: #000000;
+      --bank-galicia: #FF5A00;
+      --bank-galicia-text: #FFFFFF;
+      --bank-santander: #FF3B3B;
+      --bank-santander-text: #FFFFFF;
+      --bank-brubank: #8A3FD8;
+      --bank-brubank-text: #FFFFFF;
+      --bank-lemon: #95E800;
+      --bank-lemon-text: #000000;
+      --bank-bbva: #0A5BA6;
+      --bank-bbva-text: #FFFFFF;
+      --bank-uala: #F53678;
+      --bank-uala-text: #FFFFFF;
+      --bank-macro: #0D4E9B;
+      --bank-macro-text: #FFFFFF;
+      --bank-generic: #3A3A44;
+      --bank-generic-text: #FFFFFF;
+    }
+
+    [data-theme="light"] {
+      --canvas: #FFFDF8;
+      --surface: #FFFFFF;
+      --surface-alt: #F4F1EA;
+      --text-primary: #0A0A0A;
+      --text-secondary: #4A4A4A;
+      --border-color: #0A0A0A;
+      --shadow-color: #0A0A0A;
+    }
+
+    /* ==========================================================================
+       RESET & BASE
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--canvas);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      min-height: 100vh;
+      padding-bottom: 96px;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      line-height: 1.35;
+    }
+
+    .app-container {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    /* ==========================================================================
+       UTILIDADES BRUTALISTAS
+       ========================================================================== */
+    .nb-box {
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color);
+      border-radius: var(--border-radius);
+      background-color: var(--surface);
+    }
+
+    .nb-box-sm {
+      border: 2px solid var(--border-color);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow-color);
+      border-radius: 8px;
+    }
+
+    .nb-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 8px 14px;
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow-color);
+      border-radius: 10px;
+      background-color: var(--surface);
+      color: var(--text-primary);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      min-height: 44px;
+    }
+
+    .nb-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow-color) !important;
+    }
+
+    .nb-btn-primary {
+      background-color: var(--accent-yellow);
+      color: #000000;
+    }
+
+    .nb-btn-accent {
+      background-color: var(--accent-cyan);
+      color: #000000;
+    }
+
+    .nb-btn-danger {
+      background-color: var(--accent-danger);
+      color: #FFFFFF;
+    }
+
+    /* ==========================================================================
+       HEADER & BUSCADOR
+       ========================================================================== */
+    .app-header {
+      background-color: var(--accent-yellow);
+      color: #000000;
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color);
+      border-radius: var(--border-radius);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      font-weight: 900;
+      font-size: 1.15rem;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .header-subtitle {
+      font-weight: 800;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.85;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-toggle-btn {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 10px;
+      font-size: 1.15rem;
+      background-color: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .search-card {
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow-color);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+    .chips-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .chips-bar::-webkit-scrollbar { display: none; }
+
+    .filter-chip {
+      padding: 4px 10px;
+      border: 2px solid var(--border-color);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      background: var(--surface);
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .filter-chip.active {
+      background: var(--accent-cyan);
+      color: #000000;
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px var(--shadow-color);
+    }
+
+    /* ==========================================================================
+       TARJETAS DE AMIGOS
+       ========================================================================== */
+    .friend-card {
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color);
+      border-radius: var(--border-radius);
+      padding: 14px;
+      margin-bottom: 16px;
+      transition: transform 0.1s ease;
+    }
+
+    .friend-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .friend-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .friend-avatar {
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--border-color);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      border-radius: 10px;
+      background-color: var(--accent-mint);
+      color: #000000;
+      font-weight: 900;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .friend-name {
+      font-weight: 900;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .friend-meta {
+      font-size: 0.72rem;
+      font-weight: 750;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .group-badge {
+      display: inline-block;
+      font-weight: 800;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border: 1.5px solid var(--border-color);
+      box-shadow: 1.5px 1.5px 0px var(--shadow-color);
+      border-radius: 6px;
+      background-color: var(--accent-purple);
+      color: #000000;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================================
+       FILAS DE CUENTAS & 1-CLICK COPY
+       ========================================================================== */
+    .accounts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .account-row {
+      background-color: var(--surface-alt);
+      border: 2px solid var(--border-color);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .account-meta-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .bank-badge {
+      display: inline-flex;
+      align-items: center;
+      font-weight: 900;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border-color);
+      box-shadow: 1.5px 1.5px 0px var(--shadow-color);
+    }
+
+    .account-type-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    /* ZONA TÁCTIL DEL ALIAS (1-Click) */
+    .alias-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alias-touch-chip {
+      flex: 1;
+      min-width: 0;
+      background-color: var(--surface);
+      border: 2px solid var(--border-color);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      border-radius: 8px;
+      padding: 8px 10px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.15s ease;
+    }
+
+    .alias-touch-chip:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow-color);
+      background-color: var(--accent-yellow);
+      color: #000000;
+    }
+
+    .alias-text {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .touch-hint {
+      font-size: 0.65rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background-color: var(--surface-alt);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .copy-action-btn {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      flex-shrink: 0;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      background-color: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .cbu-details {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      padding: 4px 6px;
+      background-color: var(--surface);
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .cbu-details:hover {
+      color: var(--text-primary);
+      border-style: solid;
+    }
+
+    .titular-box {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+    }
+
+    /* Colores Bancarios específicos */
+    .bank-mp { background: var(--bank-mp); color: var(--bank-mp-text); }
+    .bank-galicia { background: var(--bank-galicia); color: var(--bank-galicia-text); }
+    .bank-santander { background: var(--bank-santander); color: var(--bank-santander-text); }
+    .bank-brubank { background: var(--bank-brubank); color: var(--bank-brubank-text); }
+    .bank-lemon { background: var(--bank-lemon); color: var(--bank-lemon-text); }
+    .bank-bbva { background: var(--bank-bbva); color: var(--bank-bbva-text); }
+    .bank-uala { background: var(--bank-uala); color: var(--bank-uala-text); }
+    .bank-macro { background: var(--bank-macro); color: var(--bank-macro-text); }
+    .bank-generic { background: var(--bank-generic); color: var(--bank-generic-text); }
+
+    /* Flash de éxito al copiar */
+    @keyframes copyFlash {
+      0% { background-color: var(--accent-mint); color: #000000; }
+      100% { background-color: var(--surface); color: var(--text-primary); }
+    }
+    .alias-copied-flash {
+      animation: copyFlash 0.35s ease-out;
+    }
+
+    /* Acciones inferiores de la tarjeta */
+    .friend-footer-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1.5px dashed var(--border-color);
+    }
+
+    .btn-sm-action {
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      min-height: 32px;
+      border-radius: 6px;
+    }
+
+    /* ==========================================================================
+       TOAST ACCESIBLE
+       ========================================================================== */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background-color: var(--accent-yellow);
+      color: #000000;
+      border: var(--border-width) solid #000000;
+      box-shadow: 4px 4px 0px #000000;
+      padding: 10px 18px;
+      border-radius: 9999px;
+      font-weight: 900;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10000;
+      pointer-events: none;
+      opacity: 0;
+      transition: transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease;
+      white-space: nowrap;
+      max-width: 90vw;
+    }
+
+    #toast-container.active {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ==========================================================================
+       MODAL FORMULARIO AMIGO Y CUENTAS
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background-color: var(--surface);
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow-color);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 520px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 18px;
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2.5px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-weight: 900;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 800;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 2px solid var(--border-color);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      border-radius: 8px;
+      background-color: var(--surface-alt);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      background-color: var(--surface);
+      border-color: var(--accent-cyan);
+    }
+
+    .account-builder-card {
+      background-color: var(--surface-alt);
+      border: 2px solid var(--border-color);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .remove-account-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--accent-danger);
+      color: #fff;
+      border: 1.5px solid var(--border-color);
+      box-shadow: 1.5px 1.5px 0px var(--shadow-color);
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+
+    /* Skeleton Loading */
+    .skeleton-box {
+      background: linear-gradient(90deg, var(--surface-alt) 25%, var(--canvas) 50%, var(--surface-alt) 75%);
+      background-size: 200% 100%;
+      animation: skeletonLoading 1.2s infinite;
+      border-radius: 8px;
+    }
+    @keyframes skeletonLoading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ENCABEZADO NEO-BRUTALISTA -->
+    <header class="app-header">
+      <div>
+        <h1 class="header-title">Amigos & Alias</h1>
+        <p class="header-subtitle">1-Click Fast Transfer • Mobile First</p>
+      </div>
+      <div class="header-actions">
+        <!-- Switch Claro / Oscuro -->
+        <button id="themeToggleBtn" type="button" class="nb-btn icon-toggle-btn" aria-label="Cambiar tema de color" title="Alternar Modo Claro / Oscuro">
+          <span id="themeIcon">🌓</span>
+        </button>
+        <!-- Botón Agregar Contacto -->
+        <button id="addFriendBtn" type="button" class="nb-btn nb-btn-primary" aria-label="Agregar Amigo">
+          <span>+ AMIGO</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- BARRA DE BÚSQUEDA RÁPIDA -->
+    <div class="search-card">
+      <span style="font-size: 1rem;">🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Buscar amigo, banco o alias...">
+      <button id="clearSearchBtn" type="button" style="display:none; background:none; border:none; font-weight:900; cursor:pointer;" aria-label="Borrar búsqueda">✕</button>
+    </div>
+
+    <!-- CHIPS DE FILTRO RÁPIDO -->
+    <div id="chipsContainer" class="chips-bar">
+      <button type="button" class="filter-chip active" data-filter="all">TODOS</button>
+      <button type="button" class="filter-chip" data-filter="Mercado Pago">MERCADO PAGO</button>
+      <button type="button" class="filter-chip" data-filter="Galicia">GALICIA</button>
+      <button type="button" class="filter-chip" data-filter="Santander">SANTANDER</button>
+      <button type="button" class="filter-chip" data-filter="Brubank">BRUBANK</button>
+      <button type="button" class="filter-chip" data-filter="Lemon Cash">LEMON</button>
+    </div>
+
+    <!-- LISTA PRINCIPAL DE AMIGOS -->
+    <main id="friendsContainer">
+      <!-- Skeleton loader inicial -->
+      <div class="friend-card">
+        <div class="skeleton-box" style="height: 40px; margin-bottom: 12px;"></div>
+        <div class="skeleton-box" style="height: 60px; margin-bottom: 8px;"></div>
+        <div class="skeleton-box" style="height: 60px;"></div>
+      </div>
+    </main>
+
+    <!-- ESTADO VACÍO -->
+    <div id="emptyState" class="nb-box p-4 text-center" style="display: none; padding: 24px 14px; text-align: center;">
+      <div style="font-size: 2.2rem; margin-bottom: 6px;">🔎</div>
+      <h2 style="font-weight: 900; font-size: 1.1rem; text-transform: uppercase;">No se encontraron alias</h2>
+      <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 14px;">Prueba ajustando el término de búsqueda o agrega un nuevo contacto.</p>
+      <button type="button" onclick="resetDemoData()" class="nb-btn nb-btn-accent" style="margin-right: 6px;">Cargar Demos</button>
+      <button type="button" onclick="openAddFriendModal()" class="nb-btn nb-btn-primary">+ Nuevo Amigo</button>
+    </div>
+
+  </div>
+
+  <!-- TOAST ACCESIBLE (ROLE="STATUS") -->
+  <div id="toast-container" role="status" aria-live="polite">
+    <span style="font-size: 1.1rem;">⚡</span>
+    <span id="toast-text">¡ALIAS COPIADO!</span>
+  </div>
+
+  <!-- MODAL: AGREGAR / EDITAR AMIGO Y MÚLTIPLES CUENTAS -->
+  <div id="friendModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle" class="modal-title">NUEVO AMIGO</h3>
+        <button type="button" onclick="closeModal()" class="nb-btn" style="min-height: 32px; padding: 4px 8px;" aria-label="Cerrar ventana">✕</button>
+      </div>
+
+      <form id="friendForm" onsubmit="handleFriendFormSubmit(event)">
+        <input type="hidden" id="editFriendId" value="">
+
+        <!-- Nombre del Amigo -->
+        <div class="form-group">
+          <label class="form-label" for="friendNameInput">Nombre y Apellido *</label>
+          <input type="text" id="friendNameInput" class="form-input" required placeholder="Ej: Martín Gómez">
+        </div>
+
+        <!-- Grupo o Categoría -->
+        <div class="form-group">
+          <label class="form-label" for="friendGroupInput">Grupo / Etiqueta</label>
+          <input type="text" id="friendGroupInput" class="form-input" placeholder="Ej: Fútbol, Trabajo, Asados...">
+        </div>
+
+        <!-- Cuentas Bancarias del Amigo -->
+        <div class="form-group" style="margin-top: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <label class="form-label" style="margin: 0;">Cuentas Bancarias / Billeteras *</label>
+            <button type="button" onclick="addAccountFormRow()" class="nb-btn nb-btn-accent" style="font-size: 0.72rem; min-height: 32px; padding: 4px 8px;">
+              + AGREGAR CUENTA
+            </button>
+          </div>
+
+          <div id="accountsBuilderList">
+            <!-- Filas dinámicas de cuentas -->
+          </div>
+        </div>
+
+        <!-- Botones Guardar / Cancelar -->
+        <div style="display: flex; gap: 8px; margin-top: 20px;">
+          <button type="button" onclick="closeModal()" class="nb-btn" style="flex: 1;">Cancelar</button>
+          <button type="submit" id="saveSubmitBtn" class="nb-btn nb-btn-primary" style="flex: 2;">GUARDAR CONTACTO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // ESTADO GLOBAL Y DATOS DEMO (FALLBACK LOCAL)
+    // ==========================================================================
+    let friendsData = [];
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    const LOCAL_DEMO_DATA = [
+      {
+        id: 'amigo_martin_gomez',
+        name: 'Martín Gómez',
+        group: 'Fútbol',
+        avatar: 'MG',
+        accounts: [
+          {
+            id: 'acc_mg_mp',
+            bank: 'Mercado Pago',
+            type: 'CVU',
+            alias: 'martin.mp.futbol',
+            cbu: '0000003100012345678901',
+            titular: ''
+          },
+          {
+            id: 'acc_mg_galicia',
+            bank: 'Banco Galicia',
+            type: 'Caja de Ahorro en Pesos',
+            alias: 'martin.galicia.ar',
+            cbu: '0070012330004567890123',
+            titular: ''
+          }
+        ]
+      },
+      {
+        id: 'amigo_sofia_rossi',
+        name: 'Sofía Rossi',
+        group: 'Facultad',
+        avatar: 'SR',
+        accounts: [
+          {
+            id: 'acc_sr_brubank',
+            bank: 'Brubank',
+            type: 'Caja de Ahorro en Pesos',
+            alias: 'sofi.rossi.bru',
+            cbu: '1430001713009876543210',
+            titular: ''
+          }
+        ]
+      },
+      {
+        id: 'amigo_lucas_benitez',
+        name: 'Lucas Benítez',
+        group: 'Trabajo',
+        avatar: 'LB',
+        accounts: [
+          {
+            id: 'acc_lb_lemon',
+            bank: 'Lemon Cash',
+            type: 'CVU',
+            alias: 'lucas.lemon.crypto',
+            cbu: '0000123400009876543210',
+            titular: ''
+          },
+          {
+            id: 'acc_lb_santander',
+            bank: 'Banco Santander',
+            type: 'Cuenta Corriente',
+            alias: 'lucas.santander',
+            cbu: '0720023420001122334455',
+            titular: 'Benítez & Asociados SRL'
+          }
+        ]
+      }
+    ];
+
+    // ==========================================================================
+    // SISTEMA DE PORTAPAPELES Y ACCESIBILIDAD (1-CLICK COPY)
+    // ==========================================================================
+    let toastTimeout = null;
+    let lastCopiedAnnouncement = '';
+
+    async function copyToClipboard(text, element, labelType = 'Alias') {
+      if (!text) return;
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          fallbackExecCommandCopy(text);
+        }
+      } catch (err) {
+        fallbackExecCommandCopy(text);
+      }
+
+      // Animación flash visual en el elemento pulsado
+      if (element) {
+        element.classList.add('alias-copied-flash');
+        setTimeout(() => element.classList.remove('alias-copied-flash'), 350);
+      }
+
+      // Respuesta háptica en dispositivos móviles
+      if (window.navigator && window.navigator.vibrate) {
+        try { window.navigator.vibrate(35); } catch (e) {}
+      }
+
+      showAccessibleToast(`¡${labelType.toUpperCase()} COPIADO: ${text}!`);
+    }
+
+    function fallbackExecCommandCopy(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.top = "-9999px";
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } finally {
+        document.body.removeChild(textArea);
+      }
+    }
+
+    function showAccessibleToast(message) {
+      const toast = document.getElementById('toast-container');
+      const toastText = document.getElementById('toast-text');
+
+      // Corrección de anuncio repetido en VoiceOver/TalkBack con espacio no divisible
+      let spoken = message;
+      if (spoken === lastCopiedAnnouncement) {
+        spoken += '\u00A0';
+      }
+      lastCopiedAnnouncement = spoken;
+      toastText.textContent = spoken;
+
+      toast.classList.add('active');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('active');
+      }, 2200);
+    }
+
+    // ==========================================================================
+    // GESTIÓN DE TEMA (CLARO / OSCURO NEO-BRUTALISTA)
+    // ==========================================================================
+    function initTheme() {
+      const themeBtn = document.getElementById('themeToggleBtn');
+      const themeIcon = document.getElementById('themeIcon');
+
+      function updateIcon(current) {
+        themeIcon.textContent = current === 'dark' ? '☀️' : '🌙';
+      }
+
+      const activeTheme = document.documentElement.getAttribute('data-theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      updateIcon(activeTheme);
+
+      themeBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const next = current === 'dark' ? 'light' : 'dark';
+
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('alias_app_theme', next);
+        updateIcon(next);
+        showAccessibleToast(`TEMA ${next.toUpperCase()} ACTIVADO`);
+      });
+    }
+
+    // ==========================================================================
+    // HELPERS DE ENTIDADES BANCARIAS Y BADGES
+    // ==========================================================================
+    function getBankBadgeClass(bankName) {
+      if (!bankName) return 'bank-generic';
+      const b = bankName.toLowerCase();
+      if (b.includes('mercado') || b.includes('mp')) return 'bank-mp';
+      if (b.includes('galicia')) return 'bank-galicia';
+      if (b.includes('santander')) return 'bank-santander';
+      if (b.includes('brubank')) return 'bank-brubank';
+      if (b.includes('lemon')) return 'bank-lemon';
+      if (b.includes('bbva') || b.includes('frances')) return 'bank-bbva';
+      if (b.includes('uala') || b.includes('ualá')) return 'bank-uala';
+      if (b.includes('macro')) return 'bank-macro';
+      return 'bank-generic';
+    }
+
+    // ==========================================================================
+    // RENDERIZADO DE CONTACTOS Y ALIAS
+    // ==========================================================================
+    function renderFriends() {
+      const container = document.getElementById('friendsContainer');
+      const emptyState = document.getElementById('emptyState');
+
+      const term = searchQuery.toLowerCase().trim();
+
+      const filtered = friendsData.filter(friend => {
+        const matchesFilter = (currentFilter === 'all') || 
+          friend.accounts.some(acc => acc.bank && acc.bank.toLowerCase().includes(currentFilter.toLowerCase()));
+
+        if (!matchesFilter) return false;
+
+        if (!term) return true;
+
+        const nameMatch = friend.name && friend.name.toLowerCase().includes(term);
+        const groupMatch = friend.group && friend.group.toLowerCase().includes(term);
+        const accountMatch = friend.accounts.some(acc => 
+          (acc.bank && acc.bank.toLowerCase().includes(term)) ||
+          (acc.alias && acc.alias.toLowerCase().includes(term)) ||
+          (acc.cbu && acc.cbu.toLowerCase().includes(term)) ||
+          (acc.titular && acc.titular.toLowerCase().includes(term))
+        );
+
+        return nameMatch || groupMatch || accountMatch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      let html = '';
+      filtered.forEach(friend => {
+        html += `
+          <div class="friend-card" id="card-${friend.id}">
+            <!-- Cabecera del Amigo -->
+            <div class="friend-header">
+              <div class="friend-info">
+                <div class="friend-avatar">${escapeHtml(friend.avatar || friend.name.substring(0, 2).toUpperCase())}</div>
+                <div style="min-width: 0;">
+                  <h2 class="friend-name">${escapeHtml(friend.name)}</h2>
+                  <div class="friend-meta">${friend.accounts.length} ${friend.accounts.length === 1 ? 'cuenta' : 'cuentas'}</div>
+                </div>
+              </div>
+              ${friend.group ? `<span class="group-badge">${escapeHtml(friend.group)}</span>` : ''}
+            </div>
+
+            <!-- Cuentas del Amigo -->
+            <div class="accounts-list">
+              ${friend.accounts.map(acc => `
+                <div class="account-row">
+                  <div class="account-meta-line">
+                    <span class="bank-badge ${getBankBadgeClass(acc.bank)}">${escapeHtml(acc.bank || 'Banco')}</span>
+                    <span class="account-type-label">${escapeHtml(acc.type || 'Cuenta')}</span>
+                  </div>
+
+                  <!-- Alias con 1-Click Copy Dual (Tap en el bloque o en el botón) -->
+                  <div class="alias-container">
+                    <div class="alias-touch-chip" onclick="copyToClipboard('${escapeAttr(acc.alias)}', this, 'Alias')" title="Toca para copiar alias">
+                      <span class="alias-text">${escapeHtml(acc.alias)}</span>
+                      <span class="touch-hint">COPIAR</span>
+                    </div>
+                    <button type="button" class="nb-btn copy-action-btn" onclick="copyToClipboard('${escapeAttr(acc.alias)}', this, 'Alias')" aria-label="Copiar alias ${escapeAttr(acc.alias)}">
+                      📋
+                    </button>
+                  </div>
+
+                  <!-- CBU / CVU Opcional copiable con 1 clic -->
+                  ${acc.cbu ? `
+                    <div class="cbu-details" onclick="copyToClipboard('${escapeAttr(acc.cbu)}', this, 'CBU/CVU')" title="Toca para copiar CBU/CVU">
+                      <span><strong>CBU/CVU:</strong> ${escapeHtml(acc.cbu)}</span>
+                      <span>⧉</span>
+                    </div>
+                  ` : ''}
+
+                  <!-- Titular Diferente si aplica -->
+                  ${acc.titular ? `
+                    <div class="titular-box">
+                      ⚠️ Titular: ${escapeHtml(acc.titular)}
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Acciones de edición y borrado -->
+            <div class="friend-footer-actions">
+              <button type="button" onclick="openEditFriendModal('${escapeAttr(friend.id)}')" class="nb-btn btn-sm-action">
+                ✏️ Editar
+              </button>
+              <button type="button" onclick="confirmDeleteFriend('${escapeAttr(friend.id)}', '${escapeAttr(friend.name)}')" class="nb-btn btn-sm-action" style="color: var(--accent-danger);">
+                🗑️ Borrar
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // ==========================================================================
+    // COMUNICACIÓN CON GOOGLE APPS SCRIPT (RPC) / FALLBACK
+    // ==========================================================================
+    function loadFriendsData() {
+      if (window.google && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(response => {
+            if (response && response.success) {
+              friendsData = response.data || [];
+            } else {
+              friendsData = LOCAL_DEMO_DATA;
+              console.warn("Backend error, cargando datos locales:", response ? response.error : 'Unknown');
+            }
+            renderFriends();
+          })
+          .withFailureHandler(err => {
+            console.error("Fallo al invocar Apps Script:", err);
+            friendsData = LOCAL_DEMO_DATA;
+            renderFriends();
+          })
+          .getFriendsData();
+      } else {
+        // Modo local de prueba / navegación directa
+        setTimeout(() => {
+          friendsData = LOCAL_DEMO_DATA;
+          renderFriends();
+        }, 150);
+      }
+    }
+
+    function resetDemoData() {
+      if (confirm('¿Restablecer datos de amigos al estado de prueba inicial?')) {
+        if (window.google && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(() => {
+              showAccessibleToast('DATOS DE PRUEBA RESTABLECIDOS');
+              loadFriendsData();
+            })
+            .resetToDemoData();
+        } else {
+          friendsData = JSON.parse(JSON.stringify(LOCAL_DEMO_DATA));
+          renderFriends();
+          showAccessibleToast('DATOS DE PRUEBA RESTABLECIDOS');
+        }
+      }
+    }
+
+    function confirmDeleteFriend(friendId, friendName) {
+      if (confirm(`¿Eliminar definitivamente a ${friendName} y todos sus alias asociados?`)) {
+        if (window.google && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(res => {
+              if (res && res.success) {
+                showAccessibleToast('CONTACTO ELIMINADO');
+                loadFriendsData();
+              } else {
+                alert('Error al eliminar: ' + (res ? res.error : 'Desconocido'));
+              }
+            })
+            .deleteFriend(friendId);
+        } else {
+          friendsData = friendsData.filter(f => f.id !== friendId);
+          renderFriends();
+          showAccessibleToast('CONTACTO ELIMINADO');
+        }
+      }
+    }
+
+    // ==========================================================================
+    // MODAL FORMULARIO: CREAR Y EDITAR AMIGO CON MÚLTIPLES CUENTAS
+    // ==========================================================================
+    let accountRowCount = 0;
+
+    function openAddFriendModal() {
+      document.getElementById('modalTitle').textContent = 'NUEVO AMIGO';
+      document.getElementById('editFriendId').value = '';
+      document.getElementById('friendNameInput').value = '';
+      document.getElementById('friendGroupInput').value = '';
+      document.getElementById('accountsBuilderList').innerHTML = '';
+      accountRowCount = 0;
+
+      // Agrega 1 cuenta por defecto
+      addAccountFormRow();
+
+      document.getElementById('friendModal').classList.add('active');
+    }
+
+    function openEditFriendModal(friendId) {
+      const friend = friendsData.find(f => f.id === friendId);
+      if (!friend) return;
+
+      document.getElementById('modalTitle').textContent = 'EDITAR AMIGO';
+      document.getElementById('editFriendId').value = friend.id;
+      document.getElementById('friendNameInput').value = friend.name || '';
+      document.getElementById('friendGroupInput').value = friend.group || '';
+      document.getElementById('accountsBuilderList').innerHTML = '';
+      accountRowCount = 0;
+
+      if (friend.accounts && friend.accounts.length > 0) {
+        friend.accounts.forEach(acc => addAccountFormRow(acc));
+      } else {
+        addAccountFormRow();
+      }
+
+      document.getElementById('friendModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('friendModal').classList.remove('active');
+    }
+
+    function addAccountFormRow(accData = null) {
+      accountRowCount++;
+      const id = 'acc_row_' + accountRowCount;
+      const container = document.getElementById('accountsBuilderList');
+
+      const bank = accData ? accData.bank : 'Mercado Pago';
+      const type = accData ? accData.type : 'CVU';
+      const alias = accData ? accData.alias : '';
+      const cbu = accData ? accData.cbu : '';
+      const titular = accData ? accData.titular : '';
+      const accId = accData ? accData.id : 'acc_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+
+      const div = document.createElement('div');
+      div.className = 'account-builder-card';
+      div.id = id;
+      div.innerHTML = `
+        <button type="button" class="remove-account-btn" onclick="removeAccountFormRow('${id}')">✕ Quitar</button>
+        <input type="hidden" class="acc-id" value="${escapeAttr(accId)}">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <div>
+            <label class="form-label" style="font-size: 0.68rem;">Entidad Bancaria</label>
+            <input type="text" class="form-input acc-bank" list="banksDatalist" required value="${escapeAttr(bank)}" placeholder="Ej: Mercado Pago">
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.68rem;">Tipo de Cuenta</label>
+            <select class="form-select acc-type">
+              <option value="CVU" ${type === 'CVU' ? 'selected' : ''}>CVU</option>
+              <option value="Caja de Ahorro en Pesos" ${type.includes('Ahorro') ? 'selected' : ''}>Caja de Ahorro $</option>
+              <option value="Cuenta Corriente" ${type.includes('Corriente') ? 'selected' : ''}>Cuenta Corriente</option>
+              <option value="Caja de Ahorro en Dólares" ${type.includes('Dólares') ? 'selected' : ''}>Caja de Ahorro USD</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 8px;">
+          <label class="form-label" style="font-size: 0.68rem;">Alias Bancario *</label>
+          <input type="text" class="form-input acc-alias" required value="${escapeAttr(alias)}" placeholder="Ej: juan.mp.amigos">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px;">
+          <div>
+            <label class="form-label" style="font-size: 0.68rem;">CBU / CVU (22 dígitos)</label>
+            <input type="text" class="form-input acc-cbu" maxlength="22" value="${escapeAttr(cbu)}" placeholder="Opcional">
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.68rem;">Titular Diferencial</label>
+            <input type="text" class="form-input acc-titular" value="${escapeAttr(titular)}" placeholder="Si difiere">
+          </div>
+        </div>
+      `;
+
+      container.appendChild(div);
+    }
+
+    function removeAccountFormRow(elementId) {
+      const row = document.getElementById(elementId);
+      if (row) {
+        const rows = document.querySelectorAll('.account-builder-card');
+        if (rows.length <= 1) {
+          alert('El contacto debe tener al menos una cuenta o alias.');
+          return;
+        }
+        row.remove();
+      }
+    }
+
+    function handleFriendFormSubmit(event) {
+      event.preventDefault();
+
+      const friendId = document.getElementById('editFriendId').value || ('amigo_' + Date.now());
+      const friendName = document.getElementById('friendNameInput').value.trim();
+      const friendGroup = document.getElementById('friendGroupInput').value.trim();
+
+      const rows = document.querySelectorAll('.account-builder-card');
+      if (rows.length === 0) {
+        alert('Debe agregar al menos una cuenta bancaria.');
+        return;
+      }
+
+      const accounts = [];
+      rows.forEach(r => {
+        const id = r.querySelector('.acc-id').value;
+        const bank = r.querySelector('.acc-bank').value.trim();
+        const type = r.querySelector('.acc-type').value;
+        const alias = r.querySelector('.acc-alias').value.trim();
+        const cbu = r.querySelector('.acc-cbu').value.trim();
+        const titular = r.querySelector('.acc-titular').value.trim();
+
+        if (bank && alias) {
+          accounts.push({ id, bank, type, alias, cbu, titular });
+        }
+      });
+
+      if (accounts.length === 0) {
+        alert('Por favor complete los campos obligatorios de cada cuenta.');
+        return;
+      }
+
+      const friendPayload = {
+        id: friendId,
+        name: friendName,
+        group: friendGroup,
+        avatar: friendName.substring(0, 2).toUpperCase(),
+        accounts: accounts
+      };
+
+      const submitBtn = document.getElementById('saveSubmitBtn');
+      submitBtn.textContent = 'GUARDANDO...';
+      submitBtn.disabled = true;
+
+      if (window.google && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            submitBtn.textContent = 'GUARDAR CONTACTO';
+            submitBtn.disabled = false;
+            if (res && res.success) {
+              closeModal();
+              showAccessibleToast('CONTACTO GUARDADO');
+              loadFriendsData();
+            } else {
+              alert('Error al guardar: ' + (res ? res.error : 'Desconocido'));
+            }
+          })
+          .withFailureHandler(err => {
+            submitBtn.textContent = 'GUARDAR CONTACTO';
+            submitBtn.disabled = false;
+            alert('Fallo de conexión: ' + err);
+          })
+          .saveFriendWithAccounts(friendPayload);
+      } else {
+        // Actualización local
+        const existingIdx = friendsData.findIndex(f => f.id === friendId);
+        if (existingIdx >= 0) {
+          friendsData[existingIdx] = friendPayload;
+        } else {
+          friendsData.unshift(friendPayload);
+        }
+        submitBtn.textContent = 'GUARDAR CONTACTO';
+        submitBtn.disabled = false;
+        closeModal();
+        showAccessibleToast('CONTACTO GUARDADO');
+        renderFriends();
+      }
+    }
+
+    // ==========================================================================
+    // UTILIDADES DE ESCAPADO SEGURO
+    // ==========================================================================
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ==========================================================================
+    // LISTENERS DE BÚSQUEDA Y FILTRADO
+    // ==========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+
+      // Buscador
+      const searchInput = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('clearSearchBtn');
+
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        clearBtn.style.display = searchQuery ? 'block' : 'none';
+        renderFriends();
+      });
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQuery = '';
+        clearBtn.style.display = 'none';
+        renderFriends();
+        searchInput.focus();
+      });
+
+      // Chips de filtro
+      const chips = document.querySelectorAll('.filter-chip');
+      chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          chips.forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          currentFilter = chip.getAttribute('data-filter');
+          renderFriends();
+        });
+      });
+
+      // Botón agregar amigo
+      document.getElementById('addFriendBtn').addEventListener('click', openAddFriendModal);
+
+      // Cargar datos
+      loadFriendsData();
+    });
+  </script>
+
+  <!-- Datalist para autocompletado rápido de bancos -->
+  <datalist id="banksDatalist">
+    <option value="Mercado Pago"></option>
+    <option value="Banco Galicia"></option>
+    <option value="Banco Santander"></option>
+    <option value="Brubank"></option>
+    <option value="Lemon Cash"></option>
+    <option value="BBVA"></option>
+    <option value="Ualá"></option>
+    <option value="Banco Macro"></option>
+    <option value="Banco Nación"></option>
+    <option value="Banco Provincia"></option>
+    <option value="Naranja X"></option>
+  </datalist>
+
+</body>
+</html>
