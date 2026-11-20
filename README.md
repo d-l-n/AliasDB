@@ -23,9 +23,12 @@ Permite que cada contacto tenga **1 o más cuentas bancarias/billeteras virtuale
   - Barra de chips para filtrado rápido por entidad (Mercado Pago, Galicia, Santander, Brubank, Lemon, etc.).
 - **Mecánica de Copiado en 1 Clic (Dual-Access)**:
   - **Tocar el chip del alias**: Copia la cadena al portapapeles y emite una animación de destello en color menta neón.
-  - **Botón dedicado con icono (📋)**: Para usuarios habituados a botones explícitos de acción.
+  - **Botón dedicado con icono de copiado Reicon**: Para usuarios habituados a botones explícitos de acción.
   - Compatible con CBU/CVU de 22 dígitos en bloque colapsable/expandible.
   - **Accesibilidad**: Región en vivo (`role="status"`, `aria-live="polite"`) con solución para anuncios repetidos en VoiceOver/TalkBack (`\u00A0`).
+- **Iconografía Vectorial Pixel-Perfect**:
+  - Reemplazo integral de emojis y glifos antiguos por iconos SVG de código abierto de [Reicon](https://reicon.dev/icons).
+  - Embebidos de forma atómica y sin dependencias pesadas de red, asegurando renderizado inmediato (cero FOUC) tanto en GitHub Pages como dentro de Google Apps Script.
 - **Múltiples Cuentas por Persona**:
   - Cada persona puede poseer N cuentas (ej. Mercado Pago, Galicia, Santander en USD, etc.).
   - Soporte para especificar titulares alternativos si una cuenta no está a nombre de la persona.
