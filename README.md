@@ -3,6 +3,7 @@
 Aplicación web *mobile-first* desplegada en **GitHub Pages** con estilo **Neo-Brutalista** (Modo Claro y Modo Oscuro) y sincronización con **Google Apps Script & Google Sheets**, diseñada para gestionar y compartir de forma inmediata los alias bancarios y CBU/CVU de un grupo de contactos.
 
 - **Frontend en Producción**: [https://d-l-n.github.io/AliasDB/](https://d-l-n.github.io/AliasDB/)
+- **Panel de Administración**: [https://d-l-n.github.io/AliasDB/admin.html](https://d-l-n.github.io/AliasDB/admin.html)
 - **Repositorio GitHub**: [https://github.com/d-l-n/AliasDB](https://github.com/d-l-n/AliasDB)
 - **Backend API (Apps Script)**: `https://script.google.com/macros/s/AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg/exec`
 
@@ -111,3 +112,45 @@ La pestaña `'Cuentas'` utiliza las siguientes columnas formateadas como texto p
 | G | `alias` | Alias bancario copiable (ej: `martin.mp.futbol`) |
 | H | `cbu_cvu` | CBU o CVU numérico de 22 dígitos |
 | I | `titular_diferente` | Nombre del titular si no coincide con la persona |
+
+---
+
+## 👥 Segmentación Multi-Grupo y Enlaces Privados
+
+AliasDB permite segmentar y compartir vistas aisladas para diferentes círculos (por ejemplo: amigos de fútbol, facultad, compañeros de trabajo):
+
+- **Vista General**: Acceso directo sin parámetros muestra todos los contactos con selector de chips interactivo por grupo.
+- **Filtro Directo por Grupo**: Agregando `?grupo=Fútbol` a la URL, la vista pública se filtra automáticamente y muestra un badge neo-brutalista en el encabezado con el nombre del grupo activo.
+- **Aislamiento mediante Token Privado**: Agregando `?token=futbol_7x9k` a la URL, el backend resuelve el grupo asociado a través del registro seguro en `ScriptProperties`. Esto permite compartir enlaces sin exponer el nombre interno del grupo ni permitir la enumeración de otros registros.
+
+---
+
+## 🔧 Panel de Administración (`admin.html`)
+
+El panel de administración es una SPA estática independiente que interactúa con la API REST de Apps Script:
+
+- **Autenticación `adminKey`**: Protegido por una clave de administración persistida en `localStorage` y validada server-side contra `ScriptProperties` (`ADMIN_KEY`).
+- **Dashboard Estadístico**: Contadores en vivo de personas, cuentas bancarias, grupos y tokens activos.
+- **Directorio Agrupado**: Visualización por grupos con acciones rápidas para renombrar en lote o generar enlaces de acceso directo.
+- **Modal CRUD de Personas**: Alta y edición de contactos con cuentas dinámicas múltiples y eliminación atómica.
+- **Quick-Add con Auto-Detección**: Caja de pegado rápido de texto libre que detecta CBU/CVU de 22 dígitos, resuelve la entidad bancaria según su prefijo numérico oficial de 3 dígitos (ej: 007 Galicia, 072 Santander, 143 Brubank) y clasifica fintechs por alias.
+- **Gestor de Tokens**: Generación, listado y revocación de tokens seguros con botón de 1-clic para copiar la URL lista para compartir.
+- **Importación y Exportación CSV**: Descarga de respaldos y subida en lote con parser compatible RFC 4180, dropzone y previsualización previa.
+
+---
+
+## 📡 Router REST API (`Code.js`)
+
+| Acción | Método | Autenticación | Parámetros | Descripción |
+| :--- | :--- | :--- | :--- | :--- |
+| `getFriends` | `GET` | Pública | `grupo?`, `token?` | Retorna lista de personas filtrada por grupo o token (o completa). |
+| `getGroups` | `GET` | Pública | Ninguno | Retorna lista ordenada de grupos existentes en la hoja. |
+| `save` | `GET` / `POST` | `adminKey` | `payload` (JSON) | Crea o actualiza una persona con sus cuentas. |
+| `deleteFriend` | `GET` / `POST` | `adminKey` | `id` | Elimina una persona y todas sus cuentas asociadas. |
+| `deleteAccount` | `GET` / `POST` | `adminKey` | `id` | Elimina una cuenta bancaria puntual. |
+| `getTokens` | `GET` | `adminKey` | Ninguno | Retorna mapa de tokens activos. |
+| `generateToken` | `GET` | `adminKey` | `grupo` | Genera y registra un token para el grupo indicado. |
+| `revokeToken` | `GET` | `adminKey` | `token` | Revoca y elimina un token activo. |
+| `renameGroup` | `GET` | `adminKey` | `oldName`, `newName` | Renombra un grupo en todas las filas y tokens sincronizados. |
+| `getSpreadsheetInfo` | `GET` | `adminKey` | Ninguno | Retorna ID, nombre y URL del Google Sheet vinculado. |
+

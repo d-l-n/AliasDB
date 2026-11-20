@@ -1962,7 +1962,7 @@
 
       function getInitials(name) {
         if (!name) return '??';
-        var parts = name.trim().split(/s+/).filter(Boolean);
+        var parts = name.trim().split(/\s+/).filter(Boolean);
         if (parts.length === 0) return '??';
         if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
@@ -2380,8 +2380,7 @@
             '  <p style="font-size: 0.875rem; color: var(--text-muted); max-width: 380px;">No encontramos ninguna persona o cuenta que coincida con los criterios de búsqueda seleccionados.</p>',
             '  <button id="btn-reset-filters" class="btn-brutalist btn-sm btn-yellow" type="button" style="margin-top: 8px;">Restablecer filtros</button>',
             '</div>'
-          ].join('
-');
+          ].join('\n');
 
           var resetBtn = document.getElementById('btn-reset-filters');
           if (resetBtn) {
@@ -2434,10 +2433,8 @@
                   '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(acc.cbu) + '" data-copy-label="CBU">Copiar CBU</button>',
                   '  </div>',
                   '</div>'
-                ].join('
-');
-              }).join('
-');
+                ].join('\n');
+              }).join('\n');
             }
 
             return [
@@ -2459,10 +2456,8 @@
               accountsHtml,
               '  </div>',
               '</article>'
-            ].join('
-');
-          }).join('
-');
+            ].join('\n');
+          }).join('\n');
 
           return [
             '<section class="group-section" data-group-name="' + escapeHtml(groupName) + '">',
@@ -2484,10 +2479,8 @@
             cardsHtml,
             '  </div>',
             '</section>'
-          ].join('
-');
-        }).join('
-');
+          ].join('\n');
+        }).join('\n');
 
         dom.groupsContainer.innerHTML = html;
         attachDashboardEvents();
@@ -2666,8 +2659,7 @@
           '    <input type="text" class="form-control acc-titular" value="' + escapeHtml(accData.titular) + '" placeholder="Dejar en blanco si es el mismo que la persona">',
           '  </div>',
           '</div>'
-        ].join('
-');
+        ].join('\n');
 
         row.querySelector('.btn-remove-account').addEventListener('click', function() {
           if (dom.modalAccountsContainer.children.length <= 1) {
@@ -2698,11 +2690,11 @@
         }
 
         // 1. Extraer 22 dígitos para CBU/CVU
-        var cbuMatch = text.match(/d{22}/);
+        var cbuMatch = text.match(/\b\d{22}\b/);
         var detectedCbu = cbuMatch ? cbuMatch[0] : '';
 
         // 2. Extraer alias (palabra con puntos o guiones, o formato de alias típico)
-        var aliasMatch = text.match(/[a-zA-Z0-9_-]{2,20}.[a-zA-Z0-9_-]{2,20}(.[a-zA-Z0-9_-]{2,20})?/);
+        var aliasMatch = text.match(/\b[a-zA-Z0-9_\-.]{2,30}\.[a-zA-Z0-9_\-.]{2,30}(\.[a-zA-Z0-9_\-.]{2,30})?\b/);
         var detectedAlias = aliasMatch ? aliasMatch[0] : '';
 
         // 3. Determinar banco y tipo
@@ -2936,8 +2928,8 @@
          ====================================================================== */
       function generateTokenString(groupName) {
         var clean = groupName.toLowerCase()
-          .normalize('NFD').replace(/[̀-ͯ]/g, '')
-          .replace(/s+/g, '')
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '')
           .substring(0, 6);
         var rand = Math.random().toString(36).substring(2, 6);
         return clean + '_' + rand;
@@ -3021,10 +3013,8 @@
             '    </div>',
             '  </td>',
             '</tr>'
-          ].join('
-');
-        }).join('
-');
+          ].join('\n');
+        }).join('\n');
 
         dom.tokensTableBody.querySelectorAll('.btn-copy-token-url').forEach(function(b) {
           b.addEventListener('click', function() {
@@ -3073,10 +3063,8 @@
             '    </div>',
             '  </td>',
             '</tr>'
-          ].join('
-');
-        }).join('
-');
+          ].join('\n');
+        }).join('\n');
 
         dom.groupsTableBody.querySelectorAll('.btn-rename-grp-action').forEach(function(b) {
           b.addEventListener('click', function() {
@@ -3162,8 +3150,7 @@
           }
         });
 
-        var csvContent = lines.join('
-');
+        var csvContent = lines.join('\n');
         var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         var url = URL.createObjectURL(blob);
         var link = document.createElement('a');
@@ -3180,8 +3167,7 @@
       function escapeCsvField(val) {
         if (!val) return '';
         var str = String(val);
-        if (str.indexOf(',') !== -1 || str.indexOf('"') !== -1 || str.indexOf('
-') !== -1) {
+        if (str.indexOf(',') !== -1 || str.indexOf('"') !== -1 || str.indexOf('\n') !== -1) {
           return '"' + str.replace(/"/g, '""') + '"';
         }
         return str;
@@ -3298,10 +3284,8 @@
               '  <td>' + escapeHtml(r.alias) + '</td>',
               '  <td>' + escapeHtml(r.cbu) + '</td>',
               '</tr>'
-            ].join('
-');
-          }).join('
-');
+            ].join('\n');
+          }).join('\n');
 
           dom.importPreviewBox.style.display = 'flex';
           dom.btnConfirmImport.disabled = false;

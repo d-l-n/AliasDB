@@ -208,9 +208,12 @@ function doGet(e) {
       }
     }
 
-    const template = HtmlService.createTemplateFromFile('index');
+    const isPageAdmin = Boolean(e && e.parameter && (e.parameter.page === 'admin' || e.parameter.view === 'admin'));
+    const viewFile = isPageAdmin ? 'admin' : 'index';
+    const viewTitle = isPageAdmin ? 'AliasDB // Panel de Administración' : 'AliasDB | Pagos Rápidos';
+    const template = HtmlService.createTemplateFromFile(viewFile);
     return template.evaluate()
-      .setTitle('AliasDB | Pagos Rápidos')
+      .setTitle(viewTitle)
       .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (error) {

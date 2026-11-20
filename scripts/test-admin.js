@@ -182,4 +182,13 @@ console.log('8. Verificando integración con BACKEND_API_URL...');
 const expectedUrl = 'https://script.google.com/macros/s/AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg/exec';
 assert(html.includes(expectedUrl), 'Debe conectarse exactamente a la BACKEND_API_URL provista');
 
-console.log('\n--- Todas las 8 verificaciones pasaron con éxito (PASS) ---');
+// 9. Verificación de compilación estricta de scripts JavaScript embebidos
+console.log('9. Verificando compilación sintáctica estricta de JavaScript...');
+const vm = require('vm');
+const scriptMatches = [...html.matchAll(/<script[\s\S]*?>([\s\S]*?)<\/script>/gi)];
+assert(scriptMatches.length >= 2, 'Debe contener al menos script anti-FOUC y lógica principal');
+scriptMatches.forEach((m, idx) => {
+  new vm.Script(m[1], { filename: `admin_script_${idx}.js` });
+});
+
+console.log('\n--- Todas las 9 verificaciones pasaron con éxito (PASS) ---');
