@@ -1,6 +1,6 @@
 /**
  * ===================================================================
- * Amigos & Alias | Backend Google Apps Script
+ * AliasDB | Backend Google Apps Script
  * Gestión centralizada de alias bancarios y CBU/CVU de contactos
  * ===================================================================
  */
@@ -107,7 +107,7 @@ function doGet(e) {
 
     const template = HtmlService.createTemplateFromFile('index');
     return template.evaluate()
-      .setTitle('Amigos & Alias | Pagos Rápidos')
+      .setTitle('AliasDB | Pagos Rápidos')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (error) {
@@ -115,10 +115,10 @@ function doGet(e) {
       return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.message || String(error) }))
         .setMimeType(ContentService.MimeType.JSON);
     }
-    console.error('Error renderizando Index.html:', error);
+    console.error('Error renderizando index.html:', error);
     return HtmlService.createHtmlOutput(
       '<div style="font-family:sans-serif;padding:24px;text-align:center;">' +
-      '<h2>Amigos & Alias | Pagos Rápidos</h2>' +
+      '<h2>AliasDB | Pagos Rápidos</h2>' +
       '<p>No se pudo cargar la vista principal: ' + error.message + '</p>' +
       '</div>'
     );

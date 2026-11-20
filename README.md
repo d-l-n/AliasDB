@@ -1,9 +1,9 @@
-# Amigos & Alias | WebApp de Pagos Rápidos (GitHub Pages + Apps Script API)
+# AliasDB | WebApp de Pagos Rápidos (GitHub Pages + Apps Script API)
 
-Aplicación web *mobile-first* desplegada en **GitHub Pages** con estilo **Neo-Brutalista** (Modo Claro y Modo Oscuro) y sincronización con **Google Apps Script & Google Sheets**, diseñada para gestionar y compartir de forma inmediata los alias bancarios y CBU/CVU de un grupo de amigos.
+Aplicación web *mobile-first* desplegada en **GitHub Pages** con estilo **Neo-Brutalista** (Modo Claro y Modo Oscuro) y sincronización con **Google Apps Script & Google Sheets**, diseñada para gestionar y compartir de forma inmediata los alias bancarios y CBU/CVU de un grupo de contactos.
 
-- **Frontend en Producción**: [https://d-l-n.github.io/amigos-alias/](https://d-l-n.github.io/amigos-alias/)
-- **Repositorio GitHub**: [https://github.com/d-l-n/amigos-alias](https://github.com/d-l-n/amigos-alias)
+- **Frontend en Producción**: [https://d-l-n.github.io/AliasDB/](https://d-l-n.github.io/AliasDB/)
+- **Repositorio GitHub**: [https://github.com/d-l-n/AliasDB](https://github.com/d-l-n/AliasDB)
 - **Backend API (Apps Script)**: `https://script.google.com/macros/s/AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg/exec`
 
 Permite que cada contacto tenga **1 o más cuentas bancarias/billeteras virtuales**, con copiado en **1 solo clic** tanto tocando directamente el alias como pulsando el botón dedicado.
@@ -39,9 +39,9 @@ Permite que cada contacto tenga **1 o más cuentas bancarias/billeteras virtuale
 ## 📁 Estructura del Proyecto
 
 ```
-appscript-amigos-alias/
+AliasDB/
 ├── Code.js              # Controlador de Apps Script (doGet, RPCs, gestión de Google Sheets y Seeding)
-├── Index.html           # Interfaz SPA Mobile-First Neo-Brutalista (HTML, CSS y JS integrados)
+├── index.html           # Interfaz SPA Mobile-First Neo-Brutalista (HTML, CSS y JS integrados)
 ├── appsscript.json      # Manifiesto de configuración de Google Apps Script (V8 Runtime)
 └── README.md            # Documentación técnica e instrucciones de despliegue
 ```
@@ -73,7 +73,7 @@ appscript-amigos-alias/
 1. En el editor de Apps Script, haz clic en el botón azul superior **Implementar** (Deploy) > **Nueva implementación**.
 2. Haz clic en el engranaje de tipo y selecciona **Aplicación web**.
 3. Configura los parámetros:
-   - **Descripción**: `v1.0 - Neo-Brutalist Amigos & Alias`
+   - **Descripción**: `v1.0 - Neo-Brutalist AliasDB`
    - **Ejecutar como**: `Yo (tu correo de Google)`
    - **Quién tiene acceso**:
      - `Cualquier usuario con una cuenta de Google` (si es para tu círculo privado).

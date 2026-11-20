@@ -1,7 +1,7 @@
 {
-  "name": "appscript-amigos-alias",
+  "name": "aliasdb",
   "version": "1.0.0",
-  "description": "Amigos & Alias - WebApp Neo-Brutalista con Backend Google Apps Script & Google Sheets",
+  "description": "AliasDB - WebApp Neo-Brutalista con Backend Google Apps Script & Google Sheets",
   "scripts": {
     "push": "npx @google/clasp push",
     "deploy:backend": "npx @google/clasp deploy --deploymentId AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg --description \"Production Live Update\"",
