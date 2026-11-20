@@ -279,6 +279,37 @@ function doGet(e) {
           return jsonResponse(getSpreadsheetInfo());
         }
 
+        case 'setSpreadsheetId':
+        case 'setSpreadsheet': {
+          const authError = requireAdmin(e);
+          if (authError) return authError;
+          const rawId = (e.parameter.id || e.parameter.spreadsheetId || e.parameter.url || '').trim();
+          if (!rawId) {
+            return jsonResponse({ success: false, error: 'ID o URL de hoja de cálculo requerido.' });
+          }
+          let targetId = rawId;
+          const urlMatch = rawId.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+          if (urlMatch && urlMatch[1]) {
+            targetId = urlMatch[1];
+          }
+          try {
+            const ss = SpreadsheetApp.openById(targetId);
+            PropertiesService.getScriptProperties().setProperty(SPREADSHEET_PROP_KEY, ss.getId());
+            getAccountsSheet();
+            SpreadsheetApp.flush();
+            return jsonResponse({
+              success: true,
+              data: {
+                id: ss.getId(),
+                name: ss.getName(),
+                url: ss.getUrl()
+              }
+            });
+          } catch (err) {
+            return jsonResponse({ success: false, error: 'No se pudo vincular la hoja (' + targetId + '): ' + err.message });
+          }
+        }
+
         default:
           return jsonResponse({ success: false, error: 'Acción desconocida: ' + action });
       }
@@ -819,6 +850,7 @@ function saveFriendWithAccounts(friendObj) {
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setNumberFormat('@');
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setValues(remainingRows);
     }
+    SpreadsheetApp.flush();
 
     return {
       success: true,
@@ -879,6 +911,7 @@ function deleteFriend(friendId) {
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setNumberFormat('@');
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setValues(remainingRows);
     }
+    SpreadsheetApp.flush();
 
     return { success: true, data: { id: friendId, deleted: true } };
   } catch (error) {
@@ -963,6 +996,7 @@ function deleteAccount(accountId) {
       sheet.getRange(2, 1, updatedRows.length, HEADERS.length).setNumberFormat('@');
       sheet.getRange(2, 1, updatedRows.length, HEADERS.length).setValues(updatedRows);
     }
+    SpreadsheetApp.flush();
 
     return { success: true, data: { id: accountId, deleted: true } };
   } catch (error) {

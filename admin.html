@@ -1476,6 +1476,28 @@
             autofocus
           >
         </div>
+
+        <hr style="border: none; border-top: 2px dashed var(--border); margin: 16px 0;">
+
+        <div class="form-group">
+          <label for="sheet-id-input" class="form-label">Hoja de Cálculo Conectada (ID o URL)</label>
+          <div style="display: flex; gap: 8px;">
+            <input 
+              type="text" 
+              id="sheet-id-input" 
+              class="form-control font-mono" 
+              placeholder="https://docs.google.com/spreadsheets/d/.../edit o ID" 
+              autocomplete="off"
+              style="font-size: 0.8rem;"
+            >
+            <button id="btn-link-sheet" class="btn-brutalist btn-sm btn-cyan" type="button" style="white-space: nowrap;">
+              Vincular
+            </button>
+          </div>
+          <p id="sheet-link-status" class="form-hint" style="font-size: 0.75rem; margin-top: 6px; word-break: break-all;">
+            Consultando hoja conectada...
+          </p>
+        </div>
       </div>
       <div class="dialog-footer">
         <button id="btn-clear-auth" class="btn-brutalist btn-sm btn-danger" type="button" style="margin-right: auto;">
@@ -2182,26 +2204,28 @@
       /* ======================================================================
          4. AUTENTICACIÓN ADMIN
          ====================================================================== */
+      var DEFAULT_ADMIN_KEY = 'aliasdb_admin_2026';
+
       function initAuth() {
         var savedKey = '';
         try {
           savedKey = localStorage.getItem(STORAGE_ADMIN_KEY) || '';
         } catch (e) {}
 
-        appState.adminKey = savedKey.trim();
+        appState.adminKey = savedKey.trim() || DEFAULT_ADMIN_KEY;
         updateAuthUI();
-
-        if (!appState.adminKey) {
-          // Mostrar modal para ingresar la clave
-          openModal(dom.modalAuth);
-        }
       }
 
       function updateAuthUI() {
         if (appState.adminKey) {
           dom.adminAuthBtn.className = 'key-badge is-active';
-          dom.keyLabel.textContent = 'adminKey Activa';
-          dom.adminAuthBtn.title = 'adminKey activa (' + appState.adminKey.slice(0, 3) + '...). Click para cambiar o cerrar sesión.';
+          if (appState.adminKey === DEFAULT_ADMIN_KEY) {
+            dom.keyLabel.textContent = 'adminKey Activa';
+            dom.adminAuthBtn.title = 'Clave por defecto activa. Click para configurar clave personalizada.';
+          } else {
+            dom.keyLabel.textContent = 'adminKey Personalizada';
+            dom.adminAuthBtn.title = 'Clave personalizada activa (' + appState.adminKey.slice(0, 3) + '...). Click para cambiar o cerrar sesión.';
+          }
         } else {
           dom.adminAuthBtn.className = 'key-badge is-empty';
           dom.keyLabel.textContent = 'Sin Clave Admin';
@@ -2211,8 +2235,57 @@
 
       dom.adminAuthBtn.addEventListener('click', function() {
         dom.adminKeyInput.value = appState.adminKey;
+        var sheetInput = document.getElementById('sheet-id-input');
+        var sheetStatus = document.getElementById('sheet-link-status');
+        if (sheetInput && appState.spreadsheetUrl) {
+          sheetInput.value = appState.spreadsheetUrl;
+        }
+        if (sheetStatus) {
+          sheetStatus.innerHTML = appState.spreadsheetUrl ? 
+            'Conectada: <a href="' + escapeHtml(appState.spreadsheetUrl) + '" target="_blank" style="color: var(--accent-blue); font-weight: 700;">Abrir Hoja de Cálculo</a>' :
+            'ID por defecto activo en el script de Google Apps Script.';
+        }
         openModal(dom.modalAuth);
       });
+
+      var btnLinkSheet = document.getElementById('btn-link-sheet');
+      if (btnLinkSheet) {
+        btnLinkSheet.addEventListener('click', function() {
+          var sheetInput = document.getElementById('sheet-id-input');
+          var sheetStatus = document.getElementById('sheet-link-status');
+          var inputVal = sheetInput ? sheetInput.value.trim() : '';
+          if (!inputVal) {
+            showToast('Ingresá el ID o la URL completa de tu Google Sheet', true);
+            return;
+          }
+          btnLinkSheet.disabled = true;
+          btnLinkSheet.textContent = 'Vinculando...';
+          var linkUrl = BACKEND_API_URL + '?action=setSpreadsheetId&id=' + encodeURIComponent(inputVal);
+          if (appState.adminKey) linkUrl += '&adminKey=' + encodeURIComponent(appState.adminKey);
+
+          fetch(linkUrl)
+            .then(function(res) { return res.json(); })
+            .then(function(json) {
+              btnLinkSheet.disabled = false;
+              btnLinkSheet.textContent = 'Vincular';
+              if (json && json.success && json.data) {
+                appState.spreadsheetUrl = json.data.url;
+                if (sheetStatus) {
+                  sheetStatus.innerHTML = 'Conectada con éxito: <a href="' + escapeHtml(json.data.url) + '" target="_blank" style="color: var(--accent-blue); font-weight: 700;">' + escapeHtml(json.data.name || 'Hoja') + '</a>';
+                }
+                showToast('Google Sheet vinculada exitosamente');
+                loadData();
+              } else {
+                showToast('Error vinculando hoja: ' + (json ? json.error : 'Error desconocido'), true);
+              }
+            })
+            .catch(function(err) {
+              btnLinkSheet.disabled = false;
+              btnLinkSheet.textContent = 'Vincular';
+              showToast('Error de conexión al vincular hoja', true);
+            });
+        });
+      }
 
       dom.btnSaveAuth.addEventListener('click', function(e) {
         e.preventDefault();
@@ -2279,9 +2352,14 @@
           })
           .then(function(json) {
             dom.reloadBtn.querySelector('.btn-text').textContent = 'Recargar';
-            if (json && json.success === false && (json.error === 'No autorizado.' || json.error === 'NO_AUTH')) {
-              showToast('Error: Clave de administrador no autorizada', true);
-              openModal(dom.modalAuth);
+            if (json && json.success === false) {
+              var isAuthErr = json.error && (json.error.indexOf('No autorizado') !== -1 || json.error === 'NO_AUTH');
+              if (isAuthErr) {
+                showToast('Error de autenticación: Clave de administrador no autorizada', true);
+                openModal(dom.modalAuth);
+                return;
+              }
+              showToast('Error al guardar en Google Sheets: ' + (json.error || 'Error desconocido'), true);
               return;
             }
 
@@ -3003,9 +3081,14 @@
             return res.json();
           })
           .then(function(json) {
-            if (json && json.success === false && (json.error === 'No autorizado.' || json.error === 'NO_AUTH')) {
-              showToast('Error: Clave no autorizada', true);
-              openModal(dom.modalAuth);
+            if (json && json.success === false) {
+              var isAuthErr = json.error && (json.error.indexOf('No autorizado') !== -1 || json.error === 'NO_AUTH');
+              if (isAuthErr) {
+                showToast('Error de autenticación: Clave no autorizada', true);
+                openModal(dom.modalAuth);
+                return;
+              }
+              showToast('Error al eliminar en Google Sheets: ' + (json.error || 'Error desconocido'), true);
               return;
             }
             appState.persons = appState.persons.filter(function(p) { return p.id !== personId; });
