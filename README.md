@@ -68,19 +68,25 @@ AliasDB/
 
 ---
 
-## 🌐 Publicación como Aplicación Web (Web App)
+## 🌐 Publicación y Actualizaciones de la Aplicación Web (Web App)
 
-1. En el editor de Apps Script, haz clic en el botón azul superior **Implementar** (Deploy) > **Nueva implementación**.
-2. Haz clic en el engranaje de tipo y selecciona **Aplicación web**.
-3. Configura los parámetros:
-   - **Descripción**: `v1.0 - Neo-Brutalist AliasDB`
-   - **Ejecutar como**: `Yo (tu correo de Google)`
-   - **Quién tiene acceso**:
-     - `Cualquier usuario con una cuenta de Google` (si es para tu círculo privado).
-     - o `Cualquier usuario` (acceso público anónimo para que tus amigos no necesiten iniciar sesión).
-4. Haz clic en **Implementar**.
-5. Autoriza los permisos de Google Drive / Sheets la primera vez.
-6. Copia la **URL de la aplicación web** (termina en `/exec`). Puedes guardarla en la pantalla de inicio de tu smartphone (Android o iPhone) como un acceso directo o PWA ligera.
+> [!IMPORTANT]
+> **Regla de Invariante de URL**: Jamás cree implementaciones adicionales (*"Nueva implementación"*). Para actualizar el backend sin cambiar la URL pública (`/exec`), edite siempre la implementación activa existente desde **Administrar implementaciones** o utilice los scripts automatizados de `package.json`.
+
+### Actualización de Código en Producción
+
+- **Vía Terminal (Recomendado)**:
+  ```bash
+  npm run deploy:all
+  ```
+  Sincroniza el código a Apps Script, actualiza la misma implementación activa (`AKfycbz7Pp_...`) y publica en GitHub Pages.
+
+- **Vía Consola Web de Apps Script**:
+  1. En el editor, vaya a **Implementar** > **Administrar implementaciones**.
+  2. Seleccione la implementación activa (`AKfycbz7Pp_...`) y pulse **Editar** (✏️).
+  3. En **Versión**, seleccione **Nueva versión**.
+  4. Confirme que **Quién tiene acceso** permanezca en **Cualquier usuario** (*Anyone*).
+  5. Pulse **Guardar** (la URL `/exec` se mantiene 100% idéntica).
 
 ---
 
