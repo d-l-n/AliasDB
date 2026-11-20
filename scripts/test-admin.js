@@ -47,6 +47,7 @@ const tokensToCheck = [
 tokensToCheck.forEach(token => {
   assert(html.includes(token), 'Debe contener token CSS: ' + token);
 });
+assert(/\.copy-chip-btn\s*\{[^}]*color:\s*var\(--text\)/s.test(html), '.copy-chip-btn debe tener color: var(--text) explícito para modo claro');
 
 // 3. Verificación de Modern Dialog (<dialog>) y Accesibilidad
 console.log('3. Verificando soporte de Modern Dialog y A11y...');

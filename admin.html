@@ -868,7 +868,13 @@
     }
 
     .copy-chip-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
       background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-display);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       padding: 2px 7px;
@@ -879,6 +885,11 @@
       box-shadow: 1px 1px 0px var(--shadow);
       white-space: nowrap;
       transition: var(--transition-tap);
+    }
+
+    .copy-chip-btn:hover {
+      background: var(--surface-muted);
+      color: var(--text);
     }
 
     .copy-chip-btn:active {
