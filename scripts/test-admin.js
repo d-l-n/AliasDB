@@ -218,6 +218,7 @@ assert(codeContent.includes('function showAdminSidebar('), 'Code.js debe declara
 assert(codeContent.includes('function openAdminWebTab('), 'Code.js debe declarar función openAdminWebTab');
 assert(codeContent.includes('function openPublicAppTab('), 'Code.js debe declarar función openPublicAppTab');
 assert(codeContent.includes('showSidebar('), 'Code.js debe invocar showSidebar en Google Sheets');
+assert(!codeContent.includes('.setNumberFormat('), 'Code.js no debe invocar setNumberFormat para evitar excepciones en hojas con tablas nativas y columnas escritas');
 assert(html.includes('sidebar-shortcut-banner'), 'admin.html debe contener el banner de atajo directo');
 
 // 11. Verificación de Sticky Header en index.html y admin.html

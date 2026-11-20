@@ -640,7 +640,6 @@ function renameGroupInternal(oldName, newName) {
     }
 
     if (updatedCount > 0) {
-      sheet.getRange(2, 1, rowsToUpdate.length, HEADERS.length).setNumberFormat('@');
       sheet.getRange(2, 1, rowsToUpdate.length, HEADERS.length).setValues(rowsToUpdate);
     }
 
@@ -730,7 +729,7 @@ function getSpreadsheet() {
 }
 
 /**
- * Obtiene la hoja 'Cuentas'. La crea y formatea con cabeceras y seeding si está vacía.
+ * Obtiene la hoja 'Cuentas'. La crea con cabeceras y seeding si está vacía.
  * @returns {Sheet} Instancia de la pestaña 'Cuentas'
  */
 function getAccountsSheet() {
@@ -747,7 +746,7 @@ function getAccountsSheet() {
     }
   }
 
-  // Inicialización de encabezados y formato
+  // Inicialización de encabezados si la hoja está recién creada
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
@@ -755,12 +754,6 @@ function getAccountsSheet() {
     headerRange.setBackground('#F1F3F4');
     headerRange.setFontColor('#202124');
     sheet.setFrozenRows(1);
-    
-    // Forzar formato de texto plano en CBU/CVU y Alias para conservar ceros a la izquierda
-    sheet.getRange('A:I').setNumberFormat('@');
-    seedDemoData(sheet);
-  } else if (sheet.getLastRow() === 1) {
-    // Si solo existen los encabezados sin datos, inicializar demo
     seedDemoData(sheet);
   }
 
@@ -790,7 +783,6 @@ function seedDemoData(sheet) {
   });
 
   if (rows.length > 0) {
-    sheet.getRange(2, 1, rows.length, HEADERS.length).setNumberFormat('@');
     sheet.getRange(2, 1, rows.length, HEADERS.length).setValues(rows);
   }
 }
@@ -911,7 +903,6 @@ function saveFriendWithAccounts(friendObj) {
     }
 
     if (remainingRows.length > 0) {
-      sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setNumberFormat('@');
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setValues(remainingRows);
     }
     SpreadsheetApp.flush();
@@ -972,7 +963,6 @@ function deleteFriend(friendId) {
     sheet.getRange(2, 1, totalExistingDataRows, HEADERS.length).clearContent();
 
     if (remainingRows.length > 0) {
-      sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setNumberFormat('@');
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setValues(remainingRows);
     }
     SpreadsheetApp.flush();
@@ -1057,7 +1047,6 @@ function deleteAccount(accountId) {
     sheet.getRange(2, 1, totalExistingDataRows, HEADERS.length).clearContent();
 
     if (updatedRows.length > 0) {
-      sheet.getRange(2, 1, updatedRows.length, HEADERS.length).setNumberFormat('@');
       sheet.getRange(2, 1, updatedRows.length, HEADERS.length).setValues(updatedRows);
     }
     SpreadsheetApp.flush();
