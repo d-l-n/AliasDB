@@ -1,0 +1,5 @@
+# Clasp ignore configuration
+**/*
+!appsscript.json
+!Code.js
+!Index.html
