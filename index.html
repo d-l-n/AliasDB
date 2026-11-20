@@ -534,6 +534,93 @@
       letter-spacing: 0.05em;
     }
 
+    /* ==========================================================================
+       COLLAPSIBLE CARDS SYSTEM (Closed by default for >=2 accounts)
+       ========================================================================== */
+    .friend-card.is-collapsible .card-header {
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      border-radius: var(--radius-sm);
+    }
+
+    .friend-card.is-collapsible .card-header:hover {
+      background: var(--surface-muted);
+      padding: 6px 8px;
+      margin: -6px -8px 6px -8px;
+    }
+
+    .friend-card.is-collapsible.is-collapsed .card-header {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .friend-card.is-collapsible.is-collapsed .accounts-list {
+      display: none;
+    }
+
+    .friend-card.is-collapsible.is-expanded .accounts-list {
+      display: flex;
+    }
+
+    .collapsed-bank-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .friend-card.is-expanded .collapsed-bank-preview {
+      display: none;
+    }
+
+    .collapse-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      min-height: 38px;
+      padding: 0 12px;
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0px var(--shadow);
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition-tap);
+      flex-shrink: 0;
+    }
+
+    .collapse-toggle-btn:hover {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--shadow);
+    }
+
+    .collapse-toggle-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    [data-theme="dark"] .collapse-toggle-btn:hover {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
+    .collapse-chevron {
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .friend-card.is-expanded .collapse-chevron {
+      transform: rotate(180deg);
+    }
+
     /* Accounts List inside Card */
     .accounts-list {
       display: flex;
@@ -1176,6 +1263,7 @@
 
       /* App State */
       var friendsData = DEFAULT_FRIENDS_DATA.slice();
+      var expandedCards = {};
       var activeFilter = 'ALL';
       var searchQuery = '';
       var toastTimeout = null;
@@ -1372,6 +1460,10 @@
 
         cardsContainer.innerHTML = filtered.map(function(friend) {
           var initials = friend.name.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
+          var hasMultiple = friend.accounts.length >= 2;
+          var isSearchingOrFiltering = searchQuery !== '' || activeFilter !== 'ALL';
+          // Si tiene 2 o más cuentas: plegado/cerrado por defecto en carga inicial
+          var isExpanded = hasMultiple ? (isSearchingOrFiltering || !!expandedCards[friend.id]) : true;
 
           var accountsHtml = friend.accounts
             .filter(function(acc) { return activeFilter === 'ALL' || acc.bankId === activeFilter; })
@@ -1403,16 +1495,44 @@
               ].join('\n');
             }).join('\n');
 
+          var bankPreviewHtml = '';
+          if (hasMultiple) {
+            var badges = friend.accounts.map(function(acc) {
+              return '<span class="bank-badge ' + acc.badgeClass + '" style="font-size: 10px; padding: 2px 7px;">' + acc.bankName + '</span>';
+            }).join('');
+            bankPreviewHtml = '<div class="collapsed-bank-preview">' + badges + '</div>';
+          }
+
+          var cardClasses = ['friend-card'];
+          if (hasMultiple) {
+            cardClasses.push('is-collapsible');
+            cardClasses.push(isExpanded ? 'is-expanded' : 'is-collapsed');
+          }
+
+          var toggleButtonHtml = '';
+          if (hasMultiple) {
+            toggleButtonHtml = [
+              '<button class="collapse-toggle-btn" type="button" data-friend-id="' + friend.id + '" aria-expanded="' + isExpanded + '" aria-label="' + (isExpanded ? 'Ocultar' : 'Ver') + ' ' + friend.accounts.length + ' cuentas de ' + friend.name + '">',
+              '  <span class="collapse-text">' + (isExpanded ? 'Ocultar' : 'Ver cuentas (' + friend.accounts.length + ')') + '</span>',
+              '  <svg class="collapse-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">',
+              '    <polyline points="6 9 12 15 18 9"></polyline>',
+              '  </svg>',
+              '</button>'
+            ].join('\n');
+          }
+
           return [
-            '<article class="friend-card" aria-label="Alias bancarios de ' + friend.name + '">',
-            '  <div class="card-header">',
+            '<article class="' + cardClasses.join(' ') + '" data-friend-id="' + friend.id + '" aria-label="Alias bancarios de ' + friend.name + '">',
+            '  <div class="card-header" ' + (hasMultiple ? 'role="button" tabindex="0" aria-expanded="' + isExpanded + '" aria-label="Alternar cuentas de ' + friend.name + '"' : '') + '>',
             '    <div class="friend-profile">',
             '      <div class="friend-avatar" style="background: ' + friend.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
             '      <div class="friend-info">',
             '        <h2 class="friend-name">' + friend.name + '</h2>',
             '        <span class="friend-meta">' + friend.accounts.length + ' ' + (friend.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
+            bankPreviewHtml,
             '      </div>',
             '    </div>',
+            toggleButtonHtml,
             '  </div>',
             '  <div class="accounts-list">',
             accountsHtml,
@@ -1424,8 +1544,69 @@
         attachCardEvents();
       }
 
+      function toggleCard(card, friendId) {
+        if (!card) return;
+        var isCurrentlyExpanded = card.classList.contains('is-expanded');
+        var newState = !isCurrentlyExpanded;
+        expandedCards[friendId] = newState;
+
+        card.classList.toggle('is-expanded', newState);
+        card.classList.toggle('is-collapsed', !newState);
+
+        var header = card.querySelector('.card-header');
+        if (header) {
+          header.setAttribute('aria-expanded', newState.toString());
+        }
+
+        var toggleBtn = card.querySelector('.collapse-toggle-btn');
+        if (toggleBtn) {
+          toggleBtn.setAttribute('aria-expanded', newState.toString());
+          var labelEl = toggleBtn.querySelector('.collapse-text');
+          if (labelEl) {
+            var accountsCount = card.querySelectorAll('.account-item').length;
+            labelEl.textContent = newState ? 'Ocultar' : 'Ver cuentas (' + accountsCount + ')';
+          }
+          var chevron = toggleBtn.querySelector('.collapse-chevron');
+          if (chevron) {
+            chevron.style.transform = newState ? 'rotate(180deg)' : 'rotate(0deg)';
+          }
+        }
+      }
+
       /* Attach Click and Keyboard Events to dynamically created elements */
       function attachCardEvents() {
+        // Eventos en tarjetas colapsables
+        cardsContainer.querySelectorAll('.friend-card.is-collapsible .card-header').forEach(function(header) {
+          var card = header.closest('.friend-card');
+          var friendId = card.dataset.friendId;
+
+          function handleHeaderClick(e) {
+            if (e.target.closest('.collapse-toggle-btn')) {
+              return;
+            }
+            toggleCard(card, friendId);
+          }
+
+          header.addEventListener('click', handleHeaderClick);
+          header.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+              if (!e.target.closest('.collapse-toggle-btn')) {
+                e.preventDefault();
+                toggleCard(card, friendId);
+              }
+            }
+          });
+        });
+
+        cardsContainer.querySelectorAll('.collapse-toggle-btn').forEach(function(btn) {
+          var card = btn.closest('.friend-card');
+          var friendId = btn.dataset.friendId;
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleCard(card, friendId);
+          });
+        });
+
         cardsContainer.querySelectorAll('.alias-chip').forEach(function(chip) {
           var alias = chip.dataset.alias;
           chip.addEventListener('click', function() {
