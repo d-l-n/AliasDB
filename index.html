@@ -79,6 +79,8 @@
       --bank-bbva-text: #FFFFFF;
       --bank-uala-bg: #D81B60;
       --bank-uala-text: #FFFFFF;
+      --bank-naranja-bg: #FF5500;
+      --bank-naranja-text: #FFFFFF;
       --bank-generic-bg: #E2E8F0;
       --bank-generic-text: #0F172A;
 
@@ -825,6 +827,11 @@
       color: var(--bank-uala-text);
     }
 
+    .bank-badge-naranja {
+      background: var(--bank-naranja-bg);
+      color: var(--bank-naranja-text);
+    }
+
     .bank-badge-generic {
       background: var(--bank-generic-bg);
       color: var(--bank-generic-text);
@@ -1233,6 +1240,7 @@
         <button class="filter-chip" data-bank="LEMON" type="button" aria-pressed="false">Lemon Cash</button>
         <button class="filter-chip" data-bank="BBVA" type="button" aria-pressed="false">BBVA</button>
         <button class="filter-chip" data-bank="UALA" type="button" aria-pressed="false">Ual&aacute;</button>
+        <button class="filter-chip" data-bank="NARANJA_X" type="button" aria-pressed="false">Naranja X</button>
         <button class="filter-chip" data-bank="OTROS" type="button" aria-pressed="false">Otros</button>
       </div>
     </section>
@@ -1942,7 +1950,13 @@
         if (!Array.isArray(list)) return [];
         return list.map(function(friend, idx) {
           var accounts = (friend.accounts || []).map(function(acc) {
-            var bankName = acc.bankName || acc.bank || 'Banco';
+            var bankName = acc.bankName || acc.bank || '';
+            if (!bankName || bankName.toLowerCase() === 'banco' || bankName.toLowerCase() === 'otros') {
+              if (acc.alias && (acc.alias.toLowerCase().endsWith('.nx') || /(^|\.)nx($|\.)/i.test(acc.alias))) {
+                bankName = 'Naranja X';
+              }
+            }
+            if (!bankName) bankName = 'Banco';
             var meta = resolveBankMeta(bankName);
             return {
               id: acc.id || '',

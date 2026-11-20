@@ -78,6 +78,8 @@
       --bank-bbva-text: #FFFFFF;
       --bank-uala-bg: #D81B60;
       --bank-uala-text: #FFFFFF;
+      --bank-naranja-bg: #FF5500;
+      --bank-naranja-text: #FFFFFF;
       --bank-generic-bg: #E2E8F0;
       --bank-generic-text: #0F172A;
 
@@ -818,6 +820,7 @@
     .bank-badge-lemon { background: var(--bank-lemon-bg); color: var(--bank-lemon-text); }
     .bank-badge-bbva { background: var(--bank-bbva-bg); color: var(--bank-bbva-text); }
     .bank-badge-uala { background: var(--bank-uala-bg); color: var(--bank-uala-text); }
+    .bank-badge-naranja { background: var(--bank-naranja-bg); color: var(--bank-naranja-text); }
     .bank-badge-generic { background: var(--bank-generic-bg); color: var(--bank-generic-text); }
 
     .account-type-tag {
@@ -1749,6 +1752,7 @@
         '143': 'Brubank',
         '147': 'Banco Bica',
         '150': 'HSBC',
+        '384': 'Naranja X',
         '191': 'Banco Credicoop',
         '247': 'Banco Roela',
         '259': 'Banco Itaú',
@@ -2044,11 +2048,11 @@
 
       function detectFintechFromAlias(alias) {
         var lower = (alias || '').toLowerCase();
+        if (lower.indexOf('naranja') !== -1 || lower.endsWith('.nx') || /(^|\.)nx($|\.)/.test(lower)) return 'Naranja X';
         if (lower.indexOf('mp') !== -1 || lower.indexOf('mercado') !== -1) return 'Mercado Pago';
         if (lower.indexOf('uala') !== -1 || lower.indexOf('ualá') !== -1) return 'Ualá';
         if (lower.indexOf('lemon') !== -1) return 'Lemon Cash';
         if (lower.indexOf('bru') !== -1) return 'Brubank';
-        if (lower.indexOf('naranja') !== -1) return 'Naranja X';
         if (lower.indexOf('personal') !== -1) return 'Personal Pay';
         return 'Mercado Pago';
       }
@@ -2062,6 +2066,7 @@
         if (str.indexOf('LEMON') !== -1) return 'bank-badge-lemon';
         if (str.indexOf('BBVA') !== -1 || str.indexOf('FRANCES') !== -1) return 'bank-badge-bbva';
         if (str.indexOf('UALA') !== -1 || str.indexOf('UALÁ') !== -1) return 'bank-badge-uala';
+        if (str.indexOf('NARANJA') !== -1 || str.indexOf('NX') !== -1) return 'bank-badge-naranja';
         return 'bank-badge-generic';
       }
 

@@ -41,6 +41,7 @@ const tokensToCheck = [
   '--bank-lemon-bg',
   '--bank-bbva-bg',
   '--bank-uala-bg',
+  '--bank-naranja-bg',
   '--border-width',
   '--shadow-offset'
 ];
@@ -122,6 +123,7 @@ function detectBankFromCBU(cbu) {
 
 function detectFintechFromAlias(alias) {
   const lower = (alias || '').toLowerCase();
+  if (lower.indexOf('naranja') !== -1 || lower.endsWith('.nx') || /(^|\.)nx($|\.)/.test(lower)) return 'Naranja X';
   if (lower.indexOf('mp') !== -1 || lower.indexOf('mercado') !== -1) return 'Mercado Pago';
   if (lower.indexOf('uala') !== -1 || lower.indexOf('ualá') !== -1) return 'Ualá';
   if (lower.indexOf('lemon') !== -1) return 'Lemon Cash';
@@ -136,6 +138,9 @@ assert.strictEqual(detectBankFromCBU('0000003100012345678901'), 'CVU (Fintech)')
 assert.strictEqual(detectFintechFromAlias('martin.mp.futbol'), 'Mercado Pago');
 assert.strictEqual(detectFintechFromAlias('lucas.lemon.crypto'), 'Lemon Cash');
 assert.strictEqual(detectFintechFromAlias('camila.uala.ar'), 'Ualá');
+assert.strictEqual(detectFintechFromAlias('pedro.nx'), 'Naranja X');
+assert.strictEqual(detectFintechFromAlias('lucas.perez.nx'), 'Naranja X');
+assert.strictEqual(detectFintechFromAlias('alias.naranjax'), 'Naranja X');
 
 // Quick-Add Regex Test
 const testRawText = 'martin.mp.futbol 0000003100012345678901';
