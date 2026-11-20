@@ -2673,7 +2673,7 @@
           var inAccount = person.accounts.some(function(acc) {
             return (
               acc.alias.toLowerCase().indexOf(q) !== -1 ||
-              acc.cbu.indexOf(q) !== -1 ||
+              (acc.cbu && acc.cbu.indexOf(q) !== -1) ||
               acc.bank.toLowerCase().indexOf(q) !== -1 ||
               acc.titular.toLowerCase().indexOf(q) !== -1
             );
@@ -2728,6 +2728,17 @@
             } else {
               accountsHtml = person.accounts.map(function(acc) {
                 var badgeClass = resolveBankBadgeClass(acc.bank);
+                var cleanCbu = String(acc.cbu || '').trim();
+                var hasCbu = cleanCbu.length > 0;
+                var isCvu = (acc.type && acc.type.toUpperCase().indexOf('CVU') !== -1) || cleanCbu.startsWith('000');
+                var cbuTypeLabel = isCvu ? 'CVU' : 'CBU';
+                var cbuRowHtml = hasCbu ? [
+                  '  <div class="cbu-row">',
+                  '    <span class="cbu-text font-mono">' + cbuTypeLabel + ': ' + escapeHtml(cleanCbu) + '</span>',
+                  '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(cleanCbu) + '" data-copy-label="' + cbuTypeLabel + '" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar ' + cbuTypeLabel + '</button>',
+                  '  </div>'
+                ].join('\n') : '';
+
                 return [
                   '<div class="account-data-box">',
                   '  <div class="account-badge-row">',
@@ -2739,12 +2750,9 @@
                   '    <span class="alias-text font-mono">' + escapeHtml(acc.alias) + '</span>',
                   '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(acc.alias) + '" data-copy-label="Alias" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar</button>',
                   '  </div>',
-                  '  <div class="cbu-row">',
-                  '    <span class="cbu-text font-mono">CBU: ' + escapeHtml(acc.cbu) + '</span>',
-                  '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(acc.cbu) + '" data-copy-label="CBU" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar CBU</button>',
-                  '  </div>',
+                  cbuRowHtml,
                   '</div>'
-                ].join('\n');
+                ].filter(Boolean).join('\n');
               }).join('\n');
             }
 

@@ -1667,7 +1667,7 @@
             friend.accounts.some(function(acc) {
               return acc.alias.toLowerCase().indexOf(q) !== -1 || 
                      acc.bankName.toLowerCase().indexOf(q) !== -1 ||
-                     acc.cbu.indexOf(q) !== -1;
+                     (acc.cbu && acc.cbu.indexOf(q) !== -1);
             })
           );
 
@@ -1721,6 +1721,17 @@
           var accountsHtml = friend.accounts
             .filter(function(acc) { return activeFilter === 'ALL' || acc.bankId === activeFilter; })
             .map(function(acc) {
+              var cleanCbu = String(acc.cbu || '').trim();
+              var hasCbu = cleanCbu.length > 0;
+              var isCvu = (acc.type && acc.type.toUpperCase().indexOf('CVU') !== -1) || cleanCbu.startsWith('000');
+              var cbuTypeLabel = isCvu ? 'CVU' : 'CBU';
+              var cbuDetailsHtml = hasCbu ? [
+                '  <div class="cbu-details-row">',
+                '    <span class="cbu-number font-mono" style="display: flex; align-items: center; gap: 4px;">' + getReiconSvg('CreditCard', '', 13) + ' ' + cbuTypeLabel + ': ' + cleanCbu + '</span>',
+                '    <button class="cbu-copy-mini-btn" type="button" data-cbu="' + cleanCbu + '" data-label="' + cbuTypeLabel + '" aria-label="Copiar ' + cbuTypeLabel + ' ' + cleanCbu + '" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar ' + cbuTypeLabel + '</button>',
+                '  </div>'
+              ].join('\n') : '';
+
               return [
                 '<div class="account-item">',
                 '  <div class="account-meta-row">',
@@ -1737,12 +1748,9 @@
                 '      ' + getReiconSvg('Copy', '', 18),
                 '    </button>',
                 '  </div>',
-                '  <div class="cbu-details-row">',
-                '    <span class="cbu-number font-mono" style="display: flex; align-items: center; gap: 4px;">' + getReiconSvg('CreditCard', '', 13) + ' CBU: ' + acc.cbu + '</span>',
-                '    <button class="cbu-copy-mini-btn" type="button" data-cbu="' + acc.cbu + '" aria-label="Copiar CBU ' + acc.cbu + '" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar CBU</button>',
-                '  </div>',
+                cbuDetailsHtml,
                 '</div>'
-              ].join('\n');
+              ].filter(Boolean).join('\n');
             }).join('\n');
 
           var bankPreviewHtml = '';
@@ -1881,9 +1889,10 @@
 
         cardsContainer.querySelectorAll('.cbu-copy-mini-btn').forEach(function(btn) {
           var cbu = btn.dataset.cbu;
+          var label = btn.dataset.label || 'CBU';
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
-            copyToClipboard(cbu, btn, 'CBU');
+            copyToClipboard(cbu, btn, label);
           });
         });
       }

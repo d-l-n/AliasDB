@@ -227,3 +227,10 @@ const indexContent = fs.readFileSync(path.join(__dirname, '..', 'index.html'), '
 assert(indexContent.includes('position: sticky'), 'index.html debe tener header sticky');
 assert(html.includes('position: sticky'), 'admin.html debe tener header sticky');
 assert(indexContent.includes('brandTapCount >= 10'), 'index.html debe incluir atajo de 10 toques');
+
+// 12. Verificación de Ocultación de Campo/Botón CBU/CVU cuando no está definido
+console.log('12. Verificando ocultación de campo y botón CBU/CVU si la cuenta no lo define...');
+assert(indexContent.includes('var cleanCbu = String(acc.cbu || \'\').trim();'), 'index.html debe normalizar CBU/CVU');
+assert(indexContent.includes('var hasCbu = cleanCbu.length > 0;'), 'index.html debe verificar existencia de CBU/CVU');
+assert(html.includes('var cleanCbu = String(acc.cbu || \'\').trim();'), 'admin.html debe normalizar CBU/CVU');
+assert(html.includes('var hasCbu = cleanCbu.length > 0;'), 'admin.html debe verificar existencia de CBU/CVU');
