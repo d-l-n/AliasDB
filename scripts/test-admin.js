@@ -56,6 +56,8 @@ assert(html.includes('dialog:modal'), 'CSS debe incluir dialog:modal');
 assert(html.includes('overscroll-behavior: contain'), 'CSS debe contener overscroll en dialog y backdrop');
 assert(html.includes('dialog::backdrop'), 'CSS debe estilizar ::backdrop');
 assert(html.includes('sr-announcer'), 'Debe contener región aria-live sr-announcer');
+assert(/dialog\s*>\s*form[\s\S]*?min-height:\s*0/m.test(html) || /#form-person[\s\S]*?min-height:\s*0/m.test(html), 'CSS debe contener flex constraint (min-height: 0) en form dentro de dialog para permitir scroll');
+assert(/\.dialog-body[\s\S]*?overflow-y:\s*auto/m.test(html), '.dialog-body debe tener overflow-y: auto para permitir scroll vertical en modales');
 
 // 4. Verificación de Modales Requeridos
 console.log('4. Verificando modales obligatorios...');
@@ -72,7 +74,7 @@ requiredDialogs.forEach(dialogId => {
 });
 
 // 5. Verificación de Elementos del Header y Toolbar
-console.log('5. Verificando elementos de UI del Header y Toolbar...');
+console.log('5. Verificando elementos de UI del Header, Toolbar y Modales...');
 const requiredElementIds = [
   'admin-auth-btn',
   'open-sheet-btn',
@@ -93,7 +95,11 @@ const requiredElementIds = [
   'shortcut-open-admin-tab',
   'shortcut-open-app-tab',
   'groups-container',
-  'brutalist-toast'
+  'brutalist-toast',
+  'btn-add-account-row',
+  'btn-add-account-row-bottom',
+  'modal-accounts-container',
+  'btn-submit-person'
 ];
 requiredElementIds.forEach(id => {
   assert(html.includes(`id="${id}"`), `Debe contener el elemento con id="${id}"`);

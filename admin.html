@@ -1008,6 +1008,17 @@
       display: flex;
     }
 
+    dialog > form,
+    #form-person {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
     dialog:modal {
       overscroll-behavior: contain;
     }
@@ -1069,6 +1080,24 @@
       flex-direction: column;
       gap: 16px;
       overscroll-behavior: contain;
+      flex: 1 1 auto;
+      min-height: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .dialog-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .dialog-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .dialog-body::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: var(--radius-pill);
     }
 
     .dialog-footer {
@@ -1383,6 +1412,16 @@
         width: calc(100% - 16px);
         max-height: 94vh;
       }
+      .dialog-header {
+        padding: 10px 12px;
+      }
+      .dialog-body {
+        padding: 12px 10px;
+        gap: 12px;
+      }
+      .dialog-footer {
+        padding: 10px 12px;
+      }
     }
 
     /* Accessibility: Reduced Motion Support */
@@ -1671,6 +1710,11 @@
           </div>
           <div id="modal-accounts-container" style="display: flex; flex-direction: column; gap: 12px;">
             <!-- Filas dinámicas de cuentas -->
+          </div>
+          <div style="display: flex; justify-content: center; margin-top: 10px;">
+            <button id="btn-add-account-row-bottom" class="btn-brutalist btn-sm btn-mint" type="button" style="width: 100%;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="14" height="14" class="reicon reicon-add" aria-hidden="true"><path d="M6 12H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> <span>Agregar Otra Cuenta</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2059,6 +2103,7 @@
         btnQuickAddDetect: document.getElementById('btn-quick-add-detect'),
         modalAccountsContainer: document.getElementById('modal-accounts-container'),
         btnAddAccountRow: document.getElementById('btn-add-account-row'),
+        btnAddAccountRowBottom: document.getElementById('btn-add-account-row-bottom'),
         btnSubmitPerson: document.getElementById('btn-submit-person'),
 
         modalTokens: document.getElementById('modal-tokens'),
@@ -2886,7 +2931,7 @@
         }
       });
 
-      function appendAccountRow(accData) {
+      function appendAccountRow(accData, shouldScroll) {
         accData = accData || { bank: 'Mercado Pago', type: 'CVU', alias: '', cbu: '', titular: '' };
         var index = dom.modalAccountsContainer.children.length + 1;
 
@@ -2941,11 +2986,25 @@
         });
 
         dom.modalAccountsContainer.appendChild(row);
+
+        if (shouldScroll) {
+          setTimeout(function() {
+            row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            var firstInput = row.querySelector('.acc-alias') || row.querySelector('.acc-bank');
+            if (firstInput && !accData.alias) firstInput.focus();
+          }, 60);
+        }
       }
 
       dom.btnAddAccountRow.addEventListener('click', function() {
-        appendAccountRow();
+        appendAccountRow(null, true);
       });
+
+      if (dom.btnAddAccountRowBottom) {
+        dom.btnAddAccountRowBottom.addEventListener('click', function() {
+          appendAccountRow(null, true);
+        });
+      }
 
       /* Quick-Add Auto-detección */
       dom.btnQuickAddDetect.addEventListener('click', function() {
@@ -2997,6 +3056,7 @@
           firstRow.querySelector('.acc-type').value = detectedType;
           firstRow.querySelector('.acc-alias').value = detectedAlias;
           firstRow.querySelector('.acc-cbu').value = detectedCbu;
+          firstRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
           appendAccountRow({
             bank: detectedBank,
@@ -3004,7 +3064,7 @@
             alias: detectedAlias,
             cbu: detectedCbu,
             titular: ''
-          });
+          }, true);
         }
 
         dom.quickAddText.value = '';
