@@ -98,12 +98,23 @@ const DEMO_FRIENDS = [
  */
 function doGet(e) {
   try {
-    const template = HtmlService.createTemplateFromFile('Index');
+    // Modo API REST: Servir JSON público para clientes externos (ej: GitHub Pages)
+    if (e && e.parameter && (e.parameter.action === 'getFriends' || e.parameter.format === 'json')) {
+      const friends = getFriendsDataInternal();
+      return ContentService.createTextOutput(JSON.stringify({ success: true, data: friends }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    const template = HtmlService.createTemplateFromFile('index');
     return template.evaluate()
       .setTitle('Amigos & Alias | Pagos Rápidos')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (error) {
+    if (e && e.parameter && (e.parameter.action === 'getFriends' || e.parameter.format === 'json')) {
+      return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.message || String(error) }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     console.error('Error renderizando Index.html:', error);
     return HtmlService.createHtmlOutput(
       '<div style="font-family:sans-serif;padding:24px;text-align:center;">' +

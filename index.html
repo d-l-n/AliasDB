@@ -971,23 +971,27 @@
         </div>
       </div>
       
-      <!-- Theme Switch Button (>=44x44px tap zone) -->
-      <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Alternar entre modo claro y modo oscuro">
-        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-      </button>
+      <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+        <span id="sync-status" class="sync-badge font-mono" style="font-size: 11px; padding: 4px 8px; border: 2px solid var(--border); font-weight: 700; border-radius: 4px; background: var(--surface-muted); color: var(--text-muted);" title="Estado de sincronización con Google Sheets">● Conectando...</span>
+        
+        <!-- Theme Switch Button (>=44x44px tap zone) -->
+        <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Alternar entre modo claro y modo oscuro">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
     </header>
 
     <!-- Search & Bank Filters Controls -->
@@ -1549,34 +1553,80 @@
         });
       }
 
-      function loadDataFromAppsScript() {
-        if (typeof google !== 'undefined' && google.script && google.script.run) {
-          google.script.run
-            .withSuccessHandler(function(serverData) {
-              var list = null;
-              if (Array.isArray(serverData)) {
-                list = serverData;
-              } else if (serverData && serverData.success && Array.isArray(serverData.data)) {
-                list = serverData.data;
-              }
-              if (list && list.length > 0) {
-                friendsData = normalizeFriendData(list);
-                renderCards();
-              }
-            })
-            .withFailureHandler(function(err) {
-              console.warn('Apps Script backend fallback:', err);
-              renderCards();
-            })
-            .getFriendsData();
+      var BACKEND_API_URL = 'https://script.google.com/macros/s/AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg/exec';
+
+      function updateSyncStatus(isLive, label) {
+        var el = document.getElementById('sync-status');
+        if (!el) return;
+        if (isLive) {
+          el.textContent = '● ' + (label || 'En línea');
+          el.style.background = 'var(--accent-mint)';
+          el.style.color = '#0D0D11';
         } else {
-          // Entorno local / standalone
+          el.textContent = '● ' + (label || 'Modo Demo');
+          el.style.background = 'var(--surface-muted)';
+          el.style.color = 'var(--text-muted)';
+        }
+      }
+
+      function handleReceivedData(serverData, sourceLabel) {
+        var list = null;
+        if (Array.isArray(serverData)) {
+          list = serverData;
+        } else if (serverData && serverData.success && Array.isArray(serverData.data)) {
+          list = serverData.data;
+        }
+        if (list && list.length > 0) {
+          friendsData = normalizeFriendData(list);
+          updateSyncStatus(true, sourceLabel || 'Sincronizado');
+          renderCards();
+        } else {
+          updateSyncStatus(false, 'Modo Demo');
           renderCards();
         }
       }
 
+      function loadData() {
+        // 1. Si se ejecuta dentro del contenedor de Google Apps Script
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(function(serverData) {
+              handleReceivedData(serverData, 'Apps Script');
+            })
+            .withFailureHandler(function(err) {
+              console.warn('Apps Script backend fallback:', err);
+              updateSyncStatus(false, 'Modo Demo');
+              renderCards();
+            })
+            .getFriendsData();
+          return;
+        }
+
+        // 2. Si se ejecuta en GitHub Pages u host web independiente: consumir API REST
+        if (BACKEND_API_URL) {
+          fetch(BACKEND_API_URL + '?action=getFriends')
+            .then(function(response) {
+              if (!response.ok) throw new Error('HTTP ' + response.status);
+              return response.json();
+            })
+            .then(function(serverData) {
+              handleReceivedData(serverData, 'En línea');
+            })
+            .catch(function(err) {
+              console.warn('Fetch fallback to default demo data:', err);
+              updateSyncStatus(false, 'Modo Demo');
+              renderCards();
+            });
+          return;
+        }
+
+        // 3. Fallback local
+        updateSyncStatus(false, 'Modo Demo');
+        renderCards();
+      }
+
       // Initial Execution
-      loadDataFromAppsScript();
+      loadData();
 
     })();
   </script>
