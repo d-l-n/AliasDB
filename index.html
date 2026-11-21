@@ -1266,6 +1266,252 @@
       font-size: 1.1rem;
     }
 
+    /* ==========================================================================
+       MODALS (<dialog>) NEO-BRUTALISTAS Y CONTROLES DE FORMULARIO
+       ========================================================================== */
+    dialog {
+      position: fixed;
+      inset: 0;
+      margin: auto;
+      background: var(--surface);
+      color: var(--text);
+      border: var(--border-thick) solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 8px 8px 0px var(--shadow);
+      padding: 0;
+      width: calc(100% - 32px);
+      max-width: 520px;
+      max-height: min(90vh, calc(100dvh - var(--keyboard-inset-height, 0px) - 24px));
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      transition: max-height 0.2s cubic-bezier(0, 0, 0.2, 1), margin-top 0.2s cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    dialog[open] {
+      display: flex;
+    }
+
+    .keyboard-visible dialog[open] {
+      margin-top: max(8px, env(safe-area-inset-top, 8px));
+      margin-bottom: auto;
+      max-height: calc(100dvh - var(--keyboard-inset-height, 0px) - 16px);
+    }
+
+    dialog > form {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    dialog:modal {
+      overscroll-behavior: contain;
+    }
+
+    dialog::backdrop {
+      background: rgba(13, 13, 17, 0.75);
+      backdrop-filter: blur(2px);
+      overflow: hidden;
+      overscroll-behavior: contain;
+    }
+
+    .dialog-header {
+      padding: 16px 20px;
+      background: var(--surface-muted);
+      border-bottom: var(--border-width) solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .dialog-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .dialog-close-btn {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      background: var(--surface);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0px var(--shadow);
+      font-weight: 900;
+      font-size: 1.2rem;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      color: var(--text);
+      transition: var(--transition-tap);
+    }
+
+    .dialog-close-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    .dialog-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      overscroll-behavior: contain;
+      flex: 1 1 auto;
+      min-height: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .dialog-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .dialog-body::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: var(--radius-pill);
+    }
+
+    .dialog-footer {
+      padding: 14px 20px;
+      background: var(--surface-muted);
+      border-top: var(--border-width) solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 42px;
+      min-height: 42px;
+      padding: 0 12px;
+      font-family: var(--font-display);
+      font-size: 0.875rem;
+      font-weight: 700;
+      background: var(--surface);
+      color: var(--text);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 2px 2px 0px var(--shadow);
+      outline: none;
+      transition: var(--transition-tap);
+      box-sizing: border-box;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-yellow);
+      box-shadow: 3px 3px 0px var(--shadow);
+    }
+
+    select.form-control {
+      cursor: pointer;
+      appearance: auto;
+    }
+
+    .btn-header-action {
+      height: 36px;
+      min-height: 36px;
+      padding: 0 12px;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-secondary {
+      background: var(--surface-muted) !important;
+      color: var(--text) !important;
+    }
+
+    .btn-mint {
+      background: var(--accent-mint) !important;
+      color: #0D0D11 !important;
+    }
+
+    .btn-cyan {
+      background: var(--accent-cyan) !important;
+      color: #0D0D11 !important;
+    }
+
+    .badge-admin {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      border: 2px solid var(--border);
+      font-weight: 800;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 2px 2px 0px var(--shadow);
+      cursor: default;
+    }
+
+    .badge-pending {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      border: 2px solid #0D0D11;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-admin-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--surface-muted);
+      border-top: 2px solid var(--border);
+      flex-wrap: wrap;
+    }
+
     /* Accessibility: Reduced Motion Support */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -1297,10 +1543,25 @@
         </div>
       </div>
       
-      <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+      <div class="header-actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
         <span id="sync-status" class="sync-badge font-mono" style="font-size: 11px; padding: 4px 8px; border: 2px solid var(--border); font-weight: 700; border-radius: 4px; background: var(--surface-muted); color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px;" title="Estado de sincronización con Google Sheets"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="12" height="12" class="reicon reicon-refresh reicon-spin" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M2.93077 11.2003C3.00244 6.23968 7.07619 2.25 12.0789 2.25C15.3873 2.25 18.287 3.99427 19.8934 6.60721C20.1103 6.96007 20.0001 7.42199 19.6473 7.63892C19.2944 7.85585 18.8325 7.74565 18.6156 7.39279C17.2727 5.20845 14.8484 3.75 12.0789 3.75C7.8945 3.75 4.50372 7.0777 4.431 11.1982L4.83138 10.8009C5.12542 10.5092 5.60029 10.511 5.89203 10.8051C6.18377 11.0991 6.18191 11.574 5.88787 11.8657L4.20805 13.5324C3.91565 13.8225 3.44398 13.8225 3.15157 13.5324L1.47176 11.8657C1.17772 11.574 1.17585 11.0991 1.46759 10.8051C1.75933 10.5111 2.2342 10.5092 2.52824 10.8009L2.93077 11.2003ZM19.7864 10.4666C20.0786 10.1778 20.5487 10.1778 20.8409 10.4666L22.5271 12.1333C22.8217 12.4244 22.8245 12.8993 22.5333 13.1939C22.2421 13.4885 21.7673 13.4913 21.4727 13.2001L21.0628 12.7949C20.9934 17.7604 16.9017 21.75 11.8825 21.75C8.56379 21.75 5.65381 20.007 4.0412 17.3939C3.82366 17.0414 3.93307 16.5793 4.28557 16.3618C4.63806 16.1442 5.10016 16.2536 5.31769 16.6061C6.6656 18.7903 9.09999 20.25 11.8825 20.25C16.0887 20.25 19.4922 16.9171 19.5625 12.7969L19.1546 13.2001C18.86 13.4913 18.3852 13.4885 18.094 13.1939C17.8028 12.8993 17.8056 12.4244 18.1002 12.1333L19.7864 10.4666Z" fill="currentColor"/></svg> <span>Conectando...</span></span>
         
 
+
+        <!-- Status / Admin Badge: Shown if user is Group Admin -->
+        <span id="admin-badge" class="badge-admin font-mono" style="display: none;" title="Sos Administrador del Grupo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" class="reicon reicon-crown" aria-hidden="true"><path d="M2.5 19h19v2h-19v-2zm19.57-14.47l-4.57 6.09-5.5-8.62-5.5 8.62-4.57-6.09 1.57 12.47h17l1.57-12.47z"/></svg> <span>Admin</span></span>
+
+        <!-- Button + Crear Grupo -->
+        <button id="btn-open-create-group" class="btn-brutalist btn-header-action" type="button" aria-label="Crear Nuevo Grupo">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="13" height="13" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span>Crear Grupo</span>
+        </button>
+
+        <!-- Button + Sumar mi Alias (Visible when inside a group view) -->
+        <button id="btn-open-add-alias" class="btn-brutalist btn-header-action btn-primary" type="button" style="display: none;" aria-label="Sumar mi Alias">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="13" height="13" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span>Sumar mi Alias</span>
+        </button>
 
         <!-- Theme Switch Button (>=44x44px tap zone) -->
         <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Alternar entre modo claro y modo oscuro">
@@ -1351,6 +1612,179 @@
     </main>
 
   </div>
+
+  <!-- Modal 1: Crear Nuevo Grupo -->
+  <dialog id="modal-create-group" aria-labelledby="modal-create-group-title" aria-modal="true">
+    <div class="dialog-header">
+      <h2 id="modal-create-group-title" class="dialog-title">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-users" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 1.25C6.37665 1.25 4.25 3.37665 4.25 6C4.25 8.62335 6.37665 10.75 9 10.75C11.6234 10.75 13.75 8.62335 13.75 6C13.75 3.37665 11.6234 1.25 9 1.25ZM5.75 6C5.75 4.20507 7.20507 2.75 9 2.75C10.7949 2.75 12.25 4.20507 12.25 6C12.25 7.79493 10.7949 9.25 9 9.25C7.20507 9.25 5.75 7.79493 5.75 6Z" fill="currentColor"/></svg>
+        <span>Crear Nuevo Grupo</span>
+      </h2>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-create-group" aria-label="Cerrar ventana">&times;</button>
+    </div>
+    
+    <!-- Screen 1: Formulario -->
+    <div id="create-group-form-screen" class="dialog-body">
+      <div class="form-group">
+        <label for="input-group-name" class="form-label">Nombre del Grupo</label>
+        <input 
+          type="text" 
+          id="input-group-name" 
+          class="form-control" 
+          placeholder="Ej: Fútbol de los Jueves" 
+          autocomplete="off" 
+          spellcheck="false" 
+          required
+        >
+        <p class="form-hint">Ingresá el nombre con el que identificarán el grupo todos los participantes.</p>
+      </div>
+      <div class="dialog-footer" style="padding: 12px 0 0 0; background: transparent; border-top: none;">
+        <button type="button" class="btn-brutalist btn-secondary" data-close-modal="modal-create-group">Cancelar</button>
+        <button type="button" id="btn-submit-create-group" class="btn-brutalist btn-primary">Crear Grupo</button>
+      </div>
+    </div>
+
+    <!-- Screen 2: Enlaces generados con éxito -->
+    <div id="create-group-success-screen" class="dialog-body" style="display: none;">
+      <div style="background: var(--accent-mint); color: #0D0D11; border: 2px solid var(--border); padding: 10px 14px; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.95rem;">
+        ¡Grupo "<span id="created-group-name-label"></span>" creado con éxito!
+      </div>
+      
+      <div class="form-group" style="margin-top: 14px;">
+        <label for="share-group-url" class="form-label">Enlace para Compartir (WhatsApp)</label>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="share-group-url" class="form-control font-mono" readonly style="font-size: 11px;">
+          <button type="button" class="btn-brutalist btn-cyan" id="btn-copy-share-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
+        </div>
+        <p class="form-hint">Compartí este enlace en WhatsApp para que tus amigos consulten y sumen sus alias.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="admin-group-url" class="form-label">Enlace de Administración</label>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="admin-group-url" class="form-control font-mono" readonly style="font-size: 11px;">
+          <button type="button" class="btn-brutalist btn-primary" id="btn-copy-admin-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
+        </div>
+        <div style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-top: 6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="reicon" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          <span>Guardá este enlace para aprobar cambios y moderar el grupo</span>
+        </div>
+      </div>
+
+      <div class="dialog-footer" style="padding: 12px 0 0 0; background: transparent; border-top: none;">
+        <button type="button" id="btn-open-created-group" class="btn-brutalist btn-mint" style="width: 100%;">Ir al Grupo Ahora</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Modal 2: Sumar o Editar Alias -->
+  <dialog id="modal-add-alias" aria-labelledby="modal-add-alias-title" aria-modal="true">
+    <div class="dialog-header">
+      <h2 id="modal-add-alias-title" class="dialog-title">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-wallet" aria-hidden="true"><path d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z" fill="currentColor"/></svg>
+        <span id="modal-add-alias-heading">Sumar o Editar Alias</span>
+      </h2>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-add-alias" aria-label="Cerrar ventana">&times;</button>
+    </div>
+
+    <form id="form-add-alias" onsubmit="return false;" class="dialog-body">
+      <input type="hidden" id="alias-edit-friend-id" value="">
+      
+      <div class="form-group">
+        <label for="alias-person-name" class="form-label">Nombre de la persona</label>
+        <input 
+          type="text" 
+          id="alias-person-name" 
+          class="form-control" 
+          placeholder="Ej: Martín Gómez" 
+          required 
+          autocomplete="name"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="alias-bank-name" class="form-label">Banco / Billetera</label>
+        <input 
+          type="text" 
+          id="alias-bank-name" 
+          class="form-control" 
+          list="datalist-banks" 
+          placeholder="Mercado Pago, Galicia, Brubank..." 
+          required
+        >
+        <datalist id="datalist-banks">
+          <option value="Mercado Pago">
+          <option value="Banco Galicia">
+          <option value="Banco Santander">
+          <option value="Brubank">
+          <option value="Lemon Cash">
+          <option value="BBVA">
+          <option value="Ualá">
+          <option value="Naranja X">
+          <option value="Banco Nación">
+          <option value="Banco Provincia">
+          <option value="Banco Macro">
+          <option value="Banco Ciudad">
+        </datalist>
+      </div>
+
+      <div class="form-group">
+        <label for="alias-account-type" class="form-label">Tipo de cuenta</label>
+        <select id="alias-account-type" class="form-control" required>
+          <option value="Caja de Ahorro">Caja de Ahorro</option>
+          <option value="CVU">CVU</option>
+          <option value="Cuenta Corriente">Cuenta Corriente</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="alias-input-value" class="form-label">Alias (validado, requerido)</label>
+        <input 
+          type="text" 
+          id="alias-input-value" 
+          class="form-control font-mono" 
+          placeholder="Ej: martin.mp.futbol" 
+          required 
+          autocomplete="off" 
+          spellcheck="false"
+        >
+        <p class="form-hint">Entre 6 y 20 caracteres (letras, números y puntos).</p>
+      </div>
+
+      <div class="form-group">
+        <label for="alias-cbu-value" class="form-label">CBU / CVU (opcional, 22 dígitos)</label>
+        <input 
+          type="text" 
+          id="alias-cbu-value" 
+          class="form-control font-mono" 
+          placeholder="22 dígitos numéricos" 
+          maxlength="22" 
+          inputmode="numeric" 
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="alias-titular-value" class="form-label">Titular diferente (opcional)</label>
+        <input 
+          type="text" 
+          id="alias-titular-value" 
+          class="form-control" 
+          placeholder="Completar si la cuenta no está a tu nombre" 
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="info-note font-mono" style="background: var(--surface-muted); border: 2px solid var(--border); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; color: var(--text-muted); line-height: 1.4;">
+        Si no sos el administrador del grupo, el alias se publicará de inmediato como 'Pendiente de confirmación'.
+      </div>
+
+      <div class="dialog-footer" style="padding: 12px 0 0 0; background: transparent; border-top: none;">
+        <button type="button" class="btn-brutalist btn-secondary" data-close-modal="modal-add-alias">Cancelar</button>
+        <button type="submit" id="btn-submit-alias" class="btn-brutalist btn-primary">Guardar Datos</button>
+      </div>
+    </form>
+  </dialog>
 
   <!-- Toast Notification (Accessible Bottom Bar) -->
   <div class="toast-container" aria-hidden="true">
@@ -1520,6 +1954,7 @@
       var urlParams = new URLSearchParams(window.location.search);
       var grupoParam = urlParams.get('grupo') || '';
       var tokenParam = urlParams.get('token') || '';
+      var adminParam = urlParams.get('admin') || '';
       var isSegmentedMode = !!(tokenParam || grupoParam);
 
       /* App State */
@@ -1547,6 +1982,81 @@
       var toastEl = document.getElementById('brutalist-toast');
       var toastMessageEl = document.getElementById('toast-message');
       var toastCloseBtn = document.getElementById('toast-close');
+
+      var adminBadge = document.getElementById('admin-badge');
+      var btnOpenCreateGroup = document.getElementById('btn-open-create-group');
+      var btnOpenAddAlias = document.getElementById('btn-open-add-alias');
+
+      var modalCreateGroup = document.getElementById('modal-create-group');
+      var createGroupFormScreen = document.getElementById('create-group-form-screen');
+      var createGroupSuccessScreen = document.getElementById('create-group-success-screen');
+      var inputGroupName = document.getElementById('input-group-name');
+      var btnSubmitCreateGroup = document.getElementById('btn-submit-create-group');
+      var createdGroupNameLabel = document.getElementById('created-group-name-label');
+      var shareGroupUrlInput = document.getElementById('share-group-url');
+      var btnCopyShareUrl = document.getElementById('btn-copy-share-url');
+      var adminGroupUrlInput = document.getElementById('admin-group-url');
+      var btnCopyAdminUrl = document.getElementById('btn-copy-admin-url');
+      var btnOpenCreatedGroup = document.getElementById('btn-open-created-group');
+
+      var modalAddAlias = document.getElementById('modal-add-alias');
+      var modalAddAliasHeading = document.getElementById('modal-add-alias-heading');
+      var formAddAlias = document.getElementById('form-add-alias');
+      var aliasEditFriendId = document.getElementById('alias-edit-friend-id');
+      var aliasPersonName = document.getElementById('alias-person-name');
+      var aliasBankName = document.getElementById('alias-bank-name');
+      var aliasAccountType = document.getElementById('alias-account-type');
+      var aliasInputValue = document.getElementById('alias-input-value');
+      var aliasCbuValue = document.getElementById('alias-cbu-value');
+      var aliasTitularValue = document.getElementById('alias-titular-value');
+      var btnSubmitAlias = document.getElementById('btn-submit-alias');
+
+      /* ======================================================================
+         ADMIN TOKEN & GROUP PERMISSION PERSISTENCE
+         ====================================================================== */
+      function syncAdminToken(groupName, token) {
+        if (!groupName || !token) return;
+        var gKey = String(groupName).toLowerCase().trim();
+        try {
+          localStorage.setItem('aliasdb_admin_' + gKey, token);
+          localStorage.setItem('aliasdb_admin_token_' + gKey, token);
+        } catch (e) {}
+      }
+
+      function getActiveAdminToken() {
+        var grp = (grupoParam || (activeGroupFilter !== 'ALL' ? activeGroupFilter : '')).toLowerCase().trim();
+        if (adminParam) {
+          if (grp) syncAdminToken(grp, adminParam);
+          return adminParam;
+        }
+        if (!grp) return '';
+        try {
+          return localStorage.getItem('aliasdb_admin_' + grp) || 
+                 localStorage.getItem('aliasdb_admin_token_' + grp) || '';
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function isCurrentAdmin() {
+        var token = getActiveAdminToken();
+        return Boolean(token);
+      }
+
+      function updateAdminUI() {
+        var isAdmin = isCurrentAdmin();
+        if (adminBadge) {
+          adminBadge.style.display = isAdmin ? 'inline-flex' : 'none';
+        }
+        var inGroup = Boolean(grupoParam || (activeGroupFilter && activeGroupFilter !== 'ALL'));
+        if (btnOpenAddAlias) {
+          btnOpenAddAlias.style.display = inGroup ? 'inline-flex' : 'none';
+        }
+      }
+
+      if (adminParam && grupoParam) {
+        syncAdminToken(grupoParam, adminParam);
+      }
 
       /* ======================================================================
          3. ACCESSIBLE ANNOUNCEMENT & TOAST SYSTEM
@@ -1590,7 +2100,7 @@
       /* ======================================================================
          4. ERGONOMÍA 1-CLICK COPY CON MICROANIMACIÓN FÍSICA
          ====================================================================== */
-      function copyToClipboard(text, triggerEl, label) {
+      function copyToClipboard(text, triggerEl, label, isPending, friendName) {
         label = label || 'Alias';
         var copied = false;
 
@@ -1606,7 +2116,11 @@
               if (siblingBtn) siblingBtn.classList.remove('copied-active');
             }, 750);
           }
-          showToast(label + ' copiado: ' + text);
+          if (isPending) {
+            showToast('Alias copiado. \u26A0\uFE0F Pendiente de confirmaci\u00F3n: verific\u00E1 que el titular en tu app bancaria coincida con ' + (friendName || 'el contacto') + '.', 4500);
+          } else {
+            showToast(label + ' copiado: ' + text);
+          }
         }
 
         if (navigator.clipboard && window.isSecureContext) {
@@ -1681,6 +2195,10 @@
           groupHeaderBadge.setAttribute('aria-label', 'Grupo ' + groupName);
         }
         document.title = 'AliasDB // ' + groupName;
+        if (adminParam) {
+          syncAdminToken(groupName, adminParam);
+        }
+        updateAdminUI();
       }
 
       function renderGroupFilterChips() {
@@ -1793,8 +2311,10 @@
          7. RENDERIZADO MODULAR DE COMPONENTES NEO-BRUTALISTAS
          ====================================================================== */
       function renderCards() {
+        updateAdminUI();
         updateBankFilterVisibility();
         var q = searchQuery.toLowerCase().trim();
+        var isAdmin = isCurrentAdmin();
 
         var filtered = friendsData.filter(function(friend) {
           var friendGroups = (friend.groups && Array.isArray(friend.groups))
@@ -1872,8 +2392,17 @@
         cardsContainer.innerHTML = filtered.map(function(friend) {
           var initials = friend.name.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
           var hasMultiple = friend.accounts.length >= 2;
-          // Mostrar las cuentas directamente para aprovechar el ancho en pantalla
           var isExpanded = expandedCards[friend.id] === undefined ? true : !!expandedCards[friend.id];
+          var isPending = (friend.estado === 'PENDIENTE');
+          var myEditToken = null;
+          try {
+            myEditToken = localStorage.getItem('aliasdb_edit_token_' + friend.id);
+          } catch (e) {}
+          var isAuthor = Boolean(myEditToken);
+
+          var pendingBadgeHtml = isPending
+            ? '<span class="badge-pending" style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid #0D0D11; font-weight: 800; font-size: 11px; padding: 2px 8px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: 4px;">\u26A0\uFE0F PENDIENTE DE CONFIRMACI\u00D3N</span>'
+            : '';
 
           var accountsHtml = friend.accounts
             .filter(function(acc) { return activeFilter === 'ALL' || acc.bankId === activeFilter; })
@@ -1897,10 +2426,10 @@
                 '  </div>',
                 (acc.titular ? '  <div class="account-titular font-mono" style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 4px; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">' + getReiconSvg('User', '', 12) + ' Titular: ' + acc.titular + '</div>' : ''),
                 '  <div class="copy-action-row">',
-                '    <div class="alias-chip" role="button" tabindex="0" data-alias="' + acc.alias + '" aria-label="Copiar alias ' + acc.alias + ' de ' + friend.name + '">',
+                '    <div class="alias-chip" role="button" tabindex="0" data-alias="' + acc.alias + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + acc.alias + ' de ' + friend.name + '">',
                 '      <span class="alias-text font-mono">' + acc.alias + '</span>',
                 '    </div>',
-                '    <button class="copy-btn" type="button" data-alias="' + acc.alias + '" aria-label="Copiar alias ' + acc.alias + ' al portapapeles">',
+                '    <button class="copy-btn" type="button" data-alias="' + acc.alias + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + acc.alias + ' al portapapeles">',
                 '      ' + getReiconSvg('Copy', '', 18),
                 '    </button>',
                 '  </div>',
@@ -1933,13 +2462,29 @@
             ].join('\n');
           }
 
+          var actionsHtml = '';
+          if ((isPending && isAdmin) || isAuthor) {
+            var actionButtons = [];
+            if (isPending && isAdmin) {
+              actionButtons.push('<button class="btn-brutalist btn-mint btn-confirm-friend" type="button" data-friend-id="' + friend.id + '" style="font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: 4px;">\u2713 Confirmar</button>');
+              actionButtons.push('<button class="btn-brutalist btn-secondary btn-reject-friend" type="button" data-friend-id="' + friend.id + '" style="background: var(--accent-pink) !important; color: #0D0D11 !important; font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: 4px;">\u2715 Descartar</button>');
+            }
+            if (isAuthor) {
+              actionButtons.push('<button class="btn-brutalist btn-secondary btn-edit-my-data" type="button" data-friend-id="' + friend.id + '" style="font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: 4px;">\u270F\uFE0F Editar mis datos</button>');
+            }
+            actionsHtml = '<div class="card-admin-actions">' + actionButtons.join('\n') + '</div>';
+          }
+
           return [
             '<article class="' + cardClasses.join(' ') + '" data-friend-id="' + friend.id + '" aria-label="Alias bancarios de ' + friend.name + '">',
             '  <div class="card-header" ' + (hasMultiple ? 'role="button" tabindex="0" aria-expanded="' + isExpanded + '" aria-label="Alternar cuentas de ' + friend.name + '"' : '') + '>',
             '    <div class="friend-profile">',
             '      <div class="friend-avatar" style="background: ' + friend.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
             '      <div class="friend-info">',
-            '        <h2 class="friend-name">' + friend.name + '</h2>',
+            '        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">',
+            '          <h2 class="friend-name">' + friend.name + '</h2>',
+            pendingBadgeHtml,
+            '        </div>',
             '        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">',
             ((friend.groups && friend.groups.length > 0) ? friend.groups : String(friend.group || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean)).map(function(g) {
               return '          <span class="friend-group-badge font-mono" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Folder', '', 12) + ' ' + g + '</span>';
@@ -1954,8 +2499,9 @@
             '  <div class="accounts-list">',
             accountsHtml,
             '  </div>',
+            actionsHtml,
             '</article>'
-          ].join('\n');
+          ].filter(Boolean).join('\n');
         }).join('\n');
 
         attachCardEvents();
@@ -2026,22 +2572,26 @@
 
         cardsContainer.querySelectorAll('.alias-chip').forEach(function(chip) {
           var alias = chip.dataset.alias;
+          var isPending = chip.dataset.pending === 'true';
+          var friendName = chip.dataset.friendName || '';
           chip.addEventListener('click', function() {
-            copyToClipboard(alias, chip, 'Alias');
+            copyToClipboard(alias, chip, 'Alias', isPending, friendName);
           });
           chip.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              copyToClipboard(alias, chip, 'Alias');
+              copyToClipboard(alias, chip, 'Alias', isPending, friendName);
             }
           });
         });
 
         cardsContainer.querySelectorAll('.copy-btn').forEach(function(btn) {
           var alias = btn.dataset.alias;
+          var isPending = btn.dataset.pending === 'true';
+          var friendName = btn.dataset.friendName || '';
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
-            copyToClipboard(alias, btn, 'Alias');
+            copyToClipboard(alias, btn, 'Alias', isPending, friendName);
           });
         });
 
@@ -2052,6 +2602,340 @@
             e.stopPropagation();
             copyToClipboard(cbu, btn, label);
           });
+        });
+
+        cardsContainer.querySelectorAll('.btn-confirm-friend').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            confirmFriend(btn.dataset.friendId);
+          });
+        });
+
+        cardsContainer.querySelectorAll('.btn-reject-friend').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            rejectFriend(btn.dataset.friendId);
+          });
+        });
+
+        cardsContainer.querySelectorAll('.btn-edit-my-data').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openEditFriendModal(btn.dataset.friendId);
+          });
+        });
+      }
+
+      /* ======================================================================
+         MODERACIÓN (ADMIN) & GESTIÓN DE MODALES
+         ====================================================================== */
+      function openModal(dlg) {
+        if (!dlg) return;
+        if (typeof dlg.showModal === 'function') {
+          dlg.showModal();
+        } else {
+          dlg.setAttribute('open', '');
+        }
+      }
+
+      function closeModal(dlg) {
+        if (!dlg) return;
+        if (typeof dlg.close === 'function') {
+          dlg.close();
+        } else {
+          dlg.removeAttribute('open');
+        }
+      }
+
+      function confirmFriend(friendId) {
+        var friend = friendsData.find(function(f) { return f.id === friendId; });
+        if (friend) {
+          friend.estado = 'CONFIRMADO';
+        }
+        try {
+          localStorage.setItem(getCacheKey(), JSON.stringify({ success: true, data: friendsData, grupo: grupoParam }));
+        } catch (e) {}
+
+        var token = getActiveAdminToken();
+        if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.confirmFriend) {
+          google.script.run.confirmFriend(friendId, token);
+        } else if (BACKEND_API_URL) {
+          fetch(BACKEND_API_URL + '?action=confirmFriend&friendId=' + encodeURIComponent(friendId) + '&adminToken=' + encodeURIComponent(token), { method: 'POST', mode: 'no-cors' }).catch(function() {});
+        }
+        renderCards();
+        showToast('Alias de ' + (friend ? friend.name : 'contacto') + ' confirmado con éxito.');
+      }
+
+      function rejectFriend(friendId) {
+        var friend = friendsData.find(function(f) { return f.id === friendId; });
+        var name = friend ? friend.name : 'contacto';
+        friendsData = friendsData.filter(function(f) { return f.id !== friendId; });
+
+        try {
+          localStorage.setItem(getCacheKey(), JSON.stringify({ success: true, data: friendsData, grupo: grupoParam }));
+        } catch (e) {}
+
+        var token = getActiveAdminToken();
+        if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.rejectFriend) {
+          google.script.run.rejectFriend(friendId, token);
+        } else if (BACKEND_API_URL) {
+          fetch(BACKEND_API_URL + '?action=rejectFriend&friendId=' + encodeURIComponent(friendId) + '&adminToken=' + encodeURIComponent(token), { method: 'POST', mode: 'no-cors' }).catch(function() {});
+        }
+        renderCards();
+        showToast('Solicitud de ' + name + ' descartada.');
+      }
+
+      function openAddAliasModal() {
+        if (!modalAddAlias) return;
+        if (formAddAlias) formAddAlias.reset();
+        if (aliasEditFriendId) aliasEditFriendId.value = '';
+        if (modalAddAliasHeading) modalAddAliasHeading.textContent = 'Sumar mi Alias';
+        if (btnSubmitAlias) btnSubmitAlias.textContent = 'Guardar Datos';
+        openModal(modalAddAlias);
+        if (aliasPersonName) {
+          setTimeout(function() { aliasPersonName.focus(); }, 100);
+        }
+      }
+
+      function openEditFriendModal(friendId) {
+        var friend = friendsData.find(function(f) { return f.id === friendId; });
+        if (!friend || !modalAddAlias) return;
+        if (formAddAlias) formAddAlias.reset();
+        if (aliasEditFriendId) aliasEditFriendId.value = friend.id;
+        if (modalAddAliasHeading) modalAddAliasHeading.textContent = 'Editar mis datos';
+        if (btnSubmitAlias) btnSubmitAlias.textContent = 'Actualizar Datos';
+
+        if (aliasPersonName) aliasPersonName.value = friend.name || '';
+        if (friend.accounts && friend.accounts.length > 0) {
+          var primary = friend.accounts[0];
+          if (aliasBankName) aliasBankName.value = primary.bankName || '';
+          if (aliasAccountType) aliasAccountType.value = primary.type || 'Caja de Ahorro';
+          if (aliasInputValue) aliasInputValue.value = primary.alias || '';
+          if (aliasCbuValue) aliasCbuValue.value = primary.cbu || '';
+          if (aliasTitularValue) aliasTitularValue.value = primary.titular || '';
+        }
+        openModal(modalAddAlias);
+        if (aliasPersonName) {
+          setTimeout(function() { aliasPersonName.focus(); }, 100);
+        }
+      }
+
+      // Conexión de modales y botones de acción
+      document.querySelectorAll('[data-close-modal]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var targetId = btn.getAttribute('data-close-modal');
+          var dlg = document.getElementById(targetId);
+          if (dlg) closeModal(dlg);
+        });
+      });
+
+      [modalCreateGroup, modalAddAlias].forEach(function(dlg) {
+        if (!dlg) return;
+        dlg.addEventListener('click', function(e) {
+          if (e.target === dlg) {
+            closeModal(dlg);
+          }
+        });
+      });
+
+      if (btnOpenCreateGroup) {
+        btnOpenCreateGroup.addEventListener('click', function() {
+          if (createGroupFormScreen) createGroupFormScreen.style.display = 'block';
+          if (createGroupSuccessScreen) createGroupSuccessScreen.style.display = 'none';
+          if (inputGroupName) {
+            inputGroupName.value = '';
+          }
+          openModal(modalCreateGroup);
+          if (inputGroupName) {
+            setTimeout(function() { inputGroupName.focus(); }, 100);
+          }
+        });
+      }
+
+      if (btnSubmitCreateGroup) {
+        btnSubmitCreateGroup.addEventListener('click', function() {
+          var groupName = inputGroupName ? inputGroupName.value.trim() : '';
+          if (!groupName) {
+            showToast('Ingresá el nombre del grupo.');
+            if (inputGroupName) inputGroupName.focus();
+            return;
+          }
+
+          var adminToken = 'adm_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+          syncAdminToken(groupName, adminToken);
+
+          try {
+            var myGroups = JSON.parse(localStorage.getItem('aliasdb_my_groups') || '[]');
+            myGroups.push({
+              name: groupName,
+              adminToken: adminToken,
+              createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('aliasdb_my_groups', JSON.stringify(myGroups));
+          } catch (e) {}
+
+          if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.createGroup) {
+            google.script.run.createGroup(groupName, adminToken);
+          } else if (BACKEND_API_URL) {
+            fetch(BACKEND_API_URL + '?action=createGroup&nombre=' + encodeURIComponent(groupName) + '&adminToken=' + encodeURIComponent(adminToken), { method: 'POST', mode: 'no-cors' }).catch(function() {});
+          }
+
+          var currentUrl = new URL(window.location.href);
+          currentUrl.search = '';
+          currentUrl.hash = '';
+          var baseHref = currentUrl.toString();
+          var shareUrl = baseHref + '?grupo=' + encodeURIComponent(groupName);
+          var adminUrl = baseHref + '?grupo=' + encodeURIComponent(groupName) + '&admin=' + encodeURIComponent(adminToken);
+
+          if (shareGroupUrlInput) shareGroupUrlInput.value = shareUrl;
+          if (adminGroupUrlInput) adminGroupUrlInput.value = adminUrl;
+          if (createdGroupNameLabel) createdGroupNameLabel.textContent = groupName;
+
+          if (createGroupFormScreen) createGroupFormScreen.style.display = 'none';
+          if (createGroupSuccessScreen) createGroupSuccessScreen.style.display = 'block';
+        });
+      }
+
+      if (btnCopyShareUrl) {
+        btnCopyShareUrl.addEventListener('click', function() {
+          if (shareGroupUrlInput) {
+            copyToClipboard(shareGroupUrlInput.value, btnCopyShareUrl, 'Enlace para compartir');
+          }
+        });
+      }
+
+      if (btnCopyAdminUrl) {
+        btnCopyAdminUrl.addEventListener('click', function() {
+          if (adminGroupUrlInput) {
+            copyToClipboard(adminGroupUrlInput.value, btnCopyAdminUrl, 'Enlace de administración');
+          }
+        });
+      }
+
+      if (btnOpenCreatedGroup) {
+        btnOpenCreatedGroup.addEventListener('click', function() {
+          if (adminGroupUrlInput && adminGroupUrlInput.value) {
+            window.location.href = adminGroupUrlInput.value;
+          }
+        });
+      }
+
+      if (btnOpenAddAlias) {
+        btnOpenAddAlias.addEventListener('click', openAddAliasModal);
+      }
+
+      if (formAddAlias) {
+        formAddAlias.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var friendId = aliasEditFriendId ? aliasEditFriendId.value.trim() : '';
+          var name = aliasPersonName ? aliasPersonName.value.trim() : '';
+          var bankName = aliasBankName ? aliasBankName.value.trim() : '';
+          var accountType = aliasAccountType ? aliasAccountType.value : 'Caja de Ahorro';
+          var aliasVal = aliasInputValue ? aliasInputValue.value.trim().toLowerCase() : '';
+          var cbuVal = aliasCbuValue ? aliasCbuValue.value.trim() : '';
+          var titularVal = aliasTitularValue ? aliasTitularValue.value.trim() : '';
+
+          if (!name) {
+            showToast('Ingresá el nombre de la persona.');
+            if (aliasPersonName) aliasPersonName.focus();
+            return;
+          }
+          if (!aliasVal) {
+            showToast('Ingresá el alias.');
+            if (aliasInputValue) aliasInputValue.focus();
+            return;
+          }
+
+          var targetGroup = grupoParam || (activeGroupFilter !== 'ALL' ? activeGroupFilter : 'General');
+          var isAdmin = isCurrentAdmin();
+          var estado = isAdmin ? 'CONFIRMADO' : 'PENDIENTE';
+          var bankMeta = resolveBankMeta(bankName);
+          var isEdit = Boolean(friendId);
+
+          if (!isEdit) {
+            friendId = 'f_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 6);
+            var editToken = 'edt_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+            try {
+              localStorage.setItem('aliasdb_edit_token_' + friendId, editToken);
+            } catch (err) {}
+          }
+
+          var accountObj = {
+            id: 'acc_' + Date.now(),
+            bankId: bankMeta.bankId,
+            bankName: bankName || 'Banco',
+            badgeClass: bankMeta.badgeClass,
+            type: accountType,
+            alias: aliasVal,
+            cbu: cbuVal,
+            titular: titularVal
+          };
+
+          if (isEdit) {
+            var existing = friendsData.find(function(f) { return f.id === friendId; });
+            if (existing) {
+              existing.name = name;
+              existing.accounts = [accountObj];
+              if (!isAdmin) {
+                existing.estado = 'PENDIENTE';
+              }
+            }
+          } else {
+            var newFriend = {
+              id: friendId,
+              name: name,
+              group: targetGroup,
+              groups: [targetGroup],
+              avatarColor: AVATAR_PALETTE[friendsData.length % AVATAR_PALETTE.length],
+              estado: estado,
+              accounts: [accountObj]
+            };
+            friendsData.unshift(newFriend);
+          }
+
+          try {
+            localStorage.setItem(getCacheKey(), JSON.stringify({ success: true, data: friendsData, grupo: grupoParam }));
+          } catch (err) {}
+
+          var editTok = '';
+          try {
+            editTok = localStorage.getItem('aliasdb_edit_token_' + friendId) || '';
+          } catch (e) {}
+
+          var payload = {
+            action: isEdit ? 'updateFriend' : 'addFriend',
+            id: friendId,
+            name: name,
+            group: targetGroup,
+            estado: estado,
+            editToken: editTok,
+            adminToken: getActiveAdminToken(),
+            accounts: [accountObj]
+          };
+
+          if (typeof google !== 'undefined' && google.script && google.script.run) {
+            if (isEdit && google.script.run.updateFriend) {
+              google.script.run.updateFriend(payload);
+            } else if (google.script.run.addFriend) {
+              google.script.run.addFriend(payload);
+            }
+          } else if (BACKEND_API_URL) {
+            fetch(BACKEND_API_URL + '?action=' + (isEdit ? 'updateFriend' : 'addFriend'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              mode: 'no-cors'
+            }).catch(function() {});
+          }
+
+          closeModal(modalAddAlias);
+          renderCards();
+
+          if (estado === 'PENDIENTE') {
+            showToast('Datos guardados. Tu alias quedó pendiente de confirmación por el administrador.', 4500);
+          } else {
+            showToast('Datos guardados con éxito.');
+          }
         });
       }
 
@@ -2168,12 +3052,16 @@
           if (groupsArray.length === 0) groupsArray = ['General'];
           groupsArray = Array.from(new Set(groupsArray));
 
+          var rawEstado = (friend.estado || friend.status || 'CONFIRMADO').toString().toUpperCase().trim();
+          var estado = (rawEstado === 'PENDIENTE') ? 'PENDIENTE' : 'CONFIRMADO';
+
           return {
             id: friend.id || ('friend_' + idx),
             name: friend.name || 'Sin Nombre',
             group: friend.group || friend.grupo || 'General',
             groups: groupsArray,
             avatarColor: friend.avatarColor || AVATAR_PALETTE[idx % AVATAR_PALETTE.length],
+            estado: estado,
             accounts: accounts
           };
         });
@@ -2273,6 +3161,10 @@
             grupoParam = serverData.grupo;
           }
         }
+        if (serverData && (serverData.admin_token || serverData.adminToken) && (serverData.grupo || grupoParam)) {
+          syncAdminToken(serverData.grupo || grupoParam, serverData.admin_token || serverData.adminToken);
+        }
+        updateAdminUI();
 
         // Cachear en localStorage para carga instantánea (<10ms) en visitas posteriores
         try {
