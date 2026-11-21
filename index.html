@@ -264,22 +264,35 @@
     .app-header {
       position: -webkit-sticky;
       position: sticky;
-      top: 12px;
+      top: 0;
       z-index: 100;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 16px;
+      padding: 14px 16px;
       background: var(--surface);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
     }
 
+    /* Cobertura opaca superior para evitar que las cards se asomen por arriba al hacer scroll */
+    .app-header::before {
+      content: "";
+      position: absolute;
+      top: -80px;
+      left: -40px;
+      right: -40px;
+      height: 80px;
+      background: var(--bg);
+      pointer-events: none;
+    }
+
     @media (min-width: 640px) {
       .app-header {
-        top: 16px;
+        top: 0;
+        padding: 16px 20px;
       }
     }
 
@@ -685,6 +698,7 @@
     .friend-info {
       display: flex;
       flex-direction: column;
+      gap: 6px;
     }
 
     .friend-name {
@@ -1521,11 +1535,68 @@
     .card-admin-actions {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 8px;
-      padding: 8px 16px;
+      padding: 10px 14px;
       background: var(--surface-muted);
-      border-top: 2px solid var(--border);
+      border-top: var(--border-width) solid var(--border);
+      border-bottom-left-radius: calc(var(--radius-md) - 2px);
+      border-bottom-right-radius: calc(var(--radius-md) - 2px);
       flex-wrap: wrap;
+    }
+
+    .card-action-btn {
+      height: 32px;
+      min-height: 32px;
+      padding: 0 12px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 2px 2px 0px var(--shadow);
+      transition: var(--transition-tap);
+      user-select: none;
+    }
+
+    .card-action-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px var(--shadow);
+    }
+
+    .card-action-btn.btn-confirm-action {
+      background: var(--accent-mint);
+      color: #0D0D11;
+    }
+
+    .card-action-btn.btn-confirm-action:hover {
+      background: #25C28C;
+      transform: translateY(-1px);
+    }
+
+    .card-action-btn.btn-reject-action {
+      background: var(--accent-pink);
+      color: #0D0D11;
+    }
+
+    .card-action-btn.btn-reject-action:hover {
+      background: #E84D72;
+      transform: translateY(-1px);
+    }
+
+    .card-action-btn.btn-edit-action {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .card-action-btn.btn-edit-action:hover {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      transform: translateY(-1px);
     }
 
     /* Badge de Sincronización Minimalista */
@@ -2673,7 +2744,7 @@
           var isAuthor = Boolean(myEditToken);
 
           var pendingBadgeHtml = isPending
-            ? '<span class="badge-pending" style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid #0D0D11; font-weight: 800; font-size: 11px; padding: 2px 8px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: 4px;">\u26A0\uFE0F PENDIENTE DE CONFIRMACI\u00D3N</span>'
+            ? '<span class="badge-pending">' + getReiconSvg('AlertTriangle', '', 12) + ' <span>PENDIENTE DE CONFIRMACI\u00D3N</span></span>'
             : '';
 
           var accountsHtml = friend.accounts
@@ -2738,11 +2809,11 @@
           if ((isPending && isAdmin) || isAuthor) {
             var actionButtons = [];
             if (isPending && isAdmin) {
-              actionButtons.push('<button class="btn-brutalist btn-mint btn-confirm-friend" type="button" data-friend-id="' + friend.id + '" style="font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: 4px;">\u2713 Confirmar</button>');
-              actionButtons.push('<button class="btn-brutalist btn-secondary btn-reject-friend" type="button" data-friend-id="' + friend.id + '" style="background: var(--accent-pink) !important; color: #0D0D11 !important; font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: 4px;">\u2715 Descartar</button>');
+              actionButtons.push('<button class="card-action-btn btn-confirm-action btn-confirm-friend font-mono" type="button" data-friend-id="' + friend.id + '" aria-label="Confirmar datos de ' + escapeHtml(friend.name) + '">' + getReiconSvg('ShieldCheck', '', 14) + ' <span>Confirmar</span></button>');
+              actionButtons.push('<button class="card-action-btn btn-reject-action btn-reject-friend font-mono" type="button" data-friend-id="' + friend.id + '" aria-label="Descartar solicitud de ' + escapeHtml(friend.name) + '">' + getReiconSvg('X', '', 14) + ' <span>Descartar</span></button>');
             }
             if (isAuthor) {
-              actionButtons.push('<button class="btn-brutalist btn-secondary btn-edit-my-data" type="button" data-friend-id="' + friend.id + '" style="font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; gap: 4px;">\u270F\uFE0F Editar mis datos</button>');
+              actionButtons.push('<button class="card-action-btn btn-edit-action btn-edit-my-data font-mono" type="button" data-friend-id="' + friend.id + '" aria-label="Editar mis datos">' + getReiconSvg('Edit', '', 14) + ' <span>Editar mis datos</span></button>');
             }
             actionsHtml = '<div class="card-admin-actions">' + actionButtons.join('\n') + '</div>';
           }
@@ -2947,6 +3018,9 @@
               if (res && res.success) {
                 try { localStorage.removeItem(getCacheKey()); } catch (e) {}
                 loadData();
+              } else if (res && res.error) {
+                showToast('Error al confirmar: ' + res.error);
+                loadData();
               }
             })
             .catch(function(err) {
@@ -2963,6 +3037,7 @@
         friendsData = friendsData.filter(function(f) { return f.id !== friendId; });
 
         try {
+          localStorage.removeItem('aliasdb_edit_token_' + friendId);
           localStorage.setItem(getCacheKey(), JSON.stringify({ success: true, data: friendsData, grupo: grupoParam }));
         } catch (e) {}
 
@@ -2976,6 +3051,9 @@
             .then(function(res) {
               if (res && res.success) {
                 try { localStorage.removeItem(getCacheKey()); } catch (e) {}
+                loadData();
+              } else if (res && res.error) {
+                showToast('Error al descartar: ' + res.error);
                 loadData();
               }
             })

@@ -406,9 +406,10 @@ function doGet(e) {
             body = e.parameter;
           }
 
+          const passedToken = e.parameter.adminToken || e.parameter.admin || e.parameter.token || (body && (body.adminToken || body.admin || body.token));
           const saveResult = saveFriendWithAccounts(body, {
             adminKey: e.parameter.adminKey || (body && body.adminKey),
-            adminToken: e.parameter.adminToken || e.parameter.admin || (body && (body.adminToken || body.admin)),
+            adminToken: passedToken,
             editToken: e.parameter.editToken || e.parameter.edit_token || (body && (body.editToken || body.edit_token)),
             token: e.parameter.token || (body && body.token),
             isRestCall: true
@@ -1442,25 +1443,33 @@ function saveFriendWithAccounts(friendObj, options) {
 
     // Determinar rol del llamador
     const adminKey = (options && options.adminKey) ? String(options.adminKey).trim() : (friendObj.adminKey ? String(friendObj.adminKey).trim() : '');
-    const adminToken = (options && options.adminToken) ? String(options.adminToken).trim() : (friendObj.adminToken || friendObj.admin ? String(friendObj.adminToken || friendObj.admin).trim() : '');
+    let adminToken = (options && options.adminToken) ? String(options.adminToken).trim() : (friendObj.adminToken || friendObj.admin ? String(friendObj.adminToken || friendObj.admin).trim() : '');
+    if (!adminToken && callerToken && callerToken.toLowerCase().indexOf('adm_') === 0) {
+      adminToken = callerToken;
+    }
     const callerEditToken = (options && options.editToken) ? String(options.editToken).trim() : (friendObj.editToken || friendObj.edit_token ? String(friendObj.editToken || friendObj.edit_token).trim() : '');
 
     let isSuperAdmin = isValidAdminKey(adminKey);
     let isGroupAdmin = false;
 
     if (!isSuperAdmin && adminToken) {
-      let grp = null;
-      if (idGrupo) grp = findGroupById(idGrupo);
-      if (!grp && groupsArray.length > 0) grp = findGroupByName(groupsArray[0]);
-      if (grp && grp.admin_token && grp.admin_token.toLowerCase() === adminToken.toLowerCase()) {
-        isGroupAdmin = true;
-      } else {
-        const matchedGrp = findGroupByAdminToken(adminToken);
-        if (matchedGrp) {
-          if (!idGrupo || matchedGrp.id_grupo === idGrupo) {
-            isGroupAdmin = true;
-            if (!idGrupo) idGrupo = matchedGrp.id_grupo;
-          }
+      const cleanAdminTok = String(adminToken).trim().toLowerCase();
+      const matchedGrp = findGroupByAdminToken(cleanAdminTok);
+      if (matchedGrp) {
+        const mgName = (matchedGrp.nombre_grupo || '').toLowerCase().trim();
+        const mgId = (matchedGrp.id_grupo || '').toLowerCase().trim();
+        const inGroupList = groupsArray.some(g => g.toLowerCase().trim() === mgName);
+        if (!idGrupo || (mgId && idGrupo.toLowerCase() === mgId) || inGroupList) {
+          isGroupAdmin = true;
+          if (!idGrupo) idGrupo = matchedGrp.id_grupo;
+        }
+      }
+      if (!isGroupAdmin) {
+        let grp = null;
+        if (idGrupo) grp = findGroupById(idGrupo);
+        if (!grp && groupsArray.length > 0) grp = findGroupByName(groupsArray[0]);
+        if (grp && grp.admin_token && grp.admin_token.toLowerCase() === cleanAdminTok) {
+          isGroupAdmin = true;
         }
       }
     }
@@ -1702,17 +1711,22 @@ function confirmFriendInternal(e) {
     let isGroupAdmin = false;
 
     if (!isSuper && adminToken) {
-      let grp = null;
-      if (friendIdGrupo) grp = findGroupById(friendIdGrupo);
-      if (!grp && friendGroup) grp = findGroupByName(friendGroup);
-      if (grp && grp.admin_token && grp.admin_token.toLowerCase() === adminToken.toLowerCase()) {
-        isGroupAdmin = true;
-      } else {
-        const matchedGrp = findGroupByAdminToken(adminToken);
-        if (matchedGrp) {
-          if (!friendIdGrupo || matchedGrp.id_grupo === friendIdGrupo) {
-            isGroupAdmin = true;
-          }
+      const cleanTok = String(adminToken).trim().toLowerCase();
+      const matchedGrp = findGroupByAdminToken(cleanTok);
+      if (matchedGrp) {
+        const mgName = (matchedGrp.nombre_grupo || '').toLowerCase().trim();
+        const mgId = (matchedGrp.id_grupo || '').toLowerCase().trim();
+        const fGrpList = friendGroup.split(',').map(s => s.trim().toLowerCase());
+        if (!friendIdGrupo || (mgId && friendIdGrupo.toLowerCase() === mgId) || fGrpList.includes(mgName)) {
+          isGroupAdmin = true;
+        }
+      }
+      if (!isGroupAdmin) {
+        let grp = null;
+        if (friendIdGrupo) grp = findGroupById(friendIdGrupo);
+        if (!grp && friendGroup) grp = findGroupByName(friendGroup);
+        if (grp && grp.admin_token && grp.admin_token.toLowerCase() === cleanTok) {
+          isGroupAdmin = true;
         }
       }
     }
@@ -1790,17 +1804,22 @@ function rejectFriendInternal(e) {
     let isGroupAdmin = false;
 
     if (!isSuper && adminToken) {
-      let grp = null;
-      if (friendIdGrupo) grp = findGroupById(friendIdGrupo);
-      if (!grp && friendGroup) grp = findGroupByName(friendGroup);
-      if (grp && grp.admin_token && grp.admin_token.toLowerCase() === adminToken.toLowerCase()) {
-        isGroupAdmin = true;
-      } else {
-        const matchedGrp = findGroupByAdminToken(adminToken);
-        if (matchedGrp) {
-          if (!friendIdGrupo || matchedGrp.id_grupo === friendIdGrupo) {
-            isGroupAdmin = true;
-          }
+      const cleanTok = String(adminToken).trim().toLowerCase();
+      const matchedGrp = findGroupByAdminToken(cleanTok);
+      if (matchedGrp) {
+        const mgName = (matchedGrp.nombre_grupo || '').toLowerCase().trim();
+        const mgId = (matchedGrp.id_grupo || '').toLowerCase().trim();
+        const fGrpList = friendGroup.split(',').map(s => s.trim().toLowerCase());
+        if (!friendIdGrupo || (mgId && friendIdGrupo.toLowerCase() === mgId) || fGrpList.includes(mgName)) {
+          isGroupAdmin = true;
+        }
+      }
+      if (!isGroupAdmin) {
+        let grp = null;
+        if (friendIdGrupo) grp = findGroupById(friendIdGrupo);
+        if (!grp && friendGroup) grp = findGroupByName(friendGroup);
+        if (grp && grp.admin_token && grp.admin_token.toLowerCase() === cleanTok) {
+          isGroupAdmin = true;
         }
       }
     }
