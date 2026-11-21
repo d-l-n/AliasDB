@@ -599,13 +599,19 @@
     .cards-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 12px;
     }
 
-    @media (min-width: 700px) {
+    @media (min-width: 600px) {
       .cards-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 14px;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+        gap: 16px;
       }
     }
 
@@ -615,10 +621,10 @@
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
-      padding: 16px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 10px;
       transition: var(--transition-hover);
       position: relative;
       overflow: hidden;
@@ -634,28 +640,28 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding-bottom: 12px;
+      gap: 10px;
+      padding-bottom: 8px;
       border-bottom: var(--border-width) dashed var(--border);
     }
 
     .friend-profile {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .friend-avatar {
-      width: 44px;
-      height: 44px;
-      min-width: 44px;
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
       display: grid;
       place-items: center;
       font-weight: 900;
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       color: #0D0D11;
       background: var(--accent-cyan);
       flex-shrink: 0;
@@ -667,14 +673,14 @@
     }
 
     .friend-name {
-      font-size: 1.125rem;
+      font-size: 1.0625rem;
       font-weight: 800;
       line-height: 1.2;
       color: var(--text);
     }
 
     .friend-meta {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -772,13 +778,13 @@
     .accounts-list {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 8px;
     }
 
-    @media (min-width: 640px) {
+    @media (min-width: 580px) {
       .accounts-list {
         grid-template-columns: repeat(2, 1fr);
-        gap: 14px;
+        gap: 10px;
       }
     }
 
@@ -786,10 +792,10 @@
       background: var(--surface-muted);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-md);
-      padding: 10px 12px;
+      padding: 8px 10px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .account-meta-row {
@@ -882,16 +888,16 @@
     .alias-chip {
       flex: 1;
       min-width: 0;
-      min-height: var(--touch-min);
+      min-height: 38px;
       background: var(--surface);
       border: var(--border-width) solid var(--border);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-sm);
       box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
-      padding: 0 12px;
+      padding: 0 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
       user-select: none;
       transition: var(--transition-tap);
@@ -932,14 +938,14 @@
 
     /* Dedicated Copy Action Button (Touch area 2: Dedicated tactile button) */
     .copy-btn {
-      width: var(--touch-min);
-      height: var(--touch-min);
-      min-width: var(--touch-min);
-      min-height: var(--touch-min);
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      min-height: 38px;
       background: var(--accent-yellow);
       color: #0D0D11;
       border: var(--border-width) solid var(--border);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-sm);
       box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
       cursor: pointer;
       display: flex;
@@ -960,8 +966,8 @@
     }
 
     .copy-btn svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       fill: none;
       stroke: currentColor;
       stroke-width: 2.2;
@@ -1000,10 +1006,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 6px;
+      padding: 3px 6px;
       background: rgba(0, 0, 0, 0.03);
       border-radius: var(--radius-sm);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
     }
 
     [data-theme="dark"] .cbu-details-row {
@@ -1064,37 +1070,37 @@
     }
 
     .skeleton-avatar {
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       border: var(--border-width) solid var(--border);
       flex-shrink: 0;
     }
 
     .skeleton-line {
-      height: 14px;
+      height: 12px;
       border-radius: var(--radius-sm);
       background: var(--surface-muted);
     }
 
     .skeleton-line-title {
-      height: 22px;
-      width: 140px;
+      height: 18px;
+      width: 130px;
     }
 
     .skeleton-line-badge {
-      height: 16px;
-      width: 70px;
+      height: 14px;
+      width: 65px;
     }
 
     .skeleton-account-box {
-      min-height: 108px;
+      min-height: 88px;
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-md);
-      padding: 12px;
+      padding: 8px 10px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
       background: var(--surface);
     }
 

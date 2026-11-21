@@ -19,4 +19,5 @@ assert(html.includes("urlParams.get('token')"), 'Lectura de parametro token');
 assert(html.includes("fetchUrl += '&grupo=' + encodeURIComponent(grupoParam)"), 'Inyeccion de grupo en fetchUrl');
 assert(html.includes("fetchUrl += '&token=' + encodeURIComponent(tokenParam)"), 'Inyeccion de token en fetchUrl');
 assert(html.includes("friend.group || friend.grupo || 'General'"), 'Preservacion de friend.group en normalizeFriendData');
+assert(html.includes("repeat(auto-fill, minmax("), 'Cards grid con soporte responsive multi-columna');
 console.log('Todos los requisitos de Fase 2 verificados correctamente.');

@@ -95,6 +95,7 @@ const requiredElementIds = [
   'shortcut-open-admin-tab',
   'shortcut-open-app-tab',
   'groups-container',
+  'btn-toggle-all-groups',
   'brutalist-toast',
   'btn-add-account-row',
   'btn-add-account-row-bottom',
@@ -104,6 +105,11 @@ const requiredElementIds = [
 requiredElementIds.forEach(id => {
   assert(html.includes(`id="${id}"`), `Debe contener el elemento con id="${id}"`);
 });
+
+// Verificación de capacidad de colapsar / plegar grupos
+assert(html.includes('group-section.is-collapsed'), 'admin.html debe contener reglas CSS para .group-section.is-collapsed');
+assert(html.includes('group-collapse-icon'), 'admin.html debe contener el icono de pliegue de grupo .group-collapse-icon');
+assert(html.includes('aliasdb_admin_collapsed_groups'), 'admin.html debe persistir los grupos colapsados en localStorage');
 
 // 6. Verificación de Algoritmos de Detección CBU y Fintech (Simulación lógica)
 console.log('6. Verificando algoritmos de detección CBU y Quick-Add...');
