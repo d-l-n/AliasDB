@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Neo-Brutalist Hard Offset Shadow -->
+  <rect x="2.5" y="2.5" width="27" height="27" rx="6.5" fill="#0D0D11" />
+  <!-- Yellow Surface Badge with Solid Black Stroke -->
+  <rect x="1" y="1" width="27" height="27" rx="6.5" fill="#FFE600" stroke="#0D0D11" stroke-width="2.2" />
+  <!-- Outer @ Wrap (315° sweep) -->
+  <path d="M22.5 15 C22.5 11.4 19.6 8.5 16 8.5 C11.9 8.5 8.5 11.9 8.5 16 C8.5 20.1 11.9 23.5 16 23.5 C19.2 23.5 21.8 21.5 22.8 18.8" stroke="#0D0D11" stroke-width="2.6" stroke-linecap="round" />
+  <!-- Payment Transfer Arrowhead -->
+  <polygon points="23.8,17.2 20.8,18.8 24.2,21.2" fill="#0D0D11" />
+  <!-- High-Voltage Lightning Bolt -->
+  <polygon points="16.5,6 11,14.8 15.5,14.8 13.5,22.2 21,12.8 16.5,12.8" fill="#0D0D11" />
+  <!-- Electric Mint Flash Core -->
+  <polygon points="16,8 12.8,14 15,14 14,19.2 18.8,13 16.2,13" fill="#2DF8C5" />
+</svg>

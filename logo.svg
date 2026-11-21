@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <!-- AliasDB Neo-Brutalist Master Logo -->
+  <defs>
+    <filter id="shadow" x="0" y="0" width="128" height="128" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="6" dy="6" stdDeviation="0" flood-color="#0D0D11" />
+    </filter>
+  </defs>
+
+  <!-- Hard Offset Shadow -->
+  <rect x="18" y="18" width="96" height="96" rx="22" fill="#0D0D11" />
+
+  <!-- Yellow Surface Badge with Solid Black Contour -->
+  <rect x="12" y="12" width="96" height="96" rx="22" fill="#FFE600" stroke="#0D0D11" stroke-width="8" />
+
+  <!-- Outer @ Enclosure with 315° Dynamic Arch -->
+  <path d="M86 60 C86 46 76 36 64 36 C50 36 38 48 38 64 C38 80 50 92 64 92 C76 92 84 84 88 74" stroke="#0D0D11" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Directional Payment Transfer Arrow -->
+  <polygon points="91,68 80,73.5 92.5,83" fill="#0D0D11" />
+
+  <!-- High-Voltage Lightning Bolt (Deep Ink #0D0D11) -->
+  <polygon points="66,24 45,58 62,58 54,87 83,50 66,50" fill="#0D0D11" />
+
+  <!-- Electric Mint Flash Core (#2DF8C5) -->
+  <polygon points="64,32 52,55 60.5,55 56.5,75 75,51.5 64.5,51.5" fill="#2DF8C5" />
+</svg>
