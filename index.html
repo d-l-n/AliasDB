@@ -490,18 +490,21 @@
       display: grid;
     }
 
-    /* Horizontal Bank Pills Filter */
+    /* Horizontal Bank Pills Filter (Carrusel horizontal sin wrap) */
     .filter-scroll-container {
       display: flex;
       align-items: center;
       gap: 8px;
       overflow-x: auto;
+      flex-wrap: nowrap;
+      white-space: nowrap;
       padding-bottom: 6px;
       margin: 0 -16px;
       padding-left: 16px;
       padding-right: 16px;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
       scroll-snap-type: x proximity;
     }
 
@@ -510,7 +513,7 @@
         margin: 0;
         padding-left: 0;
         padding-right: 0;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
       }
     }
 
@@ -539,6 +542,7 @@
       justify-content: center;
       gap: 6px;
       scroll-snap-align: start;
+      flex-shrink: 0;
       transition: var(--transition-tap);
     }
 
@@ -1648,10 +1652,51 @@
         });
       }
 
+      function updateBankFilterVisibility() {
+        if (!bankFilterChips || bankFilterChips.length === 0) return;
+
+        var scopedFriends = friendsData.filter(function(friend) {
+          return isSegmentedMode || activeGroupFilter === 'ALL' || (
+            friend.group && friend.group.toLowerCase() === activeGroupFilter.toLowerCase()
+          );
+        });
+
+        var bankCounts = {};
+        scopedFriends.forEach(function(friend) {
+          if (Array.isArray(friend.accounts)) {
+            friend.accounts.forEach(function(acc) {
+              if (acc.bankId) {
+                bankCounts[acc.bankId] = (bankCounts[acc.bankId] || 0) + 1;
+              }
+            });
+          }
+        });
+
+        bankFilterChips.forEach(function(chip) {
+          var bank = chip.dataset.bank;
+          if (bank === 'ALL') {
+            chip.style.display = 'inline-flex';
+            return;
+          }
+          var hasAccounts = !!bankCounts[bank];
+          chip.style.display = hasAccounts ? 'inline-flex' : 'none';
+        });
+
+        if (activeFilter !== 'ALL' && !bankCounts[activeFilter]) {
+          activeFilter = 'ALL';
+          bankFilterChips.forEach(function(c) {
+            var isAll = c.dataset.bank === 'ALL';
+            c.classList.toggle('active', isAll);
+            c.setAttribute('aria-pressed', isAll.toString());
+          });
+        }
+      }
+
       /* ======================================================================
          7. RENDERIZADO MODULAR DE COMPONENTES NEO-BRUTALISTAS
          ====================================================================== */
       function renderCards() {
+        updateBankFilterVisibility();
         var q = searchQuery.toLowerCase().trim();
 
         var filtered = friendsData.filter(function(friend) {
@@ -1928,6 +1973,15 @@
         });
       });
 
+      document.querySelectorAll('.filter-scroll-container').forEach(function(container) {
+        container.addEventListener('wheel', function(e) {
+          if (e.deltaY !== 0) {
+            e.preventDefault();
+            container.scrollLeft += e.deltaY;
+          }
+        }, { passive: false });
+      });
+
       /* ======================================================================
          8. INTEGRACIÓN BIDIRECCIONAL CON GOOGLE APPS SCRIPT & API
          ====================================================================== */
@@ -1963,6 +2017,9 @@
         }
         if (str.indexOf('UALA') !== -1 || str.indexOf('UALÁ') !== -1) {
           return { bankId: 'UALA', badgeClass: 'bank-badge-uala' };
+        }
+        if (str.indexOf('NARANJA') !== -1 || str.indexOf('NX') !== -1) {
+          return { bankId: 'NARANJA_X', badgeClass: 'bank-badge-naranja' };
         }
         return { bankId: 'OTROS', badgeClass: 'bank-badge-generic' };
       }
