@@ -1461,7 +1461,9 @@
 
     select.form-control {
       cursor: pointer;
-      appearance: auto;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
     }
 
     .btn-header-action {
@@ -1558,28 +1560,66 @@
       box-shadow: 0 0 0 1px #0D0D11;
     }
 
+    .sync-badge.is-syncing .status-dot {
+      background: var(--accent-yellow);
+      box-shadow: 0 0 0 1px #0D0D11;
+    }
+
     .sync-badge.is-offline .status-dot {
       background: var(--accent-orange);
       box-shadow: 0 0 0 1px #0D0D11;
     }
 
     /* Estilos Neo-Brutalistas para Selects y Dropdowns */
-    .bank-select-styled {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
+    select.bank-select-styled {
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
       background-color: var(--surface);
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230D0D11' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 12px center;
+      background-position: right 14px center;
       background-size: 16px;
-      padding-right: 38px;
+      padding-right: 40px;
       cursor: pointer;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Estado inicial / placeholder de banco */
+    select.bank-select-styled:invalid {
+      color: #555566;
+    }
+
+    /* Opciones del menú nativo desplegable */
+    select.bank-select-styled option {
+      background-color: var(--surface);
+      color: var(--text);
       font-weight: 700;
     }
 
-    [data-theme="dark"] .bank-select-styled {
+    select.bank-select-styled option[value=""] {
+      color: #555566;
+      font-weight: 600;
+    }
+
+    [data-theme="dark"] select.bank-select-styled {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      color: var(--text);
+    }
+
+    [data-theme="dark"] select.bank-select-styled:invalid {
+      color: #A6A6B2;
+    }
+
+    [data-theme="dark"] select.bank-select-styled option {
+      background-color: #1C1C24;
+      color: #F4F4F6;
+    }
+
+    [data-theme="dark"] select.bank-select-styled option[value=""] {
+      color: #A6A6B2;
+      font-weight: 600;
     }
 
     .modal-bank-chips {
@@ -1808,7 +1848,7 @@
       <div class="form-group">
         <label for="alias-bank-select" class="form-label">Banco / Billetera</label>
         <select id="alias-bank-select" class="form-control bank-select-styled" required>
-          <option value="" disabled selected>Seleccioná tu banco o billetera...</option>
+          <option value="" selected>Seleccioná tu banco o billetera...</option>
           <option value="Mercado Pago">Mercado Pago</option>
           <option value="Banco Galicia">Banco Galicia</option>
           <option value="Banco Santander">Banco Santander</option>
@@ -2145,6 +2185,16 @@
       function setSelectedBankName(name) {
         if (!aliasBankSelect) return;
         var cleanName = (name || '').trim();
+        if (!cleanName) {
+          aliasBankSelect.selectedIndex = 0;
+          if (aliasBankCustom) {
+            aliasBankCustom.style.display = 'none';
+            aliasBankCustom.value = '';
+            aliasBankCustom.required = false;
+          }
+          modalBankChips.forEach(function(chip) { chip.classList.remove('active'); });
+          return;
+        }
         var foundOption = false;
         for (var i = 0; i < aliasBankSelect.options.length; i++) {
           if (aliasBankSelect.options[i].value && aliasBankSelect.options[i].value.toLowerCase() === cleanName.toLowerCase()) {
@@ -3398,11 +3448,18 @@
       function updateSyncStatus(isLive, label) {
         var el = document.getElementById('sync-status');
         if (!el) return;
-        el.className = 'sync-badge font-mono ' + (isLive ? 'is-online' : 'is-offline');
+        var stateClass = 'is-offline';
+        if (label === 'Actualizando...' || label === 'Cargando...' || label === 'Conectando...' || isLive === 'syncing') {
+          stateClass = 'is-syncing';
+        } else if (isLive === true || isLive === 'online') {
+          stateClass = 'is-online';
+        }
+
+        el.className = 'sync-badge font-mono ' + stateClass;
         el.removeAttribute('style');
         var dot = el.querySelector('.status-dot');
         var txt = el.querySelector('.status-text');
-        var textContent = label || (isLive ? 'En línea' : 'Desconectado');
+        var textContent = label || (stateClass === 'is-online' ? 'En línea' : (stateClass === 'is-syncing' ? 'Conectando...' : 'Desconectado'));
         if (!dot || !txt) {
           el.innerHTML = '<span class="status-dot"></span><span class="status-text">' + textContent + '</span>';
         } else {
