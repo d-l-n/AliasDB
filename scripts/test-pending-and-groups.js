@@ -10,12 +10,15 @@ console.log("=== [TEST SUITE] Creación Self-Service, Sandboxing Multi-Tenant y 
 
 const codeJsPath = path.join(__dirname, "..", "Code.js");
 const indexHtmlPath = path.join(__dirname, "..", "index.html");
+const adminHtmlPath = path.join(__dirname, "..", "admin.html");
 
 assert(fs.existsSync(codeJsPath), "Code.js debe existir en la raíz del proyecto");
 assert(fs.existsSync(indexHtmlPath), "index.html debe existir en la raíz del proyecto");
+assert(fs.existsSync(adminHtmlPath), "admin.html debe existir en la raíz del proyecto");
 
 const codeJs = fs.readFileSync(codeJsPath, "utf8");
 const indexHtml = fs.readFileSync(indexHtmlPath, "utf8");
+const adminHtml = fs.readFileSync(adminHtmlPath, "utf8");
 
 let passed = 0;
 let total = 0;
@@ -106,6 +109,11 @@ it("index.html gestiona admin tokens y llaves de edición mediante localStorage"
     indexHtml.includes("admin_token") || indexHtml.includes("adminToken") || indexHtml.includes("aliasdb_admin"),
     "index.html debe almacenar o consultar tokens de admin en localStorage"
   );
+});
+
+it("index.html y admin.html implementan reparenting de toast para evitar oclusión por backdrop blur de modales", () => {
+  assert(indexHtml.includes("activeDialog.appendChild(toastContainer)"), "index.html debe reposicionar el toast sobre el modal activo");
+  assert(adminHtml.includes("activeDialog.appendChild(toastContainer)"), "admin.html debe reposicionar el toast sobre el modal activo");
 });
 
 // =========================================================================

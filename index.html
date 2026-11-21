@@ -1192,11 +1192,15 @@
       bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--keyboard-inset-height, 0px));
       left: 50%;
       transform: translateX(-50%);
-      z-index: 9999;
+      z-index: 999999;
       pointer-events: none;
       width: calc(100% - 32px);
       max-width: 440px;
       transition: bottom 0.2s cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    dialog .toast-container {
+      z-index: 999999;
     }
 
     .brutalist-toast {
@@ -2073,9 +2077,22 @@
         if (!toastEl || !toastMessageEl) return;
         duration = duration || 2800;
 
+        // Reparenting dinámico al diálogo activo para evitar que el backdrop-filter (blur) del Top Layer lo tape
+        var toastContainer = toastEl.parentElement;
+        var activeDialog = document.querySelector('dialog[open]');
+        if (activeDialog && toastContainer) {
+          if (toastContainer.parentElement !== activeDialog) {
+            activeDialog.appendChild(toastContainer);
+          }
+        } else if (toastContainer && toastContainer.parentElement !== document.body) {
+          document.body.appendChild(toastContainer);
+        }
+
         toastMessageEl.textContent = message;
         toastEl.classList.add('show');
-        toastEl.parentElement.setAttribute('aria-hidden', 'false');
+        if (toastContainer) {
+          toastContainer.setAttribute('aria-hidden', 'false');
+        }
 
         announceScreenReader(message);
 
@@ -2088,7 +2105,10 @@
       function hideToast() {
         if (!toastEl) return;
         toastEl.classList.remove('show');
-        toastEl.parentElement.setAttribute('aria-hidden', 'true');
+        var toastContainer = toastEl.parentElement;
+        if (toastContainer) {
+          toastContainer.setAttribute('aria-hidden', 'true');
+        }
         if (toastTimeout) {
           clearTimeout(toastTimeout);
           toastTimeout = null;
@@ -2631,6 +2651,10 @@
          ====================================================================== */
       function openModal(dlg) {
         if (!dlg) return;
+        var toastContainer = document.querySelector('.toast-container');
+        if (toastContainer && toastEl && toastEl.classList.contains('show')) {
+          dlg.appendChild(toastContainer);
+        }
         if (typeof dlg.showModal === 'function') {
           dlg.showModal();
         } else {
@@ -2644,6 +2668,10 @@
           dlg.close();
         } else {
           dlg.removeAttribute('open');
+        }
+        var toastContainer = document.querySelector('.toast-container');
+        if (toastContainer && toastContainer.parentElement !== document.body) {
+          document.body.appendChild(toastContainer);
         }
       }
 
@@ -2736,6 +2764,14 @@
             closeModal(dlg);
           }
         });
+        function restoreToastContainer() {
+          var toastContainer = document.querySelector('.toast-container');
+          if (toastContainer && toastContainer.parentElement !== document.body) {
+            document.body.appendChild(toastContainer);
+          }
+        }
+        dlg.addEventListener('close', restoreToastContainer);
+        dlg.addEventListener('cancel', restoreToastContainer);
       });
 
       if (btnOpenCreateGroup) {

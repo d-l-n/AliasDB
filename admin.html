@@ -1421,11 +1421,15 @@
       bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--keyboard-inset-height, 0px));
       left: 50%;
       transform: translateX(-50%);
-      z-index: 9999;
+      z-index: 999999;
       pointer-events: none;
       width: calc(100% - 32px);
       max-width: 460px;
       transition: bottom 0.2s cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    dialog .toast-container {
+      z-index: 999999;
     }
 
     .brutalist-toast {
@@ -2275,10 +2279,23 @@
         if (!dom.toast || !dom.toastMessage) return;
         duration = duration || 3200;
 
+        // Reparenting dinámico al diálogo activo para evitar que el backdrop-filter (blur) del Top Layer lo tape
+        var toastContainer = dom.toast.parentElement;
+        var activeDialog = document.querySelector('dialog[open]');
+        if (activeDialog && toastContainer) {
+          if (toastContainer.parentElement !== activeDialog) {
+            activeDialog.appendChild(toastContainer);
+          }
+        } else if (toastContainer && toastContainer.parentElement !== document.body) {
+          document.body.appendChild(toastContainer);
+        }
+
         dom.toastMessage.textContent = message;
         dom.toast.classList.toggle('toast-error', !!isError);
         dom.toast.classList.add('show');
-        dom.toast.parentElement.setAttribute('aria-hidden', 'false');
+        if (toastContainer) {
+          toastContainer.setAttribute('aria-hidden', 'false');
+        }
 
         announce(message);
 
@@ -2289,7 +2306,10 @@
       function hideToast() {
         if (!dom.toast) return;
         dom.toast.classList.remove('show');
-        dom.toast.parentElement.setAttribute('aria-hidden', 'true');
+        var toastContainer = dom.toast.parentElement;
+        if (toastContainer) {
+          toastContainer.setAttribute('aria-hidden', 'true');
+        }
         if (toastTimeout) {
           clearTimeout(toastTimeout);
           toastTimeout = null;
@@ -2404,6 +2424,10 @@
          ====================================================================== */
       function openModal(dialogEl) {
         if (!dialogEl) return;
+        var toastContainer = document.querySelector('.toast-container');
+        if (toastContainer && dom.toast && dom.toast.classList.contains('show')) {
+          dialogEl.appendChild(toastContainer);
+        }
         if (typeof dialogEl.showModal === 'function') {
           dialogEl.showModal();
         } else {
@@ -2418,6 +2442,10 @@
         } else {
           dialogEl.removeAttribute('open');
         }
+        var toastContainer = document.querySelector('.toast-container');
+        if (toastContainer && toastContainer.parentElement !== document.body) {
+          document.body.appendChild(toastContainer);
+        }
       }
 
       // Event delegation para botones data-close-modal
@@ -2429,7 +2457,7 @@
         }
       });
 
-      // Light-dismiss para diálogos (click en el backdrop)
+      // Light-dismiss para diálogos (click en el backdrop) y restauración del contenedor toast
       document.querySelectorAll('dialog').forEach(function(dlg) {
         dlg.addEventListener('click', function(e) {
           var rect = dlg.getBoundingClientRect();
@@ -2443,6 +2471,14 @@
             closeModal(dlg);
           }
         });
+        function restoreToastContainer() {
+          var toastContainer = document.querySelector('.toast-container');
+          if (toastContainer && toastContainer.parentElement !== document.body) {
+            document.body.appendChild(toastContainer);
+          }
+        }
+        dlg.addEventListener('close', restoreToastContainer);
+        dlg.addEventListener('cancel', restoreToastContainer);
       });
 
       /* ======================================================================
