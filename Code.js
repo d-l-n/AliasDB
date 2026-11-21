@@ -392,7 +392,9 @@ function doGet(e) {
         // --- Guardado con Soporte Optimista / Pendiente / Admin ---
         case 'save':
         case 'savePerson':
-        case 'saveFriend': {
+        case 'saveFriend':
+        case 'addFriend':
+        case 'updateFriend': {
           let body = null;
           if (e.parameter.payload) {
             try {
@@ -408,6 +410,7 @@ function doGet(e) {
             adminKey: e.parameter.adminKey || (body && body.adminKey),
             adminToken: e.parameter.adminToken || e.parameter.admin || (body && (body.adminToken || body.admin)),
             editToken: e.parameter.editToken || e.parameter.edit_token || (body && (body.editToken || body.edit_token)),
+            token: e.parameter.token || (body && body.token),
             isRestCall: true
           });
           return jsonResponse(saveResult);
@@ -1216,17 +1219,32 @@ function createGroupInternal(params) {
       return { success: false, error: 'El nombre del grupo es obligatorio.' };
     }
 
+    const existingGroup = findGroupByName(cleanName);
+    if (existingGroup && existingGroup.read_token && existingGroup.admin_token) {
+      return {
+        success: true,
+        data: {
+          id: existingGroup.id_grupo,
+          name: existingGroup.nombre_grupo,
+          readToken: existingGroup.read_token,
+          adminToken: existingGroup.admin_token
+        }
+      };
+    }
+
     const sheet = getGroupsSheet();
 
-    // Generar UUIDs estables según requerimiento:
-    // id_grupo ('grp_...'), read_token ('view_...'), admin_token ('adm_...')
+    // Generar o adoptar UUIDs para id_grupo, read_token, admin_token
+    const passedAdminToken = (params && typeof params === 'object' && (params.adminToken || params.admin_token)) ? String(params.adminToken || params.admin_token).trim() : '';
+    const passedReadToken = (params && typeof params === 'object' && (params.readToken || params.read_token)) ? String(params.readToken || params.read_token).trim() : '';
+
     const idSuffix = Utilities.getUuid().replace(/-/g, '').slice(0, 8);
     const readSuffix = Utilities.getUuid().replace(/-/g, '').slice(0, 8);
     const adminSuffix = Utilities.getUuid().replace(/-/g, '').slice(0, 12);
 
     const idGrupo = 'grp_' + idSuffix;
-    const readToken = 'view_' + readSuffix;
-    const adminToken = 'adm_' + adminSuffix;
+    const readToken = passedReadToken || ('view_' + readSuffix);
+    const adminToken = passedAdminToken || ('adm_' + adminSuffix);
     const now = new Date().toISOString();
     const estado = 'ACTIVO';
 
@@ -1379,6 +1397,17 @@ function saveFriendWithAccounts(friendObj, options) {
     const group = groupsArray.join(', ');
 
     let idGrupo = (friendObj.id_grupo || (options && options.id_grupo) || '').trim();
+    const callerToken = (options && options.token) || friendObj.token || '';
+    if (!idGrupo && callerToken) {
+      const grpByTok = findGroupByToken(callerToken);
+      if (grpByTok) {
+        idGrupo = grpByTok.id_grupo;
+        if (groupsArray.length === 0 || (groupsArray.length === 1 && groupsArray[0] === 'General')) {
+          groupsArray = [grpByTok.nombre_grupo];
+          group = grpByTok.nombre_grupo;
+        }
+      }
+    }
     if (!idGrupo && groupsArray.length > 0) {
       idGrupo = getGroupIdByName(groupsArray[0]);
     }
@@ -2151,14 +2180,17 @@ function getFriendsDataInternal(groupFilter, options) {
     const rowIdGrupo = String(row[11] || '').trim();
 
     // Filtrar por grupo si se especificó groupFilter o targetIdGrupo
-    if (targetIdGrupo && rowIdGrupo && rowIdGrupo === targetIdGrupo) {
-      // Coincidencia exacta por ID de grupo
-    } else if (normalizedFilter && normalizedFilter !== 'all') {
-      const hasMatch = groupsArray.some(function(g) {
-        const norm = g.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        return norm === normalizedFilter;
-      });
-      if (!hasMatch) {
+    if (targetIdGrupo || (normalizedFilter && normalizedFilter !== 'all')) {
+      let isMatch = false;
+      if (targetIdGrupo && rowIdGrupo && rowIdGrupo === targetIdGrupo) {
+        isMatch = true;
+      } else if (normalizedFilter && normalizedFilter !== 'all') {
+        isMatch = groupsArray.some(function(g) {
+          const norm = g.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          return norm === normalizedFilter;
+        });
+      }
+      if (!isMatch) {
         continue;
       }
     }

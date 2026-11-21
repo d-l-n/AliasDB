@@ -315,12 +315,22 @@
       text-transform: uppercase;
     }
 
+    .brand-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
     .brand-tagline {
       font-size: 0.75rem;
       font-weight: 700;
       color: var(--text-muted);
       letter-spacing: 0.05em;
       text-transform: uppercase;
+      margin-top: 4px;
+      margin-bottom: 0;
     }
 
     /* Badge Neo-Brutalista de Grupo en Header */
@@ -1516,6 +1526,95 @@
       flex-wrap: wrap;
     }
 
+    /* Badge de Sincronización Minimalista */
+    .sync-badge {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-pill);
+      background: var(--surface);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 1px 1px 0px var(--shadow);
+      line-height: 1;
+      height: 24px;
+      user-select: none;
+    }
+
+    .sync-badge .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+      transition: background-color 0.2s ease;
+    }
+
+    .sync-badge.is-online .status-dot {
+      background: var(--accent-mint);
+      box-shadow: 0 0 0 1px #0D0D11;
+    }
+
+    .sync-badge.is-offline .status-dot {
+      background: var(--accent-orange);
+      box-shadow: 0 0 0 1px #0D0D11;
+    }
+
+    /* Estilos Neo-Brutalistas para Selects y Dropdowns */
+    .bank-select-styled {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-color: var(--surface);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230D0D11' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 38px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    [data-theme="dark"] .bank-select-styled {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    }
+
+    .modal-bank-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .modal-bank-chip {
+      font-size: 0.6875rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 3px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition-tap);
+      user-select: none;
+    }
+
+    .modal-bank-chip:hover {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      transform: translateY(-1px);
+    }
+
+    .modal-bank-chip.active {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      box-shadow: 2px 2px 0px var(--shadow);
+    }
+
     /* Accessibility: Reduced Motion Support */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -1539,7 +1638,7 @@
       <div class="brand-group">
         <div id="brand-icon" class="brand-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="22" height="22" class="reicon reicon-wallet" aria-hidden="true"><path d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.94358 3.25H13.0564C14.8942 3.24998 16.3498 3.24997 17.489 3.40314C18.6614 3.56076 19.6104 3.89288 20.3588 4.64124C21.2831 5.56563 21.5777 6.80363 21.6847 8.41008C22.2619 8.6641 22.6978 9.2013 22.7458 9.88179C22.7501 9.94199 22.75 10.0069 22.75 10.067C22.75 10.0725 22.75 10.0779 22.75 10.0833V13.9167C22.75 13.9221 22.75 13.9275 22.75 13.933C22.75 13.9931 22.7501 14.058 22.7458 14.1182C22.6978 14.7987 22.2619 15.3359 21.6847 15.5899C21.5777 17.1964 21.2831 18.4344 20.3588 19.3588C19.6104 20.1071 18.6614 20.4392 17.489 20.5969C16.3498 20.75 14.8942 20.75 13.0564 20.75H9.94359C8.10583 20.75 6.65019 20.75 5.51098 20.5969C4.33856 20.4392 3.38961 20.1071 2.64124 19.3588C1.89288 18.6104 1.56076 17.6614 1.40314 16.489C1.24997 15.3498 1.24998 13.8942 1.25 12.0564V11.9436C1.24998 10.1058 1.24997 8.65019 1.40314 7.51098C1.56076 6.33856 1.89288 5.38961 2.64124 4.64124C3.38961 3.89288 4.33856 3.56076 5.51098 3.40314C6.65019 3.24997 8.10582 3.24998 9.94358 3.25ZM20.1679 15.75H18.2308C16.0856 15.75 14.25 14.1224 14.25 12C14.25 9.87756 16.0856 8.25 18.2308 8.25H20.1679C20.0541 6.90855 19.7966 6.20043 19.2981 5.7019C18.8749 5.27869 18.2952 5.02502 17.2892 4.88976C16.2615 4.75159 14.9068 4.75 13 4.75H10C8.09318 4.75 6.73851 4.75159 5.71085 4.88976C4.70476 5.02502 4.12511 5.27869 3.7019 5.7019C3.27869 6.12511 3.02502 6.70476 2.88976 7.71085C2.75159 8.73851 2.75 10.0932 2.75 12C2.75 13.9068 2.75159 15.2615 2.88976 16.2892C3.02502 17.2952 3.27869 17.8749 3.7019 18.2981C4.12511 18.7213 4.70476 18.975 5.71085 19.1102C6.73851 19.2484 8.09318 19.25 10 19.25H13C14.9068 19.25 16.2615 19.2484 17.2892 19.1102C18.2952 18.975 18.8749 18.7213 19.2981 18.2981C19.7966 17.7996 20.0541 17.0915 20.1679 15.75ZM5.25 8C5.25 7.58579 5.58579 7.25 6 7.25H10C10.4142 7.25 10.75 7.58579 10.75 8C10.75 8.41421 10.4142 8.75 10 8.75H6C5.58579 8.75 5.25 8.41421 5.25 8ZM20.9235 9.75023C20.9032 9.75001 20.8766 9.75 20.8333 9.75H18.2308C16.8074 9.75 15.75 10.8087 15.75 12C15.75 13.1913 16.8074 14.25 18.2308 14.25H20.8333C20.8766 14.25 20.9032 14.25 20.9235 14.2498C20.936 14.2496 20.9426 14.2495 20.9457 14.2493L20.9479 14.2492C21.1541 14.2367 21.2427 14.0976 21.2495 14.0139C21.2495 14.0139 21.2497 14.0076 21.2498 13.9986C21.25 13.9808 21.25 13.9572 21.25 13.9167V10.0833C21.25 10.0428 21.25 10.0192 21.2498 10.0014C21.2497 9.99238 21.2495 9.98609 21.2495 9.98609C21.2427 9.90242 21.1541 9.7633 20.9479 9.75076C20.9479 9.75076 20.943 9.75043 20.9235 9.75023Z" fill="currentColor"/></svg></div>
         <div>
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <div class="brand-title-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
             <h1 class="brand-title">AliasDB</h1>
             <span id="group-header-badge" class="group-header-badge font-mono" style="display: none;"></span>
           </div>
@@ -1548,7 +1647,7 @@
       </div>
       
       <div class="header-actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-        <span id="sync-status" class="sync-badge font-mono" style="font-size: 11px; padding: 4px 8px; border: 2px solid var(--border); font-weight: 700; border-radius: 4px; background: var(--surface-muted); color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px;" title="Estado de sincronización con Google Sheets"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="12" height="12" class="reicon reicon-refresh reicon-spin" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M2.93077 11.2003C3.00244 6.23968 7.07619 2.25 12.0789 2.25C15.3873 2.25 18.287 3.99427 19.8934 6.60721C20.1103 6.96007 20.0001 7.42199 19.6473 7.63892C19.2944 7.85585 18.8325 7.74565 18.6156 7.39279C17.2727 5.20845 14.8484 3.75 12.0789 3.75C7.8945 3.75 4.50372 7.0777 4.431 11.1982L4.83138 10.8009C5.12542 10.5092 5.60029 10.511 5.89203 10.8051C6.18377 11.0991 6.18191 11.574 5.88787 11.8657L4.20805 13.5324C3.91565 13.8225 3.44398 13.8225 3.15157 13.5324L1.47176 11.8657C1.17772 11.574 1.17585 11.0991 1.46759 10.8051C1.75933 10.5111 2.2342 10.5092 2.52824 10.8009L2.93077 11.2003ZM19.7864 10.4666C20.0786 10.1778 20.5487 10.1778 20.8409 10.4666L22.5271 12.1333C22.8217 12.4244 22.8245 12.8993 22.5333 13.1939C22.2421 13.4885 21.7673 13.4913 21.4727 13.2001L21.0628 12.7949C20.9934 17.7604 16.9017 21.75 11.8825 21.75C8.56379 21.75 5.65381 20.007 4.0412 17.3939C3.82366 17.0414 3.93307 16.5793 4.28557 16.3618C4.63806 16.1442 5.10016 16.2536 5.31769 16.6061C6.6656 18.7903 9.09999 20.25 11.8825 20.25C16.0887 20.25 19.4922 16.9171 19.5625 12.7969L19.1546 13.2001C18.86 13.4913 18.3852 13.4885 18.094 13.1939C17.8028 12.8993 17.8056 12.4244 18.1002 12.1333L19.7864 10.4666Z" fill="currentColor"/></svg> <span>Conectando...</span></span>
+        <span id="sync-status" class="sync-badge font-mono is-offline" title="Estado de sincronización"><span class="status-dot"></span><span class="status-text">Conectando...</span></span>
         
 
 
@@ -1707,34 +1806,51 @@
       </div>
 
       <div class="form-group">
-        <label for="alias-bank-name" class="form-label">Banco / Billetera</label>
+        <label for="alias-bank-select" class="form-label">Banco / Billetera</label>
+        <select id="alias-bank-select" class="form-control bank-select-styled" required>
+          <option value="" disabled selected>Seleccioná tu banco o billetera...</option>
+          <option value="Mercado Pago">Mercado Pago</option>
+          <option value="Banco Galicia">Banco Galicia</option>
+          <option value="Banco Santander">Banco Santander</option>
+          <option value="Brubank">Brubank</option>
+          <option value="Lemon Cash">Lemon Cash</option>
+          <option value="BBVA">Banco BBVA</option>
+          <option value="Ualá">Ualá</option>
+          <option value="Naranja X">Naranja X</option>
+          <option value="Banco Nación">Banco Nación</option>
+          <option value="Banco Provincia">Banco Provincia</option>
+          <option value="Banco Macro">Banco Macro</option>
+          <option value="Banco Ciudad">Banco Ciudad</option>
+          <option value="Personal Pay">Personal Pay</option>
+          <option value="Prex">Prex</option>
+          <option value="Belo">Belo</option>
+          <option value="OTRO">Otro banco / billetera...</option>
+        </select>
+
+        <!-- Chips de selección rápida -->
+        <div class="modal-bank-chips" aria-label="Selección rápida de entidad">
+          <button type="button" class="modal-bank-chip" data-bank="Mercado Pago">MP</button>
+          <button type="button" class="modal-bank-chip" data-bank="Banco Galicia">Galicia</button>
+          <button type="button" class="modal-bank-chip" data-bank="Banco Santander">Santander</button>
+          <button type="button" class="modal-bank-chip" data-bank="Brubank">Brubank</button>
+          <button type="button" class="modal-bank-chip" data-bank="Lemon Cash">Lemon</button>
+          <button type="button" class="modal-bank-chip" data-bank="BBVA">BBVA</button>
+          <button type="button" class="modal-bank-chip" data-bank="Ualá">Ualá</button>
+          <button type="button" class="modal-bank-chip" data-bank="Naranja X">Naranja X</button>
+        </div>
+
         <input 
           type="text" 
-          id="alias-bank-name" 
+          id="alias-bank-custom" 
           class="form-control" 
-          list="datalist-banks" 
-          placeholder="Mercado Pago, Galicia, Brubank..." 
-          required
+          placeholder="Escribí el nombre de la entidad..." 
+          style="display: none; margin-top: 8px;"
         >
-        <datalist id="datalist-banks">
-          <option value="Mercado Pago">
-          <option value="Banco Galicia">
-          <option value="Banco Santander">
-          <option value="Brubank">
-          <option value="Lemon Cash">
-          <option value="BBVA">
-          <option value="Ualá">
-          <option value="Naranja X">
-          <option value="Banco Nación">
-          <option value="Banco Provincia">
-          <option value="Banco Macro">
-          <option value="Banco Ciudad">
-        </datalist>
       </div>
 
       <div class="form-group">
         <label for="alias-account-type" class="form-label">Tipo de cuenta</label>
-        <select id="alias-account-type" class="form-control" required>
+        <select id="alias-account-type" class="form-control bank-select-styled" required>
           <option value="Caja de Ahorro">Caja de Ahorro</option>
           <option value="CVU">CVU</option>
           <option value="Cuenta Corriente">Cuenta Corriente</option>
@@ -2008,12 +2124,81 @@
       var formAddAlias = document.getElementById('form-add-alias');
       var aliasEditFriendId = document.getElementById('alias-edit-friend-id');
       var aliasPersonName = document.getElementById('alias-person-name');
-      var aliasBankName = document.getElementById('alias-bank-name');
+      var aliasBankSelect = document.getElementById('alias-bank-select');
+      var aliasBankCustom = document.getElementById('alias-bank-custom');
+      var modalBankChips = document.querySelectorAll('.modal-bank-chip');
       var aliasAccountType = document.getElementById('alias-account-type');
       var aliasInputValue = document.getElementById('alias-input-value');
       var aliasCbuValue = document.getElementById('alias-cbu-value');
       var aliasTitularValue = document.getElementById('alias-titular-value');
       var btnSubmitAlias = document.getElementById('btn-submit-alias');
+
+      function getSelectedBankName() {
+        if (!aliasBankSelect) return '';
+        var selVal = aliasBankSelect.value;
+        if (selVal === 'OTRO') {
+          return aliasBankCustom ? aliasBankCustom.value.trim() : '';
+        }
+        return selVal;
+      }
+
+      function setSelectedBankName(name) {
+        if (!aliasBankSelect) return;
+        var cleanName = (name || '').trim();
+        var foundOption = false;
+        for (var i = 0; i < aliasBankSelect.options.length; i++) {
+          if (aliasBankSelect.options[i].value && aliasBankSelect.options[i].value.toLowerCase() === cleanName.toLowerCase()) {
+            aliasBankSelect.selectedIndex = i;
+            foundOption = true;
+            break;
+          }
+        }
+        if (!foundOption && cleanName) {
+          aliasBankSelect.value = 'OTRO';
+          if (aliasBankCustom) {
+            aliasBankCustom.style.display = 'block';
+            aliasBankCustom.value = cleanName;
+            aliasBankCustom.required = true;
+          }
+        } else {
+          if (aliasBankCustom) {
+            aliasBankCustom.style.display = 'none';
+            aliasBankCustom.value = '';
+            aliasBankCustom.required = false;
+          }
+        }
+        modalBankChips.forEach(function(chip) {
+          var chipBank = chip.getAttribute('data-bank');
+          var isActive = Boolean(chipBank && chipBank.toLowerCase() === cleanName.toLowerCase());
+          chip.classList.toggle('active', isActive);
+        });
+      }
+
+      if (aliasBankSelect) {
+        aliasBankSelect.addEventListener('change', function() {
+          var isOther = (aliasBankSelect.value === 'OTRO');
+          if (aliasBankCustom) {
+            aliasBankCustom.style.display = isOther ? 'block' : 'none';
+            aliasBankCustom.required = isOther;
+            if (isOther) {
+              aliasBankCustom.focus();
+            } else {
+              aliasBankCustom.value = '';
+            }
+          }
+          modalBankChips.forEach(function(chip) {
+            var chipBank = chip.getAttribute('data-bank');
+            chip.classList.toggle('active', !isOther && chipBank && chipBank.toLowerCase() === aliasBankSelect.value.toLowerCase());
+          });
+        });
+      }
+
+      modalBankChips.forEach(function(chip) {
+        chip.addEventListener('click', function() {
+          var bankVal = chip.getAttribute('data-bank');
+          setSelectedBankName(bankVal);
+        });
+      });
 
       /* ======================================================================
          ADMIN TOKEN & GROUP PERMISSION PERSISTENCE
@@ -2033,6 +2218,23 @@
           if (grp) syncAdminToken(grp, adminParam);
           return adminParam;
         }
+        if (tokenParam && tokenParam.indexOf('adm_') === 0) {
+          if (grp) syncAdminToken(grp, tokenParam);
+          return tokenParam;
+        }
+        try {
+          var myGroups = JSON.parse(localStorage.getItem('aliasdb_my_groups') || '[]');
+          for (var i = 0; i < myGroups.length; i++) {
+            var mg = myGroups[i];
+            if (mg && (
+              (grp && mg.name && mg.name.toLowerCase() === grp) ||
+              (tokenParam && (mg.readToken === tokenParam || mg.adminToken === tokenParam))
+            )) {
+              if (mg.adminToken) return mg.adminToken;
+            }
+          }
+        } catch (e) {}
+
         if (!grp) return '';
         try {
           return localStorage.getItem('aliasdb_admin_' + grp) || 
@@ -2688,7 +2890,18 @@
         if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.confirmFriend) {
           google.script.run.confirmFriend(friendId, token);
         } else if (BACKEND_API_URL) {
-          fetch(BACKEND_API_URL + '?action=confirmFriend&friendId=' + encodeURIComponent(friendId) + '&adminToken=' + encodeURIComponent(token), { method: 'POST', mode: 'no-cors' }).catch(function() {});
+          var confirmUrl = BACKEND_API_URL + '?action=confirmFriend&id=' + encodeURIComponent(friendId) + '&friendId=' + encodeURIComponent(friendId) + '&adminToken=' + encodeURIComponent(token) + '&token=' + encodeURIComponent(token);
+          fetch(confirmUrl)
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+              if (res && res.success) {
+                try { localStorage.removeItem(getCacheKey()); } catch (e) {}
+                loadData();
+              }
+            })
+            .catch(function(err) {
+              console.warn('confirmFriend sync error:', err);
+            });
         }
         renderCards();
         showToast('Alias de ' + (friend ? friend.name : 'contacto') + ' confirmado con éxito.');
@@ -2707,7 +2920,18 @@
         if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.rejectFriend) {
           google.script.run.rejectFriend(friendId, token);
         } else if (BACKEND_API_URL) {
-          fetch(BACKEND_API_URL + '?action=rejectFriend&friendId=' + encodeURIComponent(friendId) + '&adminToken=' + encodeURIComponent(token), { method: 'POST', mode: 'no-cors' }).catch(function() {});
+          var rejectUrl = BACKEND_API_URL + '?action=rejectFriend&id=' + encodeURIComponent(friendId) + '&friendId=' + encodeURIComponent(friendId) + '&adminToken=' + encodeURIComponent(token) + '&token=' + encodeURIComponent(token);
+          fetch(rejectUrl)
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+              if (res && res.success) {
+                try { localStorage.removeItem(getCacheKey()); } catch (e) {}
+                loadData();
+              }
+            })
+            .catch(function(err) {
+              console.warn('rejectFriend sync error:', err);
+            });
         }
         renderCards();
         showToast('Solicitud de ' + name + ' descartada.');
@@ -2716,6 +2940,7 @@
       function openAddAliasModal() {
         if (!modalAddAlias) return;
         if (formAddAlias) formAddAlias.reset();
+        setSelectedBankName('');
         if (aliasEditFriendId) aliasEditFriendId.value = '';
         if (modalAddAliasHeading) modalAddAliasHeading.textContent = 'Sumar mi Alias';
         if (btnSubmitAlias) btnSubmitAlias.textContent = 'Guardar Datos';
@@ -2736,7 +2961,7 @@
         if (aliasPersonName) aliasPersonName.value = friend.name || '';
         if (friend.accounts && friend.accounts.length > 0) {
           var primary = friend.accounts[0];
-          if (aliasBankName) aliasBankName.value = primary.bankName || '';
+          setSelectedBankName(primary.bankName || primary.bank || '');
           if (aliasAccountType) aliasAccountType.value = primary.type || 'Caja de Ahorro';
           if (aliasInputValue) aliasInputValue.value = primary.alias || '';
           if (aliasCbuValue) aliasCbuValue.value = primary.cbu || '';
@@ -2797,38 +3022,69 @@
             return;
           }
 
-          var adminToken = 'adm_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-          syncAdminToken(groupName, adminToken);
-
-          try {
-            var myGroups = JSON.parse(localStorage.getItem('aliasdb_my_groups') || '[]');
-            myGroups.push({
-              name: groupName,
-              adminToken: adminToken,
-              createdAt: new Date().toISOString()
-            });
-            localStorage.setItem('aliasdb_my_groups', JSON.stringify(myGroups));
-          } catch (e) {}
-
-          if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.createGroup) {
-            google.script.run.createGroup(groupName, adminToken);
-          } else if (BACKEND_API_URL) {
-            fetch(BACKEND_API_URL + '?action=createGroup&nombre=' + encodeURIComponent(groupName) + '&adminToken=' + encodeURIComponent(adminToken), { method: 'POST', mode: 'no-cors' }).catch(function() {});
-          }
+          var clientAdminToken = 'adm_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+          syncAdminToken(groupName, clientAdminToken);
 
           var currentUrl = new URL(window.location.href);
           currentUrl.search = '';
           currentUrl.hash = '';
           var baseHref = currentUrl.toString();
-          var shareUrl = baseHref + '?grupo=' + encodeURIComponent(groupName);
-          var adminUrl = baseHref + '?grupo=' + encodeURIComponent(groupName) + '&admin=' + encodeURIComponent(adminToken);
 
-          if (shareGroupUrlInput) shareGroupUrlInput.value = shareUrl;
-          if (adminGroupUrlInput) adminGroupUrlInput.value = adminUrl;
-          if (createdGroupNameLabel) createdGroupNameLabel.textContent = groupName;
+          function applyGroupCreatedTokens(readTok, admTok) {
+            var activeAdminTok = admTok || clientAdminToken;
+            var activeReadTok = readTok || '';
+            syncAdminToken(groupName, activeAdminTok);
 
-          if (createGroupFormScreen) createGroupFormScreen.style.display = 'none';
-          if (createGroupSuccessScreen) createGroupSuccessScreen.style.display = 'block';
+            try {
+              var myGroups = JSON.parse(localStorage.getItem('aliasdb_my_groups') || '[]');
+              var existingIdx = myGroups.findIndex(function(g) { return g.name && g.name.toLowerCase() === groupName.toLowerCase(); });
+              var gEntry = {
+                name: groupName,
+                readToken: activeReadTok,
+                adminToken: activeAdminTok,
+                createdAt: new Date().toISOString()
+              };
+              if (existingIdx >= 0) {
+                myGroups[existingIdx] = gEntry;
+              } else {
+                myGroups.push(gEntry);
+              }
+              localStorage.setItem('aliasdb_my_groups', JSON.stringify(myGroups));
+            } catch (e) {}
+
+            var shareUrl = baseHref + '?grupo=' + encodeURIComponent(groupName) + (activeReadTok ? '&token=' + encodeURIComponent(activeReadTok) : '');
+            var adminUrl = baseHref + '?grupo=' + encodeURIComponent(groupName) + '&admin=' + encodeURIComponent(activeAdminTok);
+
+            if (shareGroupUrlInput) shareGroupUrlInput.value = shareUrl;
+            if (adminGroupUrlInput) adminGroupUrlInput.value = adminUrl;
+            if (createdGroupNameLabel) createdGroupNameLabel.textContent = groupName;
+
+            if (createGroupFormScreen) createGroupFormScreen.style.display = 'none';
+            if (createGroupSuccessScreen) createGroupSuccessScreen.style.display = 'block';
+          }
+
+          applyGroupCreatedTokens('', clientAdminToken);
+
+          if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.createGroup) {
+            google.script.run
+              .withSuccessHandler(function(res) {
+                if (res && res.success && res.data) {
+                  applyGroupCreatedTokens(res.data.readToken, res.data.adminToken);
+                }
+              })
+              .createGroup(groupName, clientAdminToken);
+          } else if (BACKEND_API_URL) {
+            fetch(BACKEND_API_URL + '?action=createGroup&nombre=' + encodeURIComponent(groupName) + '&adminToken=' + encodeURIComponent(clientAdminToken))
+              .then(function(r) { return r.json(); })
+              .then(function(res) {
+                if (res && res.success && res.data) {
+                  applyGroupCreatedTokens(res.data.readToken, res.data.adminToken);
+                }
+              })
+              .catch(function(err) {
+                console.warn('Backend createGroup sync fallback:', err);
+              });
+          }
         });
       }
 
@@ -2865,7 +3121,7 @@
           e.preventDefault();
           var friendId = aliasEditFriendId ? aliasEditFriendId.value.trim() : '';
           var name = aliasPersonName ? aliasPersonName.value.trim() : '';
-          var bankName = aliasBankName ? aliasBankName.value.trim() : '';
+          var bankName = getSelectedBankName();
           var accountType = aliasAccountType ? aliasAccountType.value : 'Caja de Ahorro';
           var aliasVal = aliasInputValue ? aliasInputValue.value.trim().toLowerCase() : '';
           var cbuVal = aliasCbuValue ? aliasCbuValue.value.trim() : '';
@@ -2874,6 +3130,15 @@
           if (!name) {
             showToast('Ingresá el nombre de la persona.');
             if (aliasPersonName) aliasPersonName.focus();
+            return;
+          }
+          if (!bankName) {
+            showToast('Seleccioná o escribí tu banco o billetera.');
+            if (aliasBankSelect && aliasBankSelect.value === 'OTRO' && aliasBankCustom) {
+              aliasBankCustom.focus();
+            } else if (aliasBankSelect) {
+              aliasBankSelect.focus();
+            }
             return;
           }
           if (!aliasVal) {
@@ -2938,6 +3203,8 @@
             editTok = localStorage.getItem('aliasdb_edit_token_' + friendId) || '';
           } catch (e) {}
 
+          var activeAdminTok = getActiveAdminToken();
+
           var payload = {
             action: isEdit ? 'updateFriend' : 'addFriend',
             id: friendId,
@@ -2945,7 +3212,8 @@
             group: targetGroup,
             estado: estado,
             editToken: editTok,
-            adminToken: getActiveAdminToken(),
+            adminToken: activeAdminTok,
+            token: tokenParam || '',
             accounts: [accountObj]
           };
 
@@ -2956,12 +3224,27 @@
               google.script.run.addFriend(payload);
             }
           } else if (BACKEND_API_URL) {
-            fetch(BACKEND_API_URL + '?action=' + (isEdit ? 'updateFriend' : 'addFriend'), {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-              mode: 'no-cors'
-            }).catch(function() {});
+            var saveUrl = BACKEND_API_URL + '?action=saveFriend&payload=' + encodeURIComponent(JSON.stringify(payload));
+            if (activeAdminTok) {
+              saveUrl += '&adminToken=' + encodeURIComponent(activeAdminTok);
+            }
+            if (editTok) {
+              saveUrl += '&editToken=' + encodeURIComponent(editTok);
+            }
+            if (tokenParam) {
+              saveUrl += '&token=' + encodeURIComponent(tokenParam);
+            }
+            fetch(saveUrl)
+              .then(function(r) { return r.json(); })
+              .then(function(res) {
+                if (res && res.success) {
+                  try { localStorage.removeItem(getCacheKey()); } catch (e) {}
+                  loadData();
+                }
+              })
+              .catch(function(err) {
+                console.warn('saveFriend backend sync error:', err);
+              });
           }
 
           closeModal(modalAddAlias);
@@ -3115,14 +3398,15 @@
       function updateSyncStatus(isLive, label) {
         var el = document.getElementById('sync-status');
         if (!el) return;
-        if (isLive) {
-          el.innerHTML = getReiconSvg('ShieldCheck', '', 12) + ' <span>' + (label || 'En línea') + '</span>';
-          el.style.background = 'var(--accent-mint)';
-          el.style.color = '#0D0D11';
+        el.className = 'sync-badge font-mono ' + (isLive ? 'is-online' : 'is-offline');
+        el.removeAttribute('style');
+        var dot = el.querySelector('.status-dot');
+        var txt = el.querySelector('.status-text');
+        var textContent = label || (isLive ? 'En línea' : 'Desconectado');
+        if (!dot || !txt) {
+          el.innerHTML = '<span class="status-dot"></span><span class="status-text">' + textContent + '</span>';
         } else {
-          el.innerHTML = getReiconSvg('AlertTriangle', '', 12) + ' <span>' + (label || 'Desconectado') + '</span>';
-          el.style.background = 'var(--surface-muted)';
-          el.style.color = 'var(--text-muted)';
+          txt.textContent = textContent;
         }
       }
 
@@ -3258,6 +3542,10 @@
             fetchUrl += '&token=' + encodeURIComponent(tokenParam);
           } else if (grupoParam) {
             fetchUrl += '&grupo=' + encodeURIComponent(grupoParam);
+          }
+          var activeAdmin = getActiveAdminToken();
+          if (activeAdmin) {
+            fetchUrl += '&admin=' + encodeURIComponent(activeAdmin) + '&adminToken=' + encodeURIComponent(activeAdmin);
           }
           fetchUrl += '&_t=' + Date.now();
 

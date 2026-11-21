@@ -116,6 +116,34 @@ it("index.html y admin.html implementan reparenting de toast para evitar oclusi�
   assert(adminHtml.includes("activeDialog.appendChild(toastContainer)"), "admin.html debe reposicionar el toast sobre el modal activo");
 });
 
+it("Code.js maneja addFriend y updateFriend en el router de doGet/doPost", () => {
+  assert(codeJs.includes("case 'addFriend':") || codeJs.includes('case "addFriend":'), "Code.js debe rutear addFriend");
+  assert(codeJs.includes("case 'updateFriend':") || codeJs.includes('case "updateFriend":'), "Code.js debe rutear updateFriend");
+});
+
+it("index.html implementa desplegable estilizado Neo-Brutalista y chips rápidos para Banco / Billetera", () => {
+  assert(indexHtml.includes("bank-select-styled"), "index.html debe contener clase bank-select-styled");
+  assert(indexHtml.includes("alias-bank-select"), "index.html debe contener select alias-bank-select");
+  assert(indexHtml.includes("alias-bank-custom"), "index.html debe contener input alias-bank-custom");
+  assert(indexHtml.includes("modal-bank-chip"), "index.html debe contener chips de bancos modal-bank-chip");
+});
+
+it("index.html simplifica el badge En línea con dot minimalista y clases de estado", () => {
+  assert(indexHtml.includes("sync-badge"), "index.html debe tener sync-badge");
+  assert(indexHtml.includes("status-dot"), "index.html debe tener status-dot");
+  assert(indexHtml.includes("is-online"), "index.html debe manejar estado is-online");
+  assert(indexHtml.includes("is-offline"), "index.html debe manejar estado is-offline");
+});
+
+it("index.html contiene espaciado entre el nombre del grupo/header y el subtítulo", () => {
+  assert(indexHtml.includes("brand-title-row"), "index.html debe contener brand-title-row");
+  assert(indexHtml.includes("brand-tagline"), "index.html debe contener brand-tagline");
+});
+
+it("index.html propaga adminToken en loadData para garantizar visibilidad al creador del grupo", () => {
+  assert(indexHtml.includes("&admin=") || indexHtml.includes("&adminToken="), "index.html debe propagar token de admin en loadData");
+});
+
 // =========================================================================
 // 3. Simulaciones Unitarias de Contratos de Lógica y Seguridad
 // =========================================================================
