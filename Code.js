@@ -583,7 +583,10 @@ function getDistinctGroups() {
   const groups = new Set();
   for (let i = 1; i < fullData.length; i++) {
     const g = String(fullData[i][2] || '').trim();
-    if (g) groups.add(g);
+    if (g) {
+      const parts = g.split(',').map(s => s.trim()).filter(Boolean);
+      parts.forEach(part => groups.add(part));
+    }
   }
   if (groups.size === 0) {
     return ['General'];
@@ -631,9 +634,18 @@ function renameGroupInternal(oldName, newName) {
     for (let i = 1; i < fullData.length; i++) {
       const row = fullData[i];
       const currentGroup = String(row[2] || '').trim();
-      const normCurrent = currentGroup.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      if (normCurrent === normOld) {
-        row[2] = cleanNew;
+      const parts = currentGroup.split(',').map(s => s.trim()).filter(Boolean);
+      let modified = false;
+      const updatedParts = parts.map(function(grp) {
+        const norm = grp.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (norm === normOld) {
+          modified = true;
+          return cleanNew;
+        }
+        return grp;
+      });
+      if (modified) {
+        row[2] = Array.from(new Set(updatedParts)).join(', ');
         updatedCount++;
       }
       rowsToUpdate.push(row);
@@ -837,7 +849,16 @@ function saveFriendWithAccounts(friendObj) {
       return { success: false, error: 'El nombre de la persona es obligatorio.' };
     }
 
-    const group = (friendObj.group || friendObj.grupo || 'General').trim();
+    let groupsArray = [];
+    if (Array.isArray(friendObj.groups)) {
+      groupsArray = friendObj.groups.map(g => String(g).trim()).filter(Boolean);
+    } else if (friendObj.group || friendObj.grupo) {
+      groupsArray = String(friendObj.group || friendObj.grupo).split(',').map(s => s.trim()).filter(Boolean);
+    }
+    if (groupsArray.length === 0) groupsArray = ['General'];
+    groupsArray = Array.from(new Set(groupsArray));
+    const group = groupsArray.join(', ');
+
     const friendId = (friendObj.id || friendObj.id_persona || ('persona_' + Utilities.getUuid().slice(0, 8))).trim();
     const rawAccounts = Array.isArray(friendObj.accounts) ? friendObj.accounts : [];
 
@@ -913,6 +934,7 @@ function saveFriendWithAccounts(friendObj) {
         id: friendId,
         name: name,
         group: group,
+        groups: groupsArray,
         avatar: getInitials(name),
         accounts: normalizedAccounts
       }
@@ -1142,14 +1164,16 @@ function getFriendsDataInternal(groupFilter) {
     if (!friendId) continue;
 
     const friendGroup = String(row[2] || '').trim() || 'General';
+    const groupsArray = friendGroup.split(',').map(s => s.trim()).filter(Boolean);
+    if (groupsArray.length === 0) groupsArray.push('General');
 
     // Filtrar por grupo si se especificó groupFilter
-    if (normalizedFilter) {
-      const normalizedGroup = friendGroup
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-      if (normalizedGroup !== normalizedFilter) {
+    if (normalizedFilter && normalizedFilter !== 'all') {
+      const hasMatch = groupsArray.some(function(g) {
+        const norm = g.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return norm === normalizedFilter;
+      });
+      if (!hasMatch) {
         continue;
       }
     }
@@ -1166,7 +1190,8 @@ function getFriendsDataInternal(groupFilter) {
       friendsMap.set(friendId, {
         id: friendId,
         name: friendName,
-        group: friendGroup,
+        group: groupsArray.join(', '),
+        groups: groupsArray,
         avatar: getInitials(friendName),
         accounts: []
       });

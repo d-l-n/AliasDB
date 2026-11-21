@@ -1612,9 +1612,12 @@
 
         var groupsMap = {};
         friendsData.forEach(function(friend) {
-          if (friend.group && friend.group.trim()) {
-            groupsMap[friend.group.trim()] = true;
-          }
+          var grps = (friend.groups && Array.isArray(friend.groups))
+            ? friend.groups
+            : String(friend.group || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+          grps.forEach(function(g) {
+            if (g) groupsMap[g] = true;
+          });
         });
         var uniqueGroups = Object.keys(groupsMap).sort();
 
@@ -1656,9 +1659,13 @@
         if (!bankFilterChips || bankFilterChips.length === 0) return;
 
         var scopedFriends = friendsData.filter(function(friend) {
-          return isSegmentedMode || activeGroupFilter === 'ALL' || (
-            friend.group && friend.group.toLowerCase() === activeGroupFilter.toLowerCase()
-          );
+          var friendGroups = (friend.groups && Array.isArray(friend.groups))
+            ? friend.groups
+            : String(friend.group || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+
+          return isSegmentedMode
+            ? (friendGroups.some(function(g) { return g.toLowerCase() === activeGroupFilter.toLowerCase() || (grupoParam && g.toLowerCase() === grupoParam.toLowerCase()); }))
+            : (activeGroupFilter === 'ALL' || friendGroups.some(function(g) { return g.toLowerCase() === activeGroupFilter.toLowerCase(); }));
         });
 
         var bankCounts = {};
@@ -1700,9 +1707,13 @@
         var q = searchQuery.toLowerCase().trim();
 
         var filtered = friendsData.filter(function(friend) {
-          var matchesGroup = isSegmentedMode || activeGroupFilter === 'ALL' || (
-            friend.group && friend.group.toLowerCase() === activeGroupFilter.toLowerCase()
-          );
+          var friendGroups = (friend.groups && Array.isArray(friend.groups))
+            ? friend.groups
+            : String(friend.group || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+
+          var matchesGroup = isSegmentedMode
+            ? (friendGroups.some(function(g) { return g.toLowerCase() === activeGroupFilter.toLowerCase() || (grupoParam && g.toLowerCase() === grupoParam.toLowerCase()); }))
+            : (activeGroupFilter === 'ALL' || friendGroups.some(function(g) { return g.toLowerCase() === activeGroupFilter.toLowerCase(); }));
 
           var matchesBank = activeFilter === 'ALL' || friend.accounts.some(function(acc) {
             return acc.bankId === activeFilter;
@@ -1710,7 +1721,7 @@
 
           var matchesQuery = !q || (
             friend.name.toLowerCase().indexOf(q) !== -1 ||
-            (friend.group && friend.group.toLowerCase().indexOf(q) !== -1) ||
+            friendGroups.some(function(g) { return g.toLowerCase().indexOf(q) !== -1; }) ||
             friend.accounts.some(function(acc) {
               return acc.alias.toLowerCase().indexOf(q) !== -1 || 
                      acc.bankName.toLowerCase().indexOf(q) !== -1 ||
@@ -1830,7 +1841,9 @@
             '      <div class="friend-info">',
             '        <h2 class="friend-name">' + friend.name + '</h2>',
             '        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">',
-            (friend.group ? '          <span class="friend-group-badge font-mono" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Folder', '', 12) + ' ' + friend.group + '</span>' : ''),
+            ((friend.groups && friend.groups.length > 0) ? friend.groups : String(friend.group || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean)).map(function(g) {
+              return '          <span class="friend-group-badge font-mono" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Folder', '', 12) + ' ' + g + '</span>';
+            }).join('\n'),
             '          <span class="friend-meta" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('CreditCard', '', 12) + ' ' + friend.accounts.length + ' ' + (friend.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
             '        </div>',
             bankPreviewHtml,
@@ -2048,10 +2061,18 @@
             };
           });
 
+          var rawGroup = friend.group || friend.grupo || 'General';
+          var groupsArray = Array.isArray(friend.groups)
+            ? friend.groups.map(function(g) { return String(g).trim(); }).filter(Boolean)
+            : String(rawGroup).split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+          if (groupsArray.length === 0) groupsArray = ['General'];
+          groupsArray = Array.from(new Set(groupsArray));
+
           return {
             id: friend.id || ('friend_' + idx),
             name: friend.name || 'Sin Nombre',
             group: friend.group || friend.grupo || 'General',
+            groups: groupsArray,
             avatarColor: friend.avatarColor || AVATAR_PALETTE[idx % AVATAR_PALETTE.length],
             accounts: accounts
           };

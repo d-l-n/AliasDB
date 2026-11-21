@@ -855,6 +855,54 @@
       letter-spacing: 0.04em;
     }
 
+    .friend-group-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 1px 6px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+      color: var(--text-muted);
+    }
+
+    .group-select-chip {
+      height: 32px;
+      padding: 0 10px;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--surface-muted);
+      color: var(--text-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0px var(--shadow);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition-tap);
+      user-select: none;
+    }
+
+    .group-select-chip:hover {
+      background: var(--surface-elevated);
+      color: var(--text);
+    }
+
+    .group-select-chip.active {
+      background: var(--accent-mint);
+      color: #0D0D11;
+      border-color: var(--border);
+      box-shadow: 2px 2px 0px var(--shadow);
+    }
+
     .person-card-actions {
       display: flex;
       align-items: center;
@@ -1669,23 +1717,26 @@
           >
         </div>
 
-        <!-- Grupo -->
+        <!-- Grupos -->
         <div class="form-group">
-          <label for="person-group-select" class="form-label">Grupo de Contacto *</label>
-          <div style="display: flex; gap: 8px;">
-            <select id="person-group-select" class="form-control" style="flex: 1;">
-              <!-- Llenado dinámicamente -->
-              <option value="General">General</option>
-              <option value="__NEW__">+ Crear nuevo grupo...</option>
-            </select>
+          <label class="form-label">Grupos de Contacto * <span class="form-hint" style="font-weight: 500; font-size: 0.75rem;">(Pod&eacute;s seleccionar m&aacute;s de uno)</span></label>
+          <div id="person-groups-chips-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+            <!-- Chips de grupos dinámicos -->
           </div>
-          <input 
-            type="text" 
-            id="person-group-new-input" 
-            class="form-control" 
-            placeholder="Nombre del nuevo grupo..." 
-            style="display: none; margin-top: 6px;"
-          >
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input 
+              type="text" 
+              id="person-group-new-input" 
+              class="form-control" 
+              placeholder="A&ntilde;adir o crear grupo..." 
+              style="flex: 1; height: 36px;"
+            >
+            <button type="button" id="btn-add-group-chip" class="btn-brutalist btn-sm btn-cyan" style="height: 36px; display: inline-flex; align-items: center; gap: 4px;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="14" height="14" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4.75V19.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.75 12H19.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>A&ntilde;adir</span>
+            </button>
+          </div>
+          <select id="person-group-select" style="display: none;"></select>
         </div>
 
         <!-- Smart Quick-Add Box -->
@@ -2105,7 +2156,9 @@
         personIdInput: document.getElementById('person-id-input'),
         personNameInput: document.getElementById('person-name-input'),
         personGroupSelect: document.getElementById('person-group-select'),
+        personGroupsChipsContainer: document.getElementById('person-groups-chips-container'),
         personGroupNewInput: document.getElementById('person-group-new-input'),
+        btnAddGroupChip: document.getElementById('btn-add-group-chip'),
         quickAddText: document.getElementById('quick-add-text'),
         btnQuickAddDetect: document.getElementById('btn-quick-add-detect'),
         modalAccountsContainer: document.getElementById('modal-accounts-container'),
@@ -2589,10 +2642,25 @@
             };
           });
 
+          var rawGroups = [];
+          if (Array.isArray(item.groups) && item.groups.length > 0) {
+            rawGroups = item.groups;
+          } else {
+            var gStr = String(item.group || item.grupo || 'General');
+            rawGroups = gStr.split(',');
+          }
+          var cleanedGroups = rawGroups
+            .map(function(g) { return String(g || '').trim(); })
+            .filter(function(g) { return g.length > 0; });
+          if (cleanedGroups.length === 0) cleanedGroups = ['General'];
+          var groups = Array.from(new Set(cleanedGroups));
+          var primaryGroup = groups.join(', ');
+
           return {
             id: item.id || ('persona_' + idx),
             name: (item.name || item.nombre_persona || 'Sin Nombre').trim(),
-            group: (item.group || item.grupo || 'General').trim(),
+            group: primaryGroup,
+            groups: groups,
             avatarColor: item.avatarColor || AVATAR_PALETTE[idx % AVATAR_PALETTE.length],
             accounts: accounts
           };
@@ -2634,7 +2702,17 @@
       function getDistinctGroups() {
         var set = new Set();
         appState.persons.forEach(function(p) {
-          if (p.group) set.add(p.group);
+          if (Array.isArray(p.groups) && p.groups.length > 0) {
+            p.groups.forEach(function(g) {
+              var s = String(g || '').trim();
+              if (s) set.add(s);
+            });
+          } else if (p.group) {
+            String(p.group).split(',').forEach(function(g) {
+              var s = String(g || '').trim();
+              if (s) set.add(s);
+            });
+          }
         });
         if (set.size === 0) set.add('General');
         return Array.from(set).sort();
@@ -2663,20 +2741,24 @@
         var currentFilterVal = dom.groupFilterSelect.value;
         dom.groupFilterSelect.innerHTML = '<option value="ALL">Todos los grupos (' + distinctGroups.length + ')</option>' +
           distinctGroups.map(function(g) {
-            var count = appState.persons.filter(function(p) { return p.group === g; }).length;
+            var count = appState.persons.filter(function(p) {
+              var pGroups = p.groups || [p.group || 'General'];
+              return pGroups.indexOf(g) !== -1;
+            }).length;
             var isSel = (g === selectedGroup);
             return '<option value="' + escapeHtml(g) + '"' + (isSel ? ' selected' : '') + '>' + escapeHtml(g) + ' (' + count + ')</option>';
           }).join('');
 
         // 3. Filtrar personas
         var filteredPersons = appState.persons.filter(function(person) {
-          var matchGroup = (selectedGroup === 'ALL' || person.group === selectedGroup);
+          var pGroups = person.groups || [person.group || 'General'];
+          var matchGroup = (selectedGroup === 'ALL' || pGroups.indexOf(selectedGroup) !== -1);
           if (!matchGroup) return false;
 
           if (!q) return true;
 
           var inName = person.name.toLowerCase().indexOf(q) !== -1;
-          var inGroup = person.group.toLowerCase().indexOf(q) !== -1;
+          var inGroup = pGroups.some(function(g) { return g.toLowerCase().indexOf(q) !== -1; });
           var inAccount = person.accounts.some(function(acc) {
             return (
               acc.alias.toLowerCase().indexOf(q) !== -1 ||
@@ -2716,9 +2798,14 @@
         // Agrupar personas filtradas por grupo
         var groupMap = new Map();
         filteredPersons.forEach(function(person) {
-          var g = person.group || 'General';
-          if (!groupMap.has(g)) groupMap.set(g, []);
-          groupMap.get(g).push(person);
+          var pGroups = (person.groups && person.groups.length > 0) ? person.groups : [person.group || 'General'];
+          if (selectedGroup !== 'ALL') {
+            pGroups = pGroups.filter(function(g) { return g === selectedGroup; });
+          }
+          pGroups.forEach(function(g) {
+            if (!groupMap.has(g)) groupMap.set(g, []);
+            groupMap.get(g).push(person);
+          });
         });
 
         var sortedGroupNames = Array.from(groupMap.keys()).sort();
@@ -2763,6 +2850,11 @@
               }).join('\n');
             }
 
+            var pGroups = (person.groups && person.groups.length > 0) ? person.groups : [person.group || 'General'];
+            var badgesHtml = pGroups.map(function(g) {
+              return '<span class="friend-group-badge">' + getReiconSvg('Folder', '', 10) + ' ' + escapeHtml(g) + '</span>';
+            }).join('');
+
             return [
               '<article class="admin-person-card" data-person-id="' + escapeHtml(person.id) + '">',
               '  <div class="person-header">',
@@ -2770,7 +2862,10 @@
               '      <div class="person-avatar" style="background: ' + person.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
               '      <div class="person-name-box">',
               '        <h3 class="person-name">' + escapeHtml(person.name) + '</h3>',
-              '        <span class="person-meta">' + person.accounts.length + ' ' + (person.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
+              '        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 2px;">',
+              '          <span class="person-meta">' + person.accounts.length + ' ' + (person.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
+              '          ' + badgesHtml,
+              '        </div>',
               '      </div>',
               '    </div>',
               '    <div class="person-card-actions">',
@@ -2885,34 +2980,96 @@
       /* ======================================================================
          8. MODAL DE CREACIÓN / EDICIÓN DE PERSONA
          ====================================================================== */
+      function renderPersonGroupChips(selectedGroupsList) {
+        var distinctGroups = getDistinctGroups();
+        var allGroups = Array.from(new Set(distinctGroups.concat(selectedGroupsList))).filter(Boolean).sort();
+        if (allGroups.length === 0) allGroups = ['General'];
+
+        dom.personGroupsChipsContainer.innerHTML = allGroups.map(function(g) {
+          var isSelected = selectedGroupsList.indexOf(g) !== -1;
+          return '<button type="button" class="group-select-chip' + (isSelected ? ' active' : '') + '" data-group-name="' + escapeHtml(g) + '">' +
+            getReiconSvg('Folder', '', 12) + ' <span>' + escapeHtml(g) + '</span>' +
+            '</button>';
+        }).join('');
+
+        dom.personGroupsChipsContainer.querySelectorAll('.group-select-chip').forEach(function(chip) {
+          chip.addEventListener('click', function() {
+            var activeChips = dom.personGroupsChipsContainer.querySelectorAll('.group-select-chip.active');
+            if (chip.classList.contains('active')) {
+              if (activeChips.length <= 1) {
+                showToast('La persona debe pertenecer al menos a 1 grupo', true);
+                return;
+              }
+              chip.classList.remove('active');
+            } else {
+              chip.classList.add('active');
+            }
+          });
+        });
+      }
+
+      function addGroupChipFromInput() {
+        var val = dom.personGroupNewInput.value.trim();
+        if (!val) return;
+        var existingChip = null;
+        dom.personGroupsChipsContainer.querySelectorAll('.group-select-chip').forEach(function(c) {
+          if ((c.getAttribute('data-group-name') || '').toLowerCase() === val.toLowerCase()) {
+            existingChip = c;
+          }
+        });
+
+        if (existingChip) {
+          existingChip.classList.add('active');
+        } else {
+          var newChip = document.createElement('button');
+          newChip.type = 'button';
+          newChip.className = 'group-select-chip active';
+          newChip.setAttribute('data-group-name', val);
+          newChip.innerHTML = getReiconSvg('Folder', '', 12) + ' <span>' + escapeHtml(val) + '</span>';
+          newChip.addEventListener('click', function() {
+            var activeChips = dom.personGroupsChipsContainer.querySelectorAll('.group-select-chip.active');
+            if (newChip.classList.contains('active')) {
+              if (activeChips.length <= 1) {
+                showToast('La persona debe pertenecer al menos a 1 grupo', true);
+                return;
+              }
+              newChip.classList.remove('active');
+            } else {
+              newChip.classList.add('active');
+            }
+          });
+          dom.personGroupsChipsContainer.appendChild(newChip);
+        }
+        dom.personGroupNewInput.value = '';
+      }
+
+      if (dom.btnAddGroupChip) {
+        dom.btnAddGroupChip.addEventListener('click', addGroupChipFromInput);
+      }
+      if (dom.personGroupNewInput) {
+        dom.personGroupNewInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addGroupChipFromInput();
+          }
+        });
+      }
+
       function openPersonModal(personId) {
         var isEdit = !!personId;
         dom.personModalTitle.textContent = isEdit ? 'Editar Persona' : 'Nueva Persona';
         dom.personIdInput.value = isEdit ? personId : '';
         dom.quickAddText.value = '';
-
-        // Poblar select de grupos
-        var distinctGroups = getDistinctGroups();
-        dom.personGroupSelect.innerHTML = distinctGroups.map(function(g) {
-          return '<option value="' + escapeHtml(g) + '">' + escapeHtml(g) + '</option>';
-        }).join('') + '<option value="__NEW__">+ Crear nuevo grupo...</option>';
-
-        dom.personGroupNewInput.style.display = 'none';
         dom.personGroupNewInput.value = '';
-
         dom.modalAccountsContainer.innerHTML = '';
+
+        var currentSelectedGroups = [];
 
         if (isEdit) {
           var person = appState.persons.find(function(p) { return p.id === personId; });
           if (person) {
             dom.personNameInput.value = person.name;
-            if (distinctGroups.indexOf(person.group) !== -1) {
-              dom.personGroupSelect.value = person.group;
-            } else {
-              dom.personGroupSelect.value = '__NEW__';
-              dom.personGroupNewInput.style.display = 'block';
-              dom.personGroupNewInput.value = person.group;
-            }
+            currentSelectedGroups = (person.groups && person.groups.length > 0) ? person.groups.slice() : (person.group ? person.group.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : ['General']);
 
             if (person.accounts.length > 0) {
               person.accounts.forEach(function(acc) {
@@ -2924,9 +3081,12 @@
           }
         } else {
           dom.personNameInput.value = '';
-          dom.personGroupSelect.value = (appState.selectedGroup !== 'ALL') ? appState.selectedGroup : (distinctGroups[0] || 'General');
+          var defaultGroup = (appState.selectedGroup !== 'ALL') ? appState.selectedGroup : (getDistinctGroups()[0] || 'General');
+          currentSelectedGroups = [defaultGroup];
           appendAccountRow();
         }
+
+        renderPersonGroupChips(currentSelectedGroups);
 
         openModal(dom.modalPerson);
         setTimeout(function() { dom.personNameInput.focus(); }, 50);
@@ -2934,16 +3094,6 @@
 
       dom.btnNewPerson.addEventListener('click', function() {
         openPersonModal(null);
-      });
-
-      dom.personGroupSelect.addEventListener('change', function() {
-        if (dom.personGroupSelect.value === '__NEW__') {
-          dom.personGroupNewInput.style.display = 'block';
-          dom.personGroupNewInput.focus();
-        } else {
-          dom.personGroupNewInput.style.display = 'none';
-          dom.personGroupNewInput.value = '';
-        }
       });
 
       function appendAccountRow(accData, shouldScroll) {
@@ -3095,15 +3245,22 @@
           return;
         }
 
-        var group = dom.personGroupSelect.value;
-        if (group === '__NEW__') {
-          group = dom.personGroupNewInput.value.trim();
-          if (!group) {
-            showToast('Ingresá el nombre del nuevo grupo', true);
-            dom.personGroupNewInput.focus();
-            return;
+        var activeGroupChips = dom.personGroupsChipsContainer.querySelectorAll('.group-select-chip.active');
+        var selectedGroups = [];
+        activeGroupChips.forEach(function(c) {
+          var gName = c.getAttribute('data-group-name');
+          if (gName && selectedGroups.indexOf(gName) === -1) selectedGroups.push(gName);
+        });
+
+        if (selectedGroups.length === 0) {
+          var fallbackGroup = dom.personGroupNewInput.value.trim();
+          if (fallbackGroup) {
+            selectedGroups = [fallbackGroup];
+          } else {
+            selectedGroups = ['General'];
           }
         }
+        var group = selectedGroups.join(', ');
 
         var personId = dom.personIdInput.value || ('persona_' + Date.now().toString(36));
 
@@ -3145,6 +3302,7 @@
           id: personId,
           name: name,
           group: group,
+          groups: selectedGroups,
           accounts: accounts
         };
 
@@ -3176,6 +3334,7 @@
               id: personId,
               name: name,
               group: group,
+              groups: selectedGroups,
               avatarColor: existingIndex !== -1 ? appState.persons[existingIndex].avatarColor : AVATAR_PALETTE[appState.persons.length % AVATAR_PALETTE.length],
               accounts: accounts
             };
@@ -3397,7 +3556,10 @@
       function openGroupsModal() {
         var distinctGroups = getDistinctGroups();
         dom.groupsTableBody.innerHTML = distinctGroups.map(function(g) {
-          var count = appState.persons.filter(function(p) { return p.group === g; }).length;
+          var count = appState.persons.filter(function(p) {
+            var pGroups = p.groups || (p.group ? p.group.split(',').map(function(s) { return s.trim(); }) : ['General']);
+            return pGroups.indexOf(g) !== -1;
+          }).length;
           return [
             '<tr>',
             '  <td><strong>' + escapeHtml(g) + '</strong></td>',
@@ -3440,8 +3602,12 @@
         // Actualizar localmente
         var affected = 0;
         appState.persons.forEach(function(p) {
-          if (p.group === oldName) {
-            p.group = newName;
+          var pGroups = p.groups || (p.group ? p.group.split(',').map(function(s) { return s.trim(); }) : ['General']);
+          var idx = pGroups.indexOf(oldName);
+          if (idx !== -1) {
+            pGroups[idx] = newName;
+            p.groups = Array.from(new Set(pGroups));
+            p.group = p.groups.join(', ');
             affected++;
             // Enviar guardado asíncrono
             var saveUrl = BACKEND_API_URL + '?action=save';
