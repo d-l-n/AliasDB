@@ -6,6 +6,7 @@
  */
 
 const SHEET_NAME = 'Cuentas';
+const GROUPS_SHEET_NAME = 'Grupos';
 const SPREADSHEET_PROP_KEY = 'SPREADSHEET_ID';
 const TOKEN_MAP_KEY = 'GROUP_TOKENS';
 const ADMIN_KEY_PROP = 'ADMIN_KEY';
@@ -20,7 +21,51 @@ const HEADERS = [
   'tipo_cuenta',
   'alias',
   'cbu_cvu',
-  'titular_diferente'
+  'titular_diferente',
+  'estado',
+  'edit_token',
+  'id_grupo',
+  'datos_previos'
+];
+
+const GROUPS_HEADERS = [
+  'id_grupo',
+  'nombre_grupo',
+  'read_token',
+  'admin_token',
+  'estado',
+  'created_at'
+];
+
+const DEFAULT_GROUPS_SEED = [
+  {
+    id: 'grp_futbol',
+    name: 'Fútbol',
+    readToken: 'view_futbol',
+    adminToken: 'adm_futbol',
+    estado: 'ACTIVO'
+  },
+  {
+    id: 'grp_facultad',
+    name: 'Facultad',
+    readToken: 'view_facultad',
+    adminToken: 'adm_facultad',
+    estado: 'ACTIVO'
+  },
+  {
+    id: 'grp_trabajo',
+    name: 'Trabajo',
+    readToken: 'view_trabajo',
+    adminToken: 'adm_trabajo',
+    estado: 'ACTIVO'
+  },
+  {
+    id: 'grp_mediadocena',
+    name: 'MediaDocena',
+    readToken: 'mediad_pbgi',
+    adminToken: 'adm_mediadocena',
+    estado: 'ACTIVO'
+  }
 ];
 
 /**
@@ -31,6 +76,7 @@ const DEMO_FRIENDS = [
     id: 'persona_martin_gomez',
     name: 'Martín Gómez',
     group: 'Fútbol',
+    id_grupo: 'grp_futbol',
     accounts: [
       {
         id: 'acc_mg_mp',
@@ -54,6 +100,7 @@ const DEMO_FRIENDS = [
     id: 'persona_sofia_rossi',
     name: 'Sofía Rossi',
     group: 'Facultad',
+    id_grupo: 'grp_facultad',
     accounts: [
       {
         id: 'acc_sr_brubank',
@@ -69,6 +116,7 @@ const DEMO_FRIENDS = [
     id: 'persona_lucas_benitez',
     name: 'Lucas Benítez',
     group: 'Trabajo',
+    id_grupo: 'grp_trabajo',
     accounts: [
       {
         id: 'acc_lb_lemon',
@@ -247,35 +295,87 @@ function doGet(e) {
       const action = e.parameter.action || 'getFriends';
 
       switch (action) {
-        // --- Endpoints Públicos de Consulta ---
+        // --- Endpoints Públicos y Multi-Tenant de Consulta ---
         case 'getFriends':
         case 'getPersons':
         case 'getPersonas': {
-          let groupFilter = null;
-          if (e.parameter.token) {
-            groupFilter = resolveGroupFromToken(e.parameter.token);
-            if (!groupFilter) {
-              return jsonResponse({ success: false, error: 'Token inválido o expirado.' });
+          const tokenParam = (e.parameter.token ? String(e.parameter.token).trim() : '');
+          const adminParam = (e.parameter.admin || e.parameter.adminToken ? String(e.parameter.admin || e.parameter.adminToken).trim() : '');
+          const adminKeyParam = (e.parameter.adminKey ? String(e.parameter.adminKey).trim() : '');
+          const grupoParam = (e.parameter.grupo || e.parameter.group || e.parameter.id_grupo ? String(e.parameter.grupo || e.parameter.group || e.parameter.id_grupo).trim() : '');
+
+          const isSuper = isValidAdminKey(adminKeyParam);
+          let targetGroup = null;
+          let isAdmin = isSuper;
+
+          if (tokenParam) {
+            targetGroup = findGroupByToken(tokenParam);
+            if (targetGroup) {
+              if (targetGroup.admin_token && targetGroup.admin_token.toLowerCase() === tokenParam.toLowerCase()) {
+                isAdmin = true;
+              }
+            } else {
+              const groupName = resolveGroupFromToken(tokenParam);
+              if (groupName) {
+                targetGroup = findGroupByName(groupName) || {
+                  id_grupo: 'grp_' + tokenParam,
+                  nombre_grupo: groupName,
+                  read_token: tokenParam,
+                  admin_token: ''
+                };
+              } else {
+                return jsonResponse({ success: false, error: 'Token inválido o expirado.' });
+              }
             }
-          } else if (e.parameter.grupo) {
-            groupFilter = e.parameter.grupo;
+          } else if (grupoParam) {
+            targetGroup = findGroupById(grupoParam) || findGroupByName(grupoParam);
+            if (!targetGroup) {
+              targetGroup = {
+                id_grupo: '',
+                nombre_grupo: grupoParam,
+                read_token: '',
+                admin_token: ''
+              };
+            }
           }
 
-          const friends = getFriendsDataInternal(groupFilter);
-          return jsonResponse({ success: true, data: friends, grupo: groupFilter });
+          if (adminParam) {
+            if (targetGroup && targetGroup.admin_token && targetGroup.admin_token.toLowerCase() === adminParam.toLowerCase()) {
+              isAdmin = true;
+            } else {
+              const adminGroup = findGroupByAdminToken(adminParam);
+              if (adminGroup) {
+                if (!targetGroup || targetGroup.id_grupo === adminGroup.id_grupo || targetGroup.nombre_grupo === adminGroup.nombre_grupo) {
+                  targetGroup = adminGroup;
+                  isAdmin = true;
+                }
+              }
+            }
+          }
+
+          const filterGroupName = targetGroup ? targetGroup.nombre_grupo : (grupoParam || null);
+          const filterIdGrupo = targetGroup ? targetGroup.id_grupo : null;
+          const friends = getFriendsDataInternal(filterGroupName, {
+            isAdmin: isAdmin,
+            id_grupo: filterIdGrupo
+          });
+
+          return jsonResponse({
+            success: true,
+            data: friends,
+            grupo: filterGroupName,
+            id_grupo: filterIdGrupo,
+            isAdmin: Boolean(isAdmin),
+            readToken: targetGroup ? targetGroup.read_token : null
+          });
         }
 
         case 'getGroups': {
           return jsonResponse({ success: true, data: getDistinctGroups() });
         }
 
-        // --- Endpoints de Administración (Requieren adminKey) ---
-        case 'save':
-        case 'savePerson':
-        case 'saveFriend': {
-          const authError = requireAdmin(e);
-          if (authError) return authError;
-
+        // --- Creación Autoservicio de Grupos ---
+        case 'createGroup': {
           let body = null;
           if (e.parameter.payload) {
             try {
@@ -286,15 +386,51 @@ function doGet(e) {
           } else {
             body = e.parameter;
           }
-          return jsonResponse(saveFriendWithAccounts(body));
+          return jsonResponse(createGroupInternal(body));
+        }
+
+        // --- Guardado con Soporte Optimista / Pendiente / Admin ---
+        case 'save':
+        case 'savePerson':
+        case 'saveFriend': {
+          let body = null;
+          if (e.parameter.payload) {
+            try {
+              body = typeof e.parameter.payload === 'string' ? JSON.parse(e.parameter.payload) : e.parameter.payload;
+            } catch (err) {
+              return jsonResponse({ success: false, error: 'Payload JSON inválido: ' + err.message });
+            }
+          } else {
+            body = e.parameter;
+          }
+
+          const saveResult = saveFriendWithAccounts(body, {
+            adminKey: e.parameter.adminKey || (body && body.adminKey),
+            adminToken: e.parameter.adminToken || e.parameter.admin || (body && (body.adminToken || body.admin)),
+            editToken: e.parameter.editToken || e.parameter.edit_token || (body && (body.editToken || body.edit_token)),
+            isRestCall: true
+          });
+          return jsonResponse(saveResult);
+        }
+
+        // --- Confirmación y Rechazo de Cambios Pendientes ---
+        case 'confirmFriend':
+        case 'approveFriend': {
+          return jsonResponse(confirmFriendInternal(e));
+        }
+
+        case 'rejectFriend':
+        case 'discardFriend': {
+          return jsonResponse(rejectFriendInternal(e));
         }
 
         case 'deleteFriend':
         case 'deletePerson':
         case 'deletePersona': {
-          const authError = requireAdmin(e);
+          const targetId = (e.parameter.id || e.parameter.friendId || '').trim();
+          const authError = requireAdminOrGroupAdmin(e, targetId);
           if (authError) return authError;
-          return jsonResponse(deleteFriend(e.parameter.id));
+          return jsonResponse(deleteFriend(targetId));
         }
 
         case 'deleteAccount': {
@@ -465,6 +601,49 @@ function requireAdmin(e) {
 }
 
 /**
+ * Comprueba de forma booleana si una clave provista coincide con ADMIN_KEY.
+ * @param {string} key Clave a verificar
+ * @returns {boolean} true si es válida
+ */
+function isValidAdminKey(key) {
+  if (!key) return false;
+  const scriptProps = PropertiesService.getScriptProperties();
+  let storedKey = scriptProps.getProperty(ADMIN_KEY_PROP);
+  if (!storedKey) {
+    storedKey = DEFAULT_ADMIN_KEY;
+  }
+  return String(key).trim() === storedKey;
+}
+
+/**
+ * Valida si la petición proviene de un super-admin o del admin del grupo asociado a la persona.
+ * @param {Object} e Evento de petición HTTP
+ * @param {string} friendId Identificador de la persona
+ * @returns {TextOutput|null} null si está autorizado, error JSON si no
+ */
+function requireAdminOrGroupAdmin(e, friendId) {
+  if (isValidAdminKey(e && e.parameter && e.parameter.adminKey)) {
+    return null;
+  }
+  const adminToken = e && e.parameter && (e.parameter.adminToken || e.parameter.admin || e.parameter.token);
+  if (adminToken && friendId) {
+    const cleanToken = String(adminToken).trim();
+    const sheet = getAccountsSheet();
+    const fullData = sheet.getDataRange().getValues();
+    for (let i = 1; i < fullData.length; i++) {
+      if (String(fullData[i][0]).trim() === friendId) {
+        const idGrupo = String(fullData[i][11] || '').trim();
+        const grp = idGrupo ? findGroupById(idGrupo) : findGroupByName(String(fullData[i][2] || '').trim());
+        if (grp && grp.admin_token && grp.admin_token.toLowerCase() === cleanToken.toLowerCase()) {
+          return null;
+        }
+      }
+    }
+  }
+  return requireAdmin(e);
+}
+
+/**
  * Configura o actualiza la clave secreta de administración en ScriptProperties.
  * @param {string} key Nueva clave de administración
  * @returns {Object} Resultado de la operación
@@ -514,6 +693,11 @@ function resolveGroupFromToken(token) {
   for (const k in map) {
     if (k.toLowerCase() === lower) return map[k];
   }
+
+  // Buscar también en la hoja Grupos
+  const group = findGroupByToken(trimmed);
+  if (group) return group.nombre_grupo;
+
   return null;
 }
 
@@ -600,17 +784,27 @@ function getAllGroupTokens() {
 function getDistinctGroups() {
   const sheet = getAccountsSheet();
   const fullData = sheet.getDataRange().getValues();
-  if (fullData.length <= 1) {
-    return ['General'];
-  }
   const groups = new Set();
-  for (let i = 1; i < fullData.length; i++) {
-    const g = String(fullData[i][2] || '').trim();
-    if (g) {
-      const parts = g.split(',').map(s => s.trim()).filter(Boolean);
-      parts.forEach(part => groups.add(part));
+  if (fullData.length > 1) {
+    for (let i = 1; i < fullData.length; i++) {
+      const g = String(fullData[i][2] || '').trim();
+      if (g) {
+        const parts = g.split(',').map(s => s.trim()).filter(Boolean);
+        parts.forEach(part => groups.add(part));
+      }
     }
   }
+
+  // Complementar con grupos registrados en hoja 'Grupos'
+  try {
+    const groupList = getAllGroupsList();
+    groupList.forEach(function(gr) {
+      if (gr.nombre_grupo && gr.estado === 'ACTIVO') {
+        groups.add(gr.nombre_grupo);
+      }
+    });
+  } catch (e) {}
+
   if (groups.size === 0) {
     return ['General'];
   }
@@ -656,6 +850,9 @@ function renameGroupInternal(oldName, newName) {
 
     for (let i = 1; i < fullData.length; i++) {
       const row = fullData[i];
+      while (row.length < HEADERS.length) {
+        row.push('');
+      }
       const currentGroup = String(row[2] || '').trim();
       const parts = currentGroup.split(',').map(s => s.trim()).filter(Boolean);
       let modified = false;
@@ -676,6 +873,21 @@ function renameGroupInternal(oldName, newName) {
 
     if (updatedCount > 0) {
       sheet.getRange(2, 1, rowsToUpdate.length, HEADERS.length).setValues(rowsToUpdate);
+    }
+
+    // Actualizar también en la hoja 'Grupos' si existe el registro
+    try {
+      const groupsSheet = getGroupsSheet();
+      const gData = groupsSheet.getDataRange().getValues();
+      for (let j = 1; j < gData.length; j++) {
+        const gName = String(gData[j][1] || '').trim();
+        const normG = gName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (normG === normOld) {
+          groupsSheet.getRange(j + 1, 2).setValue(cleanNew);
+        }
+      }
+    } catch (gErr) {
+      console.warn('Error actualizando hoja Grupos durante renameGroup:', gErr);
     }
 
     // Actualizar también los tokens en ScriptProperties que apunten a cleanOld
@@ -765,6 +977,7 @@ function getSpreadsheet() {
 
 /**
  * Obtiene la hoja 'Cuentas'. La crea con cabeceras y seeding si está vacía.
+ * Si ya existe con formato anterior, expande sus encabezados para soportar columnas extendidas.
  * @returns {Sheet} Instancia de la pestaña 'Cuentas'
  */
 function getAccountsSheet() {
@@ -790,18 +1003,291 @@ function getAccountsSheet() {
     headerRange.setFontColor('#202124');
     sheet.setFrozenRows(1);
     seedDemoData(sheet);
+  } else {
+    // Si la hoja ya existía con cabeceras antiguas (menos columnas), expandir cabecera
+    const currentCols = sheet.getLastColumn();
+    if (currentCols < HEADERS.length) {
+      sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    }
+  }
+
+  // Asegurar que la hoja 'Grupos' exista en la hoja de cálculo
+  try {
+    getGroupsSheet();
+  } catch (err) {
+    console.warn('Error inicializando hoja Grupos desde getAccountsSheet:', err);
   }
 
   return sheet;
 }
 
 /**
- * Carga los datos de demostración en la hoja especificada.
+ * Obtiene la hoja 'Grupos'. La crea con cabeceras y seeding inicial si no existe.
+ * @returns {Sheet} Instancia de la pestaña 'Grupos'
+ */
+function getGroupsSheet() {
+  const ss = getSpreadsheet();
+  let sheet = ss.getSheetByName(GROUPS_SHEET_NAME);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(GROUPS_SHEET_NAME);
+  }
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(GROUPS_HEADERS);
+    const headerRange = sheet.getRange(1, 1, 1, GROUPS_HEADERS.length);
+    headerRange.setFontWeight('bold');
+    headerRange.setBackground('#F1F3F4');
+    headerRange.setFontColor('#202124');
+    sheet.setFrozenRows(1);
+    seedDefaultGroups(sheet);
+  }
+
+  return sheet;
+}
+
+/**
+ * Carga los grupos iniciales predefinidos en la hoja 'Grupos' y sincroniza tokens.
+ * @param {Sheet} [sheet] Pestaña de grupos opcional
+ */
+function seedDefaultGroups(sheet) {
+  const targetSheet = sheet || getGroupsSheet();
+  const now = new Date().toISOString();
+  const rows = DEFAULT_GROUPS_SEED.map(function(g) {
+    return [
+      g.id,
+      g.name,
+      g.readToken,
+      g.adminToken,
+      g.estado || 'ACTIVO',
+      now
+    ];
+  });
+  targetSheet.getRange(2, 1, rows.length, GROUPS_HEADERS.length).setValues(rows);
+  syncGroupTokensToProperties();
+}
+
+/**
+ * Obtiene todos los grupos registrados en la hoja 'Grupos'.
+ * @returns {Array<Object>} Lista de grupos
+ */
+function getAllGroupsList() {
+  try {
+    const sheet = getGroupsSheet();
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return [];
+    const list = [];
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const id = String(row[0] || '').trim();
+      const name = String(row[1] || '').trim();
+      if (!id && !name) continue;
+      list.push({
+        id_grupo: id,
+        nombre_grupo: name,
+        read_token: String(row[2] || '').trim(),
+        admin_token: String(row[3] || '').trim(),
+        estado: String(row[4] || 'ACTIVO').trim(),
+        created_at: String(row[5] || '').trim()
+      });
+    }
+    return list;
+  } catch (err) {
+    console.error('Error en getAllGroupsList:', err);
+    return [];
+  }
+}
+
+/**
+ * Busca un grupo por token (read_token o admin_token).
+ * @param {string} token
+ * @returns {Object|null}
+ */
+function findGroupByToken(token) {
+  if (!token) return null;
+  const clean = String(token).trim().toLowerCase();
+  const groups = getAllGroupsList();
+  for (let i = 0; i < groups.length; i++) {
+    const g = groups[i];
+    if (g.read_token && g.read_token.toLowerCase() === clean) return g;
+    if (g.admin_token && g.admin_token.toLowerCase() === clean) return g;
+  }
+  return null;
+}
+
+/**
+ * Busca un grupo exclusivamente por su admin_token.
+ * @param {string} token
+ * @returns {Object|null}
+ */
+function findGroupByAdminToken(token) {
+  if (!token) return null;
+  const clean = String(token).trim().toLowerCase();
+  const groups = getAllGroupsList();
+  for (let i = 0; i < groups.length; i++) {
+    const g = groups[i];
+    if (g.admin_token && g.admin_token.toLowerCase() === clean) return g;
+  }
+  return null;
+}
+
+/**
+ * Busca un grupo por su id_grupo.
+ * @param {string} id
+ * @returns {Object|null}
+ */
+function findGroupById(id) {
+  if (!id) return null;
+  const clean = String(id).trim().toLowerCase();
+  const groups = getAllGroupsList();
+  for (let i = 0; i < groups.length; i++) {
+    const g = groups[i];
+    if (g.id_grupo && g.id_grupo.toLowerCase() === clean) return g;
+  }
+  return null;
+}
+
+/**
+ * Busca un grupo por su nombre (insensible a acentos y mayúsculas).
+ * @param {string} name
+ * @returns {Object|null}
+ */
+function findGroupByName(name) {
+  if (!name) return null;
+  const clean = String(name).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const groups = getAllGroupsList();
+  for (let i = 0; i < groups.length; i++) {
+    const g = groups[i];
+    const norm = g.nombre_grupo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (norm === clean) return g;
+  }
+  return null;
+}
+
+/**
+ * Retorna el id_grupo correspondiente a un nombre de grupo.
+ * @param {string} name
+ * @returns {string}
+ */
+function getGroupIdByName(name) {
+  const g = findGroupByName(name);
+  return g ? g.id_grupo : '';
+}
+
+/**
+ * Sincroniza todos los tokens de la hoja 'Grupos' hacia ScriptProperties (GROUP_TOKENS).
+ */
+function syncGroupTokensToProperties() {
+  try {
+    const scriptProps = PropertiesService.getScriptProperties();
+    const raw = scriptProps.getProperty(TOKEN_MAP_KEY);
+    let map = {};
+    if (raw) {
+      try { map = JSON.parse(raw); } catch (e) { map = {}; }
+    }
+    map['mediad_pbgi'] = map['mediad_pbgi'] || 'MediaDocena';
+    const groups = getAllGroupsList();
+    groups.forEach(function(g) {
+      if (g.read_token) map[g.read_token] = g.nombre_grupo;
+      if (g.admin_token) map[g.admin_token] = g.nombre_grupo;
+    });
+    scriptProps.setProperty(TOKEN_MAP_KEY, JSON.stringify(map));
+  } catch (err) {
+    console.warn('Error sincronizando tokens a ScriptProperties:', err);
+  }
+}
+
+/**
+ * Crea un nuevo grupo de forma autoservicio generando identificadores y tokens UUID.
+ * @param {Object|string} params Objeto con propiedad 'nombre' o nombre directo
+ * @returns {Object} Respuesta { success: true, data: { id, name, readToken, adminToken } }
+ */
+function createGroupInternal(params) {
+  const lock = LockService.getScriptLock();
+  try {
+    const hasLock = lock.tryLock(15000);
+    if (!hasLock) {
+      return { success: false, error: 'Base de datos ocupada. Intente nuevamente en unos instantes.' };
+    }
+
+    const name = (typeof params === 'string' ? params : (params && (params.nombre || params.name || params.nombre_grupo))) || '';
+    const cleanName = String(name).trim();
+    if (!cleanName) {
+      return { success: false, error: 'El nombre del grupo es obligatorio.' };
+    }
+
+    const sheet = getGroupsSheet();
+
+    // Generar UUIDs estables según requerimiento:
+    // id_grupo ('grp_...'), read_token ('view_...'), admin_token ('adm_...')
+    const idSuffix = Utilities.getUuid().replace(/-/g, '').slice(0, 8);
+    const readSuffix = Utilities.getUuid().replace(/-/g, '').slice(0, 8);
+    const adminSuffix = Utilities.getUuid().replace(/-/g, '').slice(0, 12);
+
+    const idGrupo = 'grp_' + idSuffix;
+    const readToken = 'view_' + readSuffix;
+    const adminToken = 'adm_' + adminSuffix;
+    const now = new Date().toISOString();
+    const estado = 'ACTIVO';
+
+    // Almacenar en hoja 'Grupos'
+    sheet.appendRow([
+      idGrupo,
+      cleanName,
+      readToken,
+      adminToken,
+      estado,
+      now
+    ]);
+
+    // Actualizar GROUP_TOKENS en ScriptProperties para retrocompatibilidad
+    try {
+      const scriptProps = PropertiesService.getScriptProperties();
+      const raw = scriptProps.getProperty(TOKEN_MAP_KEY);
+      let map = {};
+      if (raw) {
+        try { map = JSON.parse(raw); } catch (e) { map = {}; }
+      }
+      map[readToken] = cleanName;
+      map[adminToken] = cleanName;
+      map['mediad_pbgi'] = map['mediad_pbgi'] || 'MediaDocena';
+      scriptProps.setProperty(TOKEN_MAP_KEY, JSON.stringify(map));
+    } catch (propErr) {
+      console.warn('Error actualizando GROUP_TOKENS en createGroup:', propErr);
+    }
+
+    SpreadsheetApp.flush();
+
+    return {
+      success: true,
+      data: {
+        id: idGrupo,
+        name: cleanName,
+        readToken: readToken,
+        adminToken: adminToken,
+        id_grupo: idGrupo,
+        nombre_grupo: cleanName,
+        read_token: readToken,
+        admin_token: adminToken
+      }
+    };
+  } catch (error) {
+    console.error('Error en createGroupInternal:', error);
+    return { success: false, error: error.message || String(error) };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Carga los datos de demostración en la hoja especificada asegurando 13 columnas completas.
  * @param {Sheet} sheet Pestaña de la hoja
  */
 function seedDemoData(sheet) {
   const rows = [];
   DEMO_FRIENDS.forEach(function(friend) {
+    const friendIdGrupo = friend.id_grupo || getGroupIdByName(friend.group) || '';
+    const friendEditToken = 'edt_' + friend.id.replace('persona_', '').slice(0, 10);
     friend.accounts.forEach(function(acc) {
       rows.push([
         friend.id,
@@ -812,7 +1298,11 @@ function seedDemoData(sheet) {
         acc.type,
         acc.alias,
         acc.cbu,
-        acc.titular || ''
+        acc.titular || '',
+        'CONFIRMADO',
+        friendEditToken,
+        friendIdGrupo,
+        ''
       ]);
     });
   });
@@ -833,7 +1323,7 @@ function seedDemoData(sheet) {
  */
 function getFriendsData(groupFilter) {
   try {
-    const friends = getFriendsDataInternal(groupFilter);
+    const friends = getFriendsDataInternal(groupFilter, { isAdmin: true });
     return { success: true, data: friends };
   } catch (error) {
     console.error('Error en getFriendsData:', error);
@@ -848,10 +1338,12 @@ function getPersonasData(groupFilter) {
 
 /**
  * Crea o actualiza una persona con sus respectivas cuentas bancarias.
+ * Admite guardado por Super-Admin (CONFIRMADO), Group-Admin (CONFIRMADO) o Público/Anónimo (PENDIENTE con datos_previos).
  * @param {Object|string} friendObj Objeto con id, name, group y array accounts
- * @returns {Object} Respuesta { success: true, data: friendObj } o error
+ * @param {Object} [options] Opciones de autorización (adminKey, adminToken, editToken, isRestCall)
+ * @returns {Object} Respuesta { success: true, data: friendObj, isPending: boolean, editToken?: string }
  */
-function saveFriendWithAccounts(friendObj) {
+function saveFriendWithAccounts(friendObj, options) {
   const lock = LockService.getScriptLock();
   try {
     const hasLock = lock.tryLock(15000);
@@ -860,7 +1352,11 @@ function saveFriendWithAccounts(friendObj) {
     }
 
     if (typeof friendObj === 'string') {
-      friendObj = JSON.parse(friendObj);
+      try {
+        friendObj = JSON.parse(friendObj);
+      } catch (e) {
+        return { success: false, error: 'Formato JSON inválido.' };
+      }
     }
 
     if (!friendObj || typeof friendObj !== 'object') {
@@ -882,19 +1378,146 @@ function saveFriendWithAccounts(friendObj) {
     groupsArray = Array.from(new Set(groupsArray));
     const group = groupsArray.join(', ');
 
+    let idGrupo = (friendObj.id_grupo || (options && options.id_grupo) || '').trim();
+    if (!idGrupo && groupsArray.length > 0) {
+      idGrupo = getGroupIdByName(groupsArray[0]);
+    }
+
     const friendId = (friendObj.id || friendObj.id_persona || ('persona_' + Utilities.getUuid().slice(0, 8))).trim();
-    const rawAccounts = Array.isArray(friendObj.accounts) ? friendObj.accounts : [];
+
+    let rawAccounts = friendObj.accounts;
+    if (typeof rawAccounts === 'string') {
+      try { rawAccounts = JSON.parse(rawAccounts); } catch (e) { rawAccounts = []; }
+    }
+    if (!Array.isArray(rawAccounts)) rawAccounts = [];
+    if (rawAccounts.length === 0 && (friendObj.alias || friendObj.cbu || friendObj.cbu_cvu || friendObj.bank || friendObj.entidad_banco)) {
+      rawAccounts = [{
+        id: friendObj.id_cuenta || ('acc_' + Utilities.getUuid().slice(0, 8)),
+        bank: friendObj.bank || friendObj.entidad_banco || '',
+        type: friendObj.type || friendObj.tipo_cuenta || 'Caja de Ahorro',
+        alias: friendObj.alias || '',
+        cbu: friendObj.cbu || friendObj.cbu_cvu || '',
+        titular: friendObj.titular || friendObj.titular_diferente || ''
+      }];
+    }
 
     const sheet = getAccountsSheet();
     const fullData = sheet.getDataRange().getValues();
     const existingRows = fullData.length > 1 ? fullData.slice(1) : [];
+
+    // Localizar filas existentes de esta persona
+    const matchingRows = existingRows.filter(function(r) {
+      return String(r[0]).trim() === friendId;
+    });
+    const isExisting = matchingRows.length > 0;
+
+    // Determinar rol del llamador
+    const adminKey = (options && options.adminKey) ? String(options.adminKey).trim() : (friendObj.adminKey ? String(friendObj.adminKey).trim() : '');
+    const adminToken = (options && options.adminToken) ? String(options.adminToken).trim() : (friendObj.adminToken || friendObj.admin ? String(friendObj.adminToken || friendObj.admin).trim() : '');
+    const callerEditToken = (options && options.editToken) ? String(options.editToken).trim() : (friendObj.editToken || friendObj.edit_token ? String(friendObj.editToken || friendObj.edit_token).trim() : '');
+
+    let isSuperAdmin = isValidAdminKey(adminKey);
+    let isGroupAdmin = false;
+
+    if (!isSuperAdmin && adminToken) {
+      let grp = null;
+      if (idGrupo) grp = findGroupById(idGrupo);
+      if (!grp && groupsArray.length > 0) grp = findGroupByName(groupsArray[0]);
+      if (grp && grp.admin_token && grp.admin_token.toLowerCase() === adminToken.toLowerCase()) {
+        isGroupAdmin = true;
+      } else {
+        const matchedGrp = findGroupByAdminToken(adminToken);
+        if (matchedGrp) {
+          if (!idGrupo || matchedGrp.id_grupo === idGrupo) {
+            isGroupAdmin = true;
+            if (!idGrupo) idGrupo = matchedGrp.id_grupo;
+          }
+        }
+      }
+    }
+
+    // Si es llamada RPC nativa de Apps Script (no REST), asume privilegios administrativos
+    if (!options || !options.isRestCall) {
+      isSuperAdmin = true;
+    }
+
+    const isAdmin = isSuperAdmin || isGroupAdmin;
+
+    let finalEstado = 'CONFIRMADO';
+    let finalDatosPrevios = '';
+    let finalEditToken = '';
+
+    if (isAdmin) {
+      finalEstado = 'CONFIRMADO';
+      finalDatosPrevios = ''; // Confirma y limpia datos_previos
+      if (isExisting) {
+        finalEditToken = String(matchingRows[0][10] || callerEditToken || ('edt_' + Utilities.getUuid().slice(0, 10))).trim();
+      } else {
+        finalEditToken = callerEditToken || ('edt_' + Utilities.getUuid().slice(0, 10));
+      }
+    } else {
+      // Miembro Anónimo / Público -> guarda como PENDIENTE
+      finalEstado = 'PENDIENTE';
+
+      if (isExisting) {
+        finalEditToken = String(matchingRows[0][10] || callerEditToken || ('edt_' + Utilities.getUuid().slice(0, 10))).trim();
+
+        // Almacenar datos previos si aún no tiene snapshot o si el estado era CONFIRMADO
+        const existingEstado = String(matchingRows[0][9] || 'CONFIRMADO').trim();
+        const existingPrev = matchingRows[0][12] ? String(matchingRows[0][12]).trim() : '';
+
+        if (existingEstado === 'CONFIRMADO' || !existingPrev) {
+          const prevAccounts = [];
+          matchingRows.forEach(function(r) {
+            if (r[3] || r[4] || r[6] || r[7]) {
+              prevAccounts.push({
+                id: String(r[3] || '').trim(),
+                bank: String(r[4] || '').trim(),
+                type: String(r[5] || '').trim(),
+                alias: String(r[6] || '').trim(),
+                cbu: String(r[7] || '').trim(),
+                titular: String(r[8] || '').trim()
+              });
+            }
+          });
+          const snapshot = {
+            id: friendId,
+            name: String(matchingRows[0][1] || '').trim(),
+            group: String(matchingRows[0][2] || '').trim(),
+            groups: String(matchingRows[0][2] || '').split(',').map(s => s.trim()).filter(Boolean),
+            id_grupo: String(matchingRows[0][11] || '').trim(),
+            accounts: prevAccounts
+          };
+          finalDatosPrevios = JSON.stringify(snapshot);
+        } else {
+          finalDatosPrevios = existingPrev;
+        }
+      } else {
+        finalDatosPrevios = '';
+        finalEditToken = callerEditToken || ('edt_' + Utilities.getUuid().slice(0, 10));
+      }
+    }
 
     // Normalizar cuentas entrantes
     const normalizedAccounts = [];
     const newFriendRows = [];
 
     if (rawAccounts.length === 0) {
-      newFriendRows.push([friendId, name, group, '', '', '', '', '', '']);
+      newFriendRows.push([
+        friendId,
+        name,
+        group,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        finalEstado,
+        finalEditToken,
+        idGrupo,
+        finalDatosPrevios
+      ]);
     } else {
       rawAccounts.forEach(function(acc, idx) {
         const accId = (acc.id || acc.id_cuenta || ('acc_' + Utilities.getUuid().slice(0, 8) + '_' + (idx + 1))).trim();
@@ -913,11 +1536,25 @@ function saveFriendWithAccounts(friendObj) {
           titular: titular
         });
 
-        newFriendRows.push([friendId, name, group, accId, bank, type, alias, cbu, titular]);
+        newFriendRows.push([
+          friendId,
+          name,
+          group,
+          accId,
+          bank,
+          type,
+          alias,
+          cbu,
+          titular,
+          finalEstado,
+          finalEditToken,
+          idGrupo,
+          finalDatosPrevios
+        ]);
       });
     }
 
-    // Identificar si la persona ya existía para mantener su posición ordinal
+    // Mantener la posición relativa si la persona ya existía
     let firstExistingIndex = -1;
     const remainingRows = [];
 
@@ -928,19 +1565,21 @@ function saveFriendWithAccounts(friendObj) {
           firstExistingIndex = remainingRows.length;
         }
       } else {
-        remainingRows.push(existingRows[i]);
+        const r = existingRows[i];
+        while (r.length < HEADERS.length) {
+          r.push('');
+        }
+        remainingRows.push(r);
       }
     }
 
     if (firstExistingIndex !== -1) {
-      // Reemplazo en la misma posición relativa
       remainingRows.splice(firstExistingIndex, 0, ...newFriendRows);
     } else {
-      // Persona nueva: agregarla al final
       remainingRows.push(...newFriendRows);
     }
 
-    // Reescribir datos en hoja asegurando consistencia atómica
+    // Reescribir filas en la hoja
     const totalExistingDataRows = fullData.length - 1;
     if (totalExistingDataRows > 0) {
       sheet.getRange(2, 1, totalExistingDataRows, HEADERS.length).clearContent();
@@ -951,16 +1590,33 @@ function saveFriendWithAccounts(friendObj) {
     }
     SpreadsheetApp.flush();
 
+    const savedData = {
+      id: friendId,
+      name: name,
+      group: group,
+      groups: groupsArray,
+      avatar: getInitials(name),
+      estado: finalEstado,
+      id_grupo: idGrupo,
+      accounts: normalizedAccounts
+    };
+
+    if (finalEstado === 'PENDIENTE') {
+      return {
+        success: true,
+        data: savedData,
+        isPending: true,
+        editToken: finalEditToken,
+        estado: 'PENDIENTE'
+      };
+    }
+
     return {
       success: true,
-      data: {
-        id: friendId,
-        name: name,
-        group: group,
-        groups: groupsArray,
-        avatar: getInitials(name),
-        accounts: normalizedAccounts
-      }
+      data: savedData,
+      isPending: false,
+      editToken: finalEditToken,
+      estado: 'CONFIRMADO'
     };
   } catch (error) {
     console.error('Error en saveFriendWithAccounts:', error);
@@ -971,8 +1627,275 @@ function saveFriendWithAccounts(friendObj) {
 }
 
 /** Alias para compatibilidad terminológica */
-function savePersonaWithAccounts(personaObj) {
-  return saveFriendWithAccounts(personaObj);
+function savePersonaWithAccounts(personaObj, options) {
+  return saveFriendWithAccounts(personaObj, options);
+}
+
+/**
+ * Confirma un contacto en estado PENDIENTE, cambiando su estado a CONFIRMADO y limpiando datos_previos.
+ * Requiere adminToken del grupo o adminKey global.
+ * @param {Object} e Evento de petición HTTP con parámetros id, adminToken o adminKey
+ * @returns {Object} Respuesta { success: true, message: 'Confirmado' }
+ */
+function confirmFriendInternal(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    const hasLock = lock.tryLock(15000);
+    if (!hasLock) {
+      return { success: false, error: 'Base de datos ocupada. Intente nuevamente en unos instantes.' };
+    }
+
+    const friendId = (e.parameter.id || e.parameter.friendId || e.parameter.id_persona || '').trim();
+    if (!friendId) {
+      return { success: false, error: 'Identificador de persona requerido (id).' };
+    }
+
+    const sheet = getAccountsSheet();
+    const fullData = sheet.getDataRange().getValues();
+    if (fullData.length <= 1) {
+      return { success: false, error: 'Persona no encontrada.' };
+    }
+
+    const rows = fullData.slice(1);
+    const matchingRows = rows.filter(r => String(r[0]).trim() === friendId);
+    if (matchingRows.length === 0) {
+      return { success: false, error: 'Persona no encontrada con ID: ' + friendId };
+    }
+
+    const friendGroup = String(matchingRows[0][2] || '').trim();
+    const friendIdGrupo = String(matchingRows[0][11] || '').trim();
+
+    // Validar autorización: adminKey global o adminToken de grupo
+    const adminKey = (e.parameter.adminKey || '').trim();
+    const adminToken = (e.parameter.adminToken || e.parameter.admin || e.parameter.token || '').trim();
+
+    const isSuper = isValidAdminKey(adminKey);
+    let isGroupAdmin = false;
+
+    if (!isSuper && adminToken) {
+      let grp = null;
+      if (friendIdGrupo) grp = findGroupById(friendIdGrupo);
+      if (!grp && friendGroup) grp = findGroupByName(friendGroup);
+      if (grp && grp.admin_token && grp.admin_token.toLowerCase() === adminToken.toLowerCase()) {
+        isGroupAdmin = true;
+      } else {
+        const matchedGrp = findGroupByAdminToken(adminToken);
+        if (matchedGrp) {
+          if (!friendIdGrupo || matchedGrp.id_grupo === friendIdGrupo) {
+            isGroupAdmin = true;
+          }
+        }
+      }
+    }
+
+    if (!isSuper && !isGroupAdmin) {
+      return { success: false, error: 'No autorizado. Se requiere adminToken de grupo o adminKey global.' };
+    }
+
+    // Actualizar estado a CONFIRMADO y limpiar datos_previos
+    const updatedRows = rows.map(function(r) {
+      while (r.length < HEADERS.length) r.push('');
+      if (String(r[0]).trim() === friendId) {
+        r[9] = 'CONFIRMADO';
+        r[12] = '';
+      }
+      return r;
+    });
+
+    sheet.getRange(2, 1, updatedRows.length, HEADERS.length).setValues(updatedRows);
+    SpreadsheetApp.flush();
+
+    return {
+      success: true,
+      message: 'Confirmado',
+      id: friendId
+    };
+  } catch (error) {
+    console.error('Error en confirmFriendInternal:', error);
+    return { success: false, error: error.message || String(error) };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Descarta los cambios pendientes de un contacto.
+ * Si existían datos_previos, los restaura y marca CONFIRMADO. Si es un registro nuevo sin datos previos, lo elimina.
+ * Requiere adminToken del grupo o adminKey global.
+ * @param {Object} e Evento de petición HTTP con parámetros id, adminToken o adminKey
+ * @returns {Object} Respuesta { success: true, message: 'Descartado' }
+ */
+function rejectFriendInternal(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    const hasLock = lock.tryLock(15000);
+    if (!hasLock) {
+      return { success: false, error: 'Base de datos ocupada. Intente nuevamente en unos instantes.' };
+    }
+
+    const friendId = (e.parameter.id || e.parameter.friendId || e.parameter.id_persona || '').trim();
+    if (!friendId) {
+      return { success: false, error: 'Identificador de persona requerido (id).' };
+    }
+
+    const sheet = getAccountsSheet();
+    const fullData = sheet.getDataRange().getValues();
+    if (fullData.length <= 1) {
+      return { success: false, error: 'Persona no encontrada.' };
+    }
+
+    const rows = fullData.slice(1);
+    const matchingRows = rows.filter(r => String(r[0]).trim() === friendId);
+    if (matchingRows.length === 0) {
+      return { success: false, error: 'Persona no encontrada con ID: ' + friendId };
+    }
+
+    const friendGroup = String(matchingRows[0][2] || '').trim();
+    const friendIdGrupo = String(matchingRows[0][11] || '').trim();
+
+    // Validar autorización: adminKey global o adminToken de grupo
+    const adminKey = (e.parameter.adminKey || '').trim();
+    const adminToken = (e.parameter.adminToken || e.parameter.admin || e.parameter.token || '').trim();
+
+    const isSuper = isValidAdminKey(adminKey);
+    let isGroupAdmin = false;
+
+    if (!isSuper && adminToken) {
+      let grp = null;
+      if (friendIdGrupo) grp = findGroupById(friendIdGrupo);
+      if (!grp && friendGroup) grp = findGroupByName(friendGroup);
+      if (grp && grp.admin_token && grp.admin_token.toLowerCase() === adminToken.toLowerCase()) {
+        isGroupAdmin = true;
+      } else {
+        const matchedGrp = findGroupByAdminToken(adminToken);
+        if (matchedGrp) {
+          if (!friendIdGrupo || matchedGrp.id_grupo === friendIdGrupo) {
+            isGroupAdmin = true;
+          }
+        }
+      }
+    }
+
+    if (!isSuper && !isGroupAdmin) {
+      return { success: false, error: 'No autorizado. Se requiere adminToken de grupo o adminKey global.' };
+    }
+
+    // Verificar si existen datos_previos
+    const rawPrev = matchingRows[0][12] ? String(matchingRows[0][12]).trim() : '';
+
+    if (rawPrev) {
+      let prevData = null;
+      try {
+        prevData = JSON.parse(rawPrev);
+      } catch (jsonErr) {
+        console.error('Error parseando datos_previos en rejectFriend:', jsonErr);
+      }
+
+      if (prevData && typeof prevData === 'object') {
+        const restoredName = String(prevData.name || matchingRows[0][1] || '').trim();
+        const restoredGroup = String(prevData.group || matchingRows[0][2] || '').trim();
+        const restoredIdGrupo = String(prevData.id_grupo || matchingRows[0][11] || '').trim();
+        const editToken = String(matchingRows[0][10] || '').trim();
+        const prevAccounts = Array.isArray(prevData.accounts) ? prevData.accounts : [];
+
+        const restoredRows = [];
+        if (prevAccounts.length === 0) {
+          restoredRows.push([
+            friendId,
+            restoredName,
+            restoredGroup,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            'CONFIRMADO',
+            editToken,
+            restoredIdGrupo,
+            ''
+          ]);
+        } else {
+          prevAccounts.forEach(function(acc) {
+            restoredRows.push([
+              friendId,
+              restoredName,
+              restoredGroup,
+              acc.id || '',
+              acc.bank || '',
+              acc.type || 'Caja de Ahorro',
+              acc.alias || '',
+              acc.cbu || '',
+              acc.titular || '',
+              'CONFIRMADO',
+              editToken,
+              restoredIdGrupo,
+              ''
+            ]);
+          });
+        }
+
+        let firstIndex = -1;
+        const otherRows = [];
+        for (let i = 0; i < rows.length; i++) {
+          if (String(rows[i][0]).trim() === friendId) {
+            if (firstIndex === -1) firstIndex = otherRows.length;
+          } else {
+            const r = rows[i];
+            while (r.length < HEADERS.length) r.push('');
+            otherRows.push(r);
+          }
+        }
+
+        if (firstIndex !== -1) {
+          otherRows.splice(firstIndex, 0, ...restoredRows);
+        } else {
+          otherRows.push(...restoredRows);
+        }
+
+        const totalExistingDataRows = fullData.length - 1;
+        sheet.getRange(2, 1, totalExistingDataRows, HEADERS.length).clearContent();
+        if (otherRows.length > 0) {
+          sheet.getRange(2, 1, otherRows.length, HEADERS.length).setValues(otherRows);
+        }
+        SpreadsheetApp.flush();
+
+        return {
+          success: true,
+          message: 'Descartado',
+          id: friendId,
+          restored: true
+        };
+      }
+    }
+
+    // Si no existen datos previos (contacto nuevo), se eliminan sus filas
+    const remainingRows = rows.filter(function(r) {
+      return String(r[0]).trim() !== friendId;
+    }).map(function(r) {
+      while (r.length < HEADERS.length) r.push('');
+      return r;
+    });
+
+    const totalExistingDataRows = fullData.length - 1;
+    sheet.getRange(2, 1, totalExistingDataRows, HEADERS.length).clearContent();
+    if (remainingRows.length > 0) {
+      sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setValues(remainingRows);
+    }
+    SpreadsheetApp.flush();
+
+    return {
+      success: true,
+      message: 'Descartado',
+      id: friendId,
+      deleted: true
+    };
+  } catch (error) {
+    console.error('Error en rejectFriendInternal:', error);
+    return { success: false, error: error.message || String(error) };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /**
@@ -1002,6 +1925,9 @@ function deleteFriend(friendId) {
     const targetId = String(friendId).trim();
     const remainingRows = existingRows.filter(function(row) {
       return String(row[0]).trim() !== targetId;
+    }).map(function(r) {
+      while (r.length < HEADERS.length) r.push('');
+      return r;
     });
 
     const totalExistingDataRows = fullData.length - 1;
@@ -1078,13 +2004,28 @@ function deleteAccount(accountId) {
     const updatedRows = [];
     for (let i = 0; i < existingRows.length; i++) {
       const row = existingRows[i];
+      while (row.length < HEADERS.length) row.push('');
       const isTargetAccount = String(row[3]).trim() === targetAccId;
 
       if (!isTargetAccount) {
         updatedRows.push(row);
       } else if (friendRowCount === 1) {
         // Preservar la información de la persona con campos de cuenta vacíos
-        updatedRows.push([row[0], row[1], row[2], '', '', '', '', '', '']);
+        updatedRows.push([
+          row[0],
+          row[1],
+          row[2],
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          row[9] || 'CONFIRMADO',
+          row[10] || '',
+          row[11] || '',
+          row[12] || ''
+        ]);
       }
     }
 
@@ -1106,7 +2047,7 @@ function deleteAccount(accountId) {
 }
 
 /**
- * Restablece la base de datos a los datos de prueba iniciales.
+ * Restablece la base de datos a los datos de prueba iniciales tanto en Cuentas como en Grupos.
  * @returns {Object} Respuesta con la lista de personas restaurada
  */
 function resetToDemoData() {
@@ -1124,7 +2065,20 @@ function resetToDemoData() {
     }
 
     seedDemoData(sheet);
-    const refreshedData = getFriendsDataInternal();
+
+    // Re-sembrar hoja Grupos
+    try {
+      const gSheet = getGroupsSheet();
+      const gLastRow = gSheet.getLastRow();
+      if (gLastRow > 1) {
+        gSheet.getRange(2, 1, gLastRow - 1, GROUPS_HEADERS.length).clearContent();
+      }
+      seedDefaultGroups(gSheet);
+    } catch (gErr) {
+      console.warn('Error restableciendo hoja Grupos:', gErr);
+    }
+
+    const refreshedData = getFriendsDataInternal(null, { isAdmin: true });
 
     return {
       success: true,
@@ -1165,11 +2119,15 @@ function getSpreadsheetInfo() {
 // ===================================================================
 
 /**
- * Extrae y agrupa las personas con sus cuentas bancarias desde la hoja, con soporte de filtrado por grupo.
+ * Extrae y agrupa las personas con sus cuentas bancarias desde la hoja, con soporte de filtrado por grupo e inclusión de campos extendidos.
  * @param {string} [groupFilter] Filtro opcional de grupo (insensible a mayúsculas y acentos)
+ * @param {Object} [options] Opciones opcionales { isAdmin: boolean, id_grupo: string }
  * @returns {Array<Object>} Lista de personas agrupadas
  */
-function getFriendsDataInternal(groupFilter) {
+function getFriendsDataInternal(groupFilter, options) {
+  const isAdmin = Boolean(options && options.isAdmin);
+  const targetIdGrupo = (options && options.id_grupo) ? String(options.id_grupo).trim() : null;
+
   const sheet = getAccountsSheet();
   const fullData = sheet.getDataRange().getValues();
   if (fullData.length <= 1) {
@@ -1190,8 +2148,12 @@ function getFriendsDataInternal(groupFilter) {
     const groupsArray = friendGroup.split(',').map(s => s.trim()).filter(Boolean);
     if (groupsArray.length === 0) groupsArray.push('General');
 
-    // Filtrar por grupo si se especificó groupFilter
-    if (normalizedFilter && normalizedFilter !== 'all') {
+    const rowIdGrupo = String(row[11] || '').trim();
+
+    // Filtrar por grupo si se especificó groupFilter o targetIdGrupo
+    if (targetIdGrupo && rowIdGrupo && rowIdGrupo === targetIdGrupo) {
+      // Coincidencia exacta por ID de grupo
+    } else if (normalizedFilter && normalizedFilter !== 'all') {
       const hasMatch = groupsArray.some(function(g) {
         const norm = g.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         return norm === normalizedFilter;
@@ -1209,15 +2171,40 @@ function getFriendsDataInternal(groupFilter) {
     const cbu = String(row[7] || '').trim();
     const titular = String(row[8] || '').trim();
 
+    const rawEstado = String(row[9] || '').trim();
+    const estado = (rawEstado === 'PENDIENTE') ? 'PENDIENTE' : 'CONFIRMADO';
+    const editToken = String(row[10] || '').trim();
+    const friendIdGrupo = rowIdGrupo || (targetIdGrupo || getGroupIdByName(friendGroup));
+    const rawDatosPrevios = row[12] ? String(row[12]).trim() : '';
+
     if (!friendsMap.has(friendId)) {
-      friendsMap.set(friendId, {
+      const friendObj = {
         id: friendId,
         name: friendName,
         group: groupsArray.join(', '),
         groups: groupsArray,
         avatar: getInitials(friendName),
+        estado: estado,
+        id_grupo: friendIdGrupo,
         accounts: []
-      });
+      };
+
+      if (isAdmin) {
+        if (rawDatosPrevios) {
+          try {
+            friendObj.datos_previos = JSON.parse(rawDatosPrevios);
+          } catch (e) {
+            friendObj.datos_previos = rawDatosPrevios;
+          }
+        } else {
+          friendObj.datos_previos = null;
+        }
+        if (editToken) {
+          friendObj.edit_token = editToken;
+        }
+      }
+
+      friendsMap.set(friendId, friendObj);
     }
 
     // Agregar cuenta solo si contiene algún dato identificatorio
