@@ -1034,6 +1034,71 @@
     }
 
     /* ==========================================================================
+       NEO-BRUTALIST SKELETON LOADING
+       ========================================================================== */
+    @keyframes brutalistSkeletonPulse {
+      0% {
+        opacity: 0.4;
+        background-color: var(--surface-muted);
+      }
+      50% {
+        opacity: 0.8;
+        background-color: var(--border);
+      }
+      100% {
+        opacity: 0.4;
+        background-color: var(--surface-muted);
+      }
+    }
+
+    .friend-card.is-skeleton {
+      pointer-events: none;
+      user-select: none;
+      border: var(--border-width) solid var(--border);
+      background: var(--surface);
+    }
+
+    .skeleton-shimmer {
+      animation: brutalistSkeletonPulse 1.3s ease-in-out infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    .skeleton-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: var(--border-width) solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .skeleton-line {
+      height: 14px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+    }
+
+    .skeleton-line-title {
+      height: 22px;
+      width: 140px;
+    }
+
+    .skeleton-line-badge {
+      height: 16px;
+      width: 70px;
+    }
+
+    .skeleton-account-box {
+      min-height: 108px;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--surface);
+    }
+
+    /* ==========================================================================
        EMPTY & LOADING STATES
        ========================================================================== */
     .state-card {
@@ -1441,7 +1506,7 @@
       var isSegmentedMode = !!(tokenParam || grupoParam);
 
       /* App State */
-      var friendsData = DEFAULT_FRIENDS_DATA.slice();
+      var friendsData = [];
       var expandedCards = {};
       var activeFilter = 'ALL';
       var activeGroupFilter = 'ALL';
@@ -2080,6 +2145,13 @@
       }
 
       var BACKEND_API_URL = 'https://script.google.com/macros/s/AKfycbz7Pp_RisFpuIFiAycBSL4EJXpydQZRfToR7T-Wd7-Hoaio1n2A4KzUm4d8WAEKVtqeQg/exec';
+      var CACHE_KEY_PREFIX = 'aliasdb_v2_cache_';
+
+      function getCacheKey() {
+        if (tokenParam) return CACHE_KEY_PREFIX + 'token_' + tokenParam.toLowerCase().trim();
+        if (grupoParam) return CACHE_KEY_PREFIX + 'group_' + grupoParam.toLowerCase().trim();
+        return CACHE_KEY_PREFIX + 'all';
+      }
 
       function updateSyncStatus(isLive, label) {
         var el = document.getElementById('sync-status');
@@ -2089,13 +2161,70 @@
           el.style.background = 'var(--accent-mint)';
           el.style.color = '#0D0D11';
         } else {
-          el.innerHTML = getReiconSvg('AlertTriangle', '', 12) + ' <span>' + (label || 'Modo Demo') + '</span>';
+          el.innerHTML = getReiconSvg('AlertTriangle', '', 12) + ' <span>' + (label || 'Desconectado') + '</span>';
           el.style.background = 'var(--surface-muted)';
           el.style.color = 'var(--text-muted)';
         }
       }
 
+      function renderSkeletons(count) {
+        count = count || 3;
+        var skeletonHtml = '';
+        for (var i = 0; i < count; i++) {
+          skeletonHtml += [
+            '<article class="friend-card is-skeleton" aria-hidden="true">',
+            '  <div class="card-header">',
+            '    <div class="friend-profile">',
+            '      <div class="skeleton-avatar skeleton-shimmer"></div>',
+            '      <div class="friend-info" style="gap: 6px;">',
+            '        <div class="skeleton-line skeleton-line-title skeleton-shimmer"></div>',
+            '        <div style="display: flex; gap: 6px;">',
+            '          <div class="skeleton-line skeleton-line-badge skeleton-shimmer"></div>',
+            '          <div class="skeleton-line skeleton-line-badge skeleton-shimmer" style="width: 50px;"></div>',
+            '        </div>',
+            '      </div>',
+            '    </div>',
+            '  </div>',
+            '  <div class="accounts-list">',
+            '    <div class="skeleton-account-box skeleton-shimmer"></div>',
+            '    <div class="skeleton-account-box skeleton-shimmer"></div>',
+            '  </div>',
+            '</article>'
+          ].join('\n');
+        }
+        cardsContainer.innerHTML = skeletonHtml;
+      }
+
+      function renderErrorState(title, message, isRetryable) {
+        cardsContainer.innerHTML = [
+          '<div class="state-card" style="grid-column: 1 / -1;">',
+          '  <div class="state-icon-box" aria-hidden="true">' + getReiconSvg('AlertTriangle', '', 32) + '</div>',
+          '  <h2 class="state-title">' + escapeHtml(title) + '</h2>',
+          '  <p class="state-desc">' + escapeHtml(message) + '</p>',
+          (isRetryable ? '  <button id="retry-fetch-btn" class="btn-brutalist" type="button" style="display: inline-flex; align-items: center; gap: 6px;">' + getReiconSvg('Refresh', '', 14) + ' <span>Reintentar</span></button>' : '  <a href="index.html" class="btn-brutalist" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">' + getReiconSvg('Folder', '', 14) + ' <span>Ir al Directorio General</span></a>'),
+          '</div>'
+        ].join('\n');
+
+        if (isRetryable) {
+          var retryBtn = document.getElementById('retry-fetch-btn');
+          if (retryBtn) {
+            retryBtn.addEventListener('click', function() {
+              renderSkeletons(3);
+              loadData();
+            });
+          }
+        }
+      }
+
       function handleReceivedData(serverData, sourceLabel) {
+        if (!serverData || serverData.success === false) {
+          var errMsg = (serverData && serverData.error) ? serverData.error : 'No pudimos acceder a los datos.';
+          updateSyncStatus(false, 'Enlace no disponible');
+          try { localStorage.removeItem(getCacheKey()); } catch (e) {}
+          renderErrorState(errMsg === 'Token inválido o expirado.' ? 'Token inválido o expirado' : 'Error al consultar', errMsg, errMsg !== 'Token inválido o expirado.');
+          return;
+        }
+
         var list = null;
         if (Array.isArray(serverData)) {
           list = serverData;
@@ -2107,33 +2236,27 @@
           showGroupBranding(serverData.grupo);
         }
 
+        // Cachear en localStorage para carga instantánea (<10ms) en visitas posteriores
+        try {
+          localStorage.setItem(getCacheKey(), JSON.stringify(serverData));
+        } catch (e) {}
+
         if (list && list.length > 0) {
           friendsData = normalizeFriendData(list);
           if (grupoParam && (!serverData || !serverData.grupo)) {
             friendsData = friendsData.filter(function(friend) {
-              return (friend.group || '').toLowerCase() === grupoParam.toLowerCase();
+              var fGroups = friend.groups || [friend.group];
+              return fGroups.some(function(g) { return g.toLowerCase() === grupoParam.toLowerCase(); });
             });
           }
           updateSyncStatus(true, sourceLabel || 'Sincronizado');
           renderGroupFilterChips();
           renderCards();
         } else {
-          if (list && list.length === 0 && isSegmentedMode) {
-            friendsData = [];
-            updateSyncStatus(true, sourceLabel || 'Sincronizado');
-            renderCards();
-          } else {
-            updateSyncStatus(false, 'Modo Demo');
-            if (grupoParam) {
-              friendsData = normalizeFriendData(DEFAULT_FRIENDS_DATA).filter(function(friend) {
-                return (friend.group || '').toLowerCase() === grupoParam.toLowerCase();
-              });
-            } else {
-              friendsData = normalizeFriendData(DEFAULT_FRIENDS_DATA);
-            }
-            renderGroupFilterChips();
-            renderCards();
-          }
+          friendsData = [];
+          updateSyncStatus(true, sourceLabel || 'Sincronizado');
+          renderGroupFilterChips();
+          renderCards();
         }
       }
 
@@ -2145,9 +2268,13 @@
               handleReceivedData(serverData, 'Apps Script');
             })
             .withFailureHandler(function(err) {
-              console.warn('Apps Script backend fallback:', err);
-              updateSyncStatus(false, 'Modo Demo');
-              renderCards();
+              console.warn('Apps Script backend error:', err);
+              if (friendsData && friendsData.length > 0) {
+                updateSyncStatus(true, 'Caché local (offline)');
+              } else {
+                updateSyncStatus(false, 'Error de conexión');
+                renderErrorState('Error de conexión', 'No pudimos conectar con el backend de Google Apps Script.', true);
+              }
             });
 
           if (typeof runner.getFriendsDataSegmented === 'function' && (tokenParam || grupoParam)) {
@@ -2166,6 +2293,7 @@
           } else if (grupoParam) {
             fetchUrl += '&grupo=' + encodeURIComponent(grupoParam);
           }
+          fetchUrl += '&_t=' + Date.now();
 
           fetch(fetchUrl)
             .then(function(response) {
@@ -2176,24 +2304,50 @@
               handleReceivedData(serverData, 'En línea');
             })
             .catch(function(err) {
-              console.warn('Fetch fallback to default demo data:', err);
-              updateSyncStatus(false, 'Modo Demo');
-              renderCards();
+              console.warn('Fetch error:', err);
+              if (friendsData && friendsData.length > 0) {
+                updateSyncStatus(true, 'Caché local (offline)');
+                showToast('Sin conexión. Mostrando versión en caché.');
+              } else {
+                updateSyncStatus(false, 'Sin conexión');
+                renderErrorState('Sin conexión', 'No pudimos sincronizar los datos con Google Sheets. Comprobá tu conexión a internet.', true);
+              }
             });
           return;
         }
 
-        // 3. Fallback local
-        updateSyncStatus(false, 'Modo Demo');
-        renderCards();
+        // 3. Fallback local sin endpoint
+        updateSyncStatus(false, 'Sin backend');
+        renderErrorState('Configuración requerida', 'No se ha configurado la URL del backend.');
       }
 
-      // Initial Execution
-      if (grupoParam) {
-        showGroupBranding(grupoParam);
+      // Initial Execution: Instant Cache (Stale-While-Revalidate) + Skeletons
+      var currentCacheKey = getCacheKey();
+      var hasCachedData = false;
+      try {
+        var rawCache = localStorage.getItem(currentCacheKey);
+        if (rawCache) {
+          var parsedCache = JSON.parse(rawCache);
+          if (parsedCache && parsedCache.success && Array.isArray(parsedCache.data) && parsedCache.data.length > 0) {
+            friendsData = normalizeFriendData(parsedCache.data);
+            if (parsedCache.grupo) {
+              showGroupBranding(parsedCache.grupo);
+            }
+            updateSyncStatus(true, 'Actualizando...');
+            renderGroupFilterChips();
+            renderCards();
+            hasCachedData = true;
+          }
+        }
+      } catch (e) {}
+
+      if (!hasCachedData) {
+        if (grupoParam) {
+          showGroupBranding(grupoParam);
+        }
+        renderSkeletons(3);
+        updateSyncStatus(false, 'Cargando...');
       }
-      renderGroupFilterChips();
-      renderCards();
       /* ======================================================================
          10-TAP SECRET ADMIN ACCESS (SILENT & STEALTH)
          ====================================================================== */

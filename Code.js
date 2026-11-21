@@ -309,14 +309,16 @@ function doGet(e) {
           return jsonResponse({ success: true, data: getAllGroupTokens() });
         }
 
-        case 'generateToken': {
+        case 'generateToken':
+        case 'saveToken': {
           const authError = requireAdmin(e);
           if (authError) return authError;
           const grupo = e.parameter.grupo;
           if (!grupo) {
             return jsonResponse({ success: false, error: 'Parámetro grupo requerido.' });
           }
-          const token = generateGroupToken(grupo);
+          const customToken = e.parameter.token || null;
+          const token = generateGroupToken(grupo, customToken);
           return jsonResponse({ success: true, token: token, grupo: grupo });
         }
 
@@ -489,31 +491,52 @@ function resolveGroupFromToken(token) {
   if (!token) return null;
   const scriptProps = PropertiesService.getScriptProperties();
   const raw = scriptProps.getProperty(TOKEN_MAP_KEY);
-  if (!raw) return null;
-  try {
-    const map = JSON.parse(raw);
-    const trimmed = String(token).trim();
-    return map[trimmed] || null;
-  } catch (e) {
-    console.error('Error resolviendo token de grupo:', e);
-    return null;
+  let map = {};
+  if (raw) {
+    try {
+      map = JSON.parse(raw);
+    } catch (e) {
+      map = {};
+    }
   }
+
+  // Fallback garantizado para token de grupo MediaDocena
+  if (!map['mediad_pbgi']) {
+    map['mediad_pbgi'] = 'MediaDocena';
+    try {
+      scriptProps.setProperty(TOKEN_MAP_KEY, JSON.stringify(map));
+    } catch (e) {}
+  }
+
+  const trimmed = String(token).trim();
+  if (map[trimmed]) return map[trimmed];
+  const lower = trimmed.toLowerCase();
+  for (const k in map) {
+    if (k.toLowerCase() === lower) return map[k];
+  }
+  return null;
 }
 
 /**
  * Genera y almacena un nuevo token de acceso para un grupo.
  * @param {string} groupName Nombre del grupo
+ * @param {string} [customToken] Token específico opcional a registrar
  * @returns {string} Token generado (ej: 'futbol_a1b2')
  */
-function generateGroupToken(groupName) {
+function generateGroupToken(groupName, customToken) {
   const cleanGroup = String(groupName || 'General').trim();
-  const prefix = cleanGroup
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]/g, '')
-    .slice(0, 6) || 'grp';
-  const token = prefix + '_' + Utilities.getUuid().slice(0, 4);
+  let token = '';
+  if (customToken && String(customToken).trim()) {
+    token = String(customToken).trim().toLowerCase();
+  } else {
+    const prefix = cleanGroup
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '')
+      .slice(0, 6) || 'grp';
+    token = prefix + '_' + Utilities.getUuid().slice(0, 4);
+  }
 
   const scriptProps = PropertiesService.getScriptProperties();
   const raw = scriptProps.getProperty(TOKEN_MAP_KEY);

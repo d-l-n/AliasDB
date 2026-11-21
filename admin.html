@@ -3457,7 +3457,7 @@
           saveLocalTokens();
 
           // Intentar registrar en backend si está disponible
-          var url = BACKEND_API_URL + '?action=generateToken&grupo=' + encodeURIComponent(groupName);
+          var url = BACKEND_API_URL + '?action=generateToken&grupo=' + encodeURIComponent(groupName) + '&token=' + encodeURIComponent(token);
           if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
           fetch(url).catch(function() {});
         }
@@ -3487,7 +3487,7 @@
         appState.groupTokens[token] = group;
         saveLocalTokens();
 
-        var url = BACKEND_API_URL + '?action=generateToken&grupo=' + encodeURIComponent(group);
+        var url = BACKEND_API_URL + '?action=generateToken&grupo=' + encodeURIComponent(group) + '&token=' + encodeURIComponent(token);
         if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
         fetch(url).catch(function() {});
 
