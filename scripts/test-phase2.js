@@ -20,4 +20,5 @@ assert(html.includes("fetchUrl += '&grupo=' + encodeURIComponent(grupoParam)"), 
 assert(html.includes("fetchUrl += '&token=' + encodeURIComponent(tokenParam)"), 'Inyeccion de token en fetchUrl');
 assert(html.includes("friend.group || friend.grupo || 'General'"), 'Preservacion de friend.group en normalizeFriendData');
 assert(html.includes("repeat(auto-fill, minmax("), 'Cards grid con soporte responsive multi-columna');
+assert(html.includes(".accounts-list > .account-item:last-child:nth-child(odd)"), 'Cuentas sueltas ocupan ancho completo');
 console.log('Todos los requisitos de Fase 2 verificados correctamente.');

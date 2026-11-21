@@ -786,6 +786,11 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
       }
+
+      .accounts-list > .account-item:last-child:nth-child(odd),
+      .accounts-list > .skeleton-account-box:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
     }
 
     .account-item {

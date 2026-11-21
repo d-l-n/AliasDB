@@ -110,6 +110,7 @@ requiredElementIds.forEach(id => {
 assert(html.includes('group-section.is-collapsed'), 'admin.html debe contener reglas CSS para .group-section.is-collapsed');
 assert(html.includes('group-collapse-icon'), 'admin.html debe contener el icono de pliegue de grupo .group-collapse-icon');
 assert(html.includes('aliasdb_admin_collapsed_groups'), 'admin.html debe persistir los grupos colapsados en localStorage');
+assert(html.includes('.person-accounts-list > .account-data-box:last-child:nth-child(odd)'), 'admin.html debe expandir cuentas sueltas a ancho completo');
 
 // 6. Verificación de Algoritmos de Detección CBU y Fintech (Simulación lógica)
 console.log('6. Verificando algoritmos de detección CBU y Quick-Add...');
