@@ -2,7 +2,7 @@
 <html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content">
   <title>AliasDB // Panel de Administración</title>
 
   <!-- Modern Color Scheme Declaration -->
@@ -101,6 +101,10 @@
       /* Transiciones Táctiles */
       --transition-tap: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1);
       --transition-hover: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+
+      /* Teclado Virtual y Viewport Dinámico */
+      --keyboard-inset-height: 0px;
+      --visual-viewport-height: 100dvh;
     }
 
     /* Modo Oscuro */
@@ -148,10 +152,11 @@
       font-size: 16px;
       line-height: 1.45;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       overflow-x: clip;
-      padding-bottom: calc(var(--touch-min) + 36px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(var(--touch-min) + 36px + env(safe-area-inset-bottom, 0px) + var(--keyboard-inset-height, 0px));
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
@@ -1096,15 +1101,23 @@
       padding: 0;
       width: calc(100% - 32px);
       max-width: 640px;
-      max-height: 88vh;
+      max-height: min(88vh, calc(100dvh - var(--keyboard-inset-height, 0px) - 24px));
       overflow: hidden;
       display: none;
       flex-direction: column;
       z-index: 1000;
+      transition: max-height 0.2s cubic-bezier(0, 0, 0.2, 1), margin-top 0.2s cubic-bezier(0, 0, 0.2, 1);
     }
 
     dialog[open] {
       display: flex;
+    }
+
+    /* Adaptación ergonómica cuando el teclado virtual está visible */
+    .keyboard-visible dialog[open] {
+      margin-top: max(8px, env(safe-area-inset-top, 8px));
+      margin-bottom: auto;
+      max-height: calc(100dvh - var(--keyboard-inset-height, 0px) - 16px);
     }
 
     dialog > form,
@@ -1405,13 +1418,14 @@
        ========================================================================== */
     .toast-container {
       position: fixed;
-      bottom: max(20px, env(safe-area-inset-bottom, 20px));
+      bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--keyboard-inset-height, 0px));
       left: 50%;
       transform: translateX(-50%);
       z-index: 9999;
       pointer-events: none;
       width: calc(100% - 32px);
       max-width: 460px;
+      transition: bottom 0.2s cubic-bezier(0, 0, 0.2, 1);
     }
 
     .brutalist-toast {
@@ -1509,7 +1523,7 @@
       }
       dialog {
         width: calc(100% - 16px);
-        max-height: 94vh;
+        max-height: min(94vh, calc(100dvh - var(--keyboard-inset-height, 0px) - 16px));
       }
       .dialog-header {
         padding: 10px 12px;
@@ -4018,6 +4032,77 @@
       }
 
       /* ======================================================================
+         DETECCIÓN DEL TECLADO VIRTUAL Y VIEWPORT ADAPTATIVO
+         ====================================================================== */
+      function ensureElementInView(el) {
+        if (!el || typeof el.getBoundingClientRect !== 'function') return;
+        var rect = el.getBoundingClientRect();
+        var vv = window.visualViewport;
+        var visibleBottom = vv ? vv.height : window.innerHeight;
+        if (rect.top < 60 || rect.bottom > visibleBottom - 20) {
+          try {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+          } catch (e) {
+            el.scrollIntoView(false);
+          }
+        }
+      }
+
+      function initKeyboardDetection() {
+        var root = document.documentElement;
+        var body = document.body;
+
+        function updateViewportMetrics() {
+          var vv = window.visualViewport;
+          var windowHeight = window.innerHeight;
+          var vvHeight = vv ? vv.height : windowHeight;
+          var keyboardHeight = Math.max(0, windowHeight - vvHeight);
+          var keyboardActive = keyboardHeight > 150;
+
+          if (keyboardActive) {
+            root.style.setProperty('--keyboard-inset-height', keyboardHeight + 'px');
+            root.style.setProperty('--visual-viewport-height', vvHeight + 'px');
+            root.classList.add('keyboard-visible');
+            body.classList.add('keyboard-visible');
+
+            var active = document.activeElement;
+            if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) {
+              ensureElementInView(active);
+            }
+          } else {
+            root.style.setProperty('--keyboard-inset-height', '0px');
+            root.style.setProperty('--visual-viewport-height', windowHeight + 'px');
+            root.classList.remove('keyboard-visible');
+            body.classList.remove('keyboard-visible');
+          }
+        }
+
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('resize', updateViewportMetrics, { passive: true });
+          window.visualViewport.addEventListener('scroll', updateViewportMetrics, { passive: true });
+        } else {
+          window.addEventListener('resize', updateViewportMetrics, { passive: true });
+        }
+
+        window.addEventListener('orientationchange', function() {
+          setTimeout(updateViewportMetrics, 200);
+        }, { passive: true });
+
+        document.addEventListener('focusin', function(e) {
+          var target = e.target;
+          if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
+            setTimeout(function() {
+              if (document.activeElement === target) {
+                ensureElementInView(target);
+              }
+            }, 300);
+          }
+        }, { passive: true });
+
+        updateViewportMetrics();
+      }
+
+      /* ======================================================================
          13. INICIALIZACIÓN DE LA APLICACIÓN
          ====================================================================== */
       try {
@@ -4027,6 +4112,7 @@
         }
       } catch (e) {}
 
+      initKeyboardDetection();
       initAuth();
       loadLocalTokens();
       loadCollapsedGroups();

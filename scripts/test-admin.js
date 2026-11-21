@@ -14,6 +14,7 @@ console.log('1. Verificando Metadata y Anti-FOUC...');
 assert(html.includes('<!DOCTYPE html>'), 'Debe incluir doctype HTML5');
 assert(html.includes('data-theme="light"'), 'Debe inicializar tema');
 assert(html.includes('color-scheme'), 'Debe declarar meta color-scheme');
+assert(html.includes('interactive-widget=resizes-content'), 'Meta viewport debe declarar interactive-widget=resizes-content');
 assert(html.includes('Space+Grotesk'), 'Debe importar Space Grotesk');
 assert(html.includes('JetBrains+Mono'), 'Debe importar JetBrains Mono');
 assert(html.includes('localStorage.getItem(\'theme-preference\')'), 'Anti-FOUC script presente');
@@ -43,7 +44,9 @@ const tokensToCheck = [
   '--bank-uala-bg',
   '--bank-naranja-bg',
   '--border-width',
-  '--shadow-offset'
+  '--shadow-offset',
+  '--keyboard-inset-height',
+  '--visual-viewport-height'
 ];
 tokensToCheck.forEach(token => {
   assert(html.includes(token), 'Debe contener token CSS: ' + token);
@@ -58,6 +61,9 @@ assert(html.includes('dialog::backdrop'), 'CSS debe estilizar ::backdrop');
 assert(html.includes('sr-announcer'), 'Debe contener región aria-live sr-announcer');
 assert(/dialog\s*>\s*form[\s\S]*?min-height:\s*0/m.test(html) || /#form-person[\s\S]*?min-height:\s*0/m.test(html), 'CSS debe contener flex constraint (min-height: 0) en form dentro de dialog para permitir scroll');
 assert(/\.dialog-body[\s\S]*?overflow-y:\s*auto/m.test(html), '.dialog-body debe tener overflow-y: auto para permitir scroll vertical en modales');
+assert(html.includes('.keyboard-visible dialog[open]'), 'CSS debe adaptar dialogs cuando el teclado virtual está visible');
+assert(html.includes('initKeyboardDetection'), 'Debe implementar y ejecutar initKeyboardDetection');
+assert(html.includes('visualViewport'), 'Debe utilizar API visualViewport');
 
 // 4. Verificación de Modales Requeridos
 console.log('4. Verificando modales obligatorios...');

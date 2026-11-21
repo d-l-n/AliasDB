@@ -21,4 +21,7 @@ assert(html.includes("fetchUrl += '&token=' + encodeURIComponent(tokenParam)"), 
 assert(html.includes("friend.group || friend.grupo || 'General'"), 'Preservacion de friend.group en normalizeFriendData');
 assert(html.includes("repeat(auto-fill, minmax("), 'Cards grid con soporte responsive multi-columna');
 assert(html.includes(".accounts-list > .account-item:last-child:nth-child(odd)"), 'Cuentas sueltas ocupan ancho completo');
+assert(html.includes('interactive-widget=resizes-content'), 'Meta viewport interactivo con resizes-content');
+assert(html.includes('--keyboard-inset-height'), 'Token CSS --keyboard-inset-height en index.html');
+assert(html.includes('initKeyboardDetection'), 'Detección de teclado virtual en index.html');
 console.log('Todos los requisitos de Fase 2 verificados correctamente.');
