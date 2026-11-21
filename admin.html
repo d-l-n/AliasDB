@@ -777,7 +777,7 @@
 
     @media (min-width: 768px) {
       .group-persons-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 18px;
       }
     }
@@ -864,9 +864,16 @@
 
     /* Accounts List inside Person Card */
     .person-accounts-list {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .person-accounts-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
     }
 
     .account-badge-row {
@@ -2748,7 +2755,7 @@
                   (acc.titular ? '  <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">' + getReiconSvg('User', '', 12) + ' Titular: ' + escapeHtml(acc.titular) + '</div>' : ''),
                   '  <div class="alias-row">',
                   '    <span class="alias-text font-mono">' + escapeHtml(acc.alias) + '</span>',
-                  '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(acc.alias) + '" data-copy-label="Alias" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar</button>',
+                  '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(acc.alias) + '" data-copy-label="Alias" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' tocar p/copiar</button>',
                   '  </div>',
                   cbuRowHtml,
                   '</div>'

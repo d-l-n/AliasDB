@@ -240,7 +240,7 @@
        ========================================================================== */
     .app-container {
       width: 100%;
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 16px;
       display: flex;
@@ -600,7 +600,7 @@
 
     @media (min-width: 700px) {
       .cards-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 20px;
       }
     }
@@ -705,7 +705,7 @@
     }
 
     .friend-card.is-collapsible.is-expanded .accounts-list {
-      display: flex;
+      display: grid;
     }
 
     .collapsed-bank-preview {
@@ -766,9 +766,16 @@
 
     /* Accounts List inside Card */
     .accounts-list {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .accounts-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
     }
 
     .account-item {
@@ -912,16 +919,11 @@
       font-size: 0.6875rem;
       font-weight: 800;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       flex-shrink: 0;
-      display: none;
-    }
-
-    @media (min-width: 480px) {
-      .alias-sub-hint {
-        display: inline-block;
-      }
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     /* Dedicated Copy Action Button (Touch area 2: Dedicated tactile button) */
@@ -1714,9 +1716,8 @@
         cardsContainer.innerHTML = filtered.map(function(friend) {
           var initials = friend.name.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
           var hasMultiple = friend.accounts.length >= 2;
-          var isSearchingOrFiltering = searchQuery !== '' || activeFilter !== 'ALL' || activeGroupFilter !== 'ALL';
-          // Si tiene 2 o más cuentas: plegado/cerrado por defecto en carga inicial
-          var isExpanded = hasMultiple ? (isSearchingOrFiltering || !!expandedCards[friend.id]) : true;
+          // Mostrar las cuentas directamente para aprovechar el ancho en pantalla
+          var isExpanded = expandedCards[friend.id] === undefined ? true : !!expandedCards[friend.id];
 
           var accountsHtml = friend.accounts
             .filter(function(acc) { return activeFilter === 'ALL' || acc.bankId === activeFilter; })
@@ -1742,7 +1743,7 @@
                 '  <div class="copy-action-row">',
                 '    <div class="alias-chip" role="button" tabindex="0" data-alias="' + acc.alias + '" aria-label="Copiar alias ' + acc.alias + ' de ' + friend.name + '">',
                 '      <span class="alias-text font-mono">' + acc.alias + '</span>',
-                '      <span class="alias-sub-hint">' + getReiconSvg('Copy', '', 11) + ' Tocar p/ copiar</span>',
+                '      <span class="alias-sub-hint">' + getReiconSvg('Copy', '', 11) + ' tocar p/copiar</span>',
                 '    </div>',
                 '    <button class="copy-btn" type="button" data-alias="' + acc.alias + '" aria-label="Copiar alias ' + acc.alias + ' al portapapeles">',
                 '      ' + getReiconSvg('Copy', '', 18),
