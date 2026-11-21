@@ -26,6 +26,26 @@ assert(indexHtml.includes('is-skeleton'), 'index.html debe tener clases skeleton
 assert(indexHtml.includes('renderSkeletons'), 'index.html debe tener función renderSkeletons');
 assert(indexHtml.includes('CACHE_KEY_PREFIX'), 'index.html debe tener prefijo de clave de caché SWR');
 assert(!indexHtml.includes('friendsData = DEFAULT_FRIENDS_DATA'), 'index.html no debe asignar DEFAULT_FRIENDS_DATA a friendsData');
+assert(indexHtml.includes('var targetGroup = grupoParam || activeGroupFilter'), 'index.html debe resolver targetGroup sin excluir activeGroupFilter === ALL');
+
+// Verificación de simulación de renderizado por token
+(function testTokenRendering() {
+  const dummyFriends = [
+    { id: '1', name: 'Dylan', group: 'MediaDocena, Surtidor', groups: ['MediaDocena', 'Surtidor'], accounts: [] },
+    { id: '2', name: 'Mica', group: 'MediaDocena', groups: ['MediaDocena'], accounts: [] }
+  ];
+  let grupoParam = 'MediaDocena';
+  let activeGroupFilter = 'ALL';
+  let isSegmentedMode = true;
+  let targetGroup = grupoParam || activeGroupFilter;
+  let matches = dummyFriends.filter(f => {
+    if (targetGroup && targetGroup !== 'ALL') {
+      return f.groups.some(g => g.toLowerCase() === targetGroup.toLowerCase());
+    }
+    return true;
+  });
+  assert(matches.length === 2, 'El filtro por token debe renderizar las personas del grupo segmentado');
+})();
 
 // 3. admin.html Admin Panel Multi-Group verification
 console.log('3. Verificando panel de administración multi-grupo en admin.html...');

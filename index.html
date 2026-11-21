@@ -1734,9 +1734,17 @@
             ? friend.groups
             : String(friend.group || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
 
-          return isSegmentedMode
-            ? (friendGroups.some(function(g) { return g.toLowerCase() === activeGroupFilter.toLowerCase() || (grupoParam && g.toLowerCase() === grupoParam.toLowerCase()); }))
-            : (activeGroupFilter === 'ALL' || friendGroups.some(function(g) { return g.toLowerCase() === activeGroupFilter.toLowerCase(); }));
+          if (isSegmentedMode) {
+            var targetGroup = grupoParam || activeGroupFilter;
+            if (!targetGroup || targetGroup === 'ALL') return true;
+            return friendGroups.some(function(g) {
+              return g.toLowerCase() === targetGroup.toLowerCase();
+            });
+          }
+
+          return activeGroupFilter === 'ALL' || friendGroups.some(function(g) {
+            return g.toLowerCase() === activeGroupFilter.toLowerCase();
+          });
         });
 
         var bankCounts = {};
@@ -1782,9 +1790,19 @@
             ? friend.groups
             : String(friend.group || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
 
-          var matchesGroup = isSegmentedMode
-            ? (friendGroups.some(function(g) { return g.toLowerCase() === activeGroupFilter.toLowerCase() || (grupoParam && g.toLowerCase() === grupoParam.toLowerCase()); }))
-            : (activeGroupFilter === 'ALL' || friendGroups.some(function(g) { return g.toLowerCase() === activeGroupFilter.toLowerCase(); }));
+          var matchesGroup = true;
+          if (isSegmentedMode) {
+            var targetGroup = grupoParam || activeGroupFilter;
+            if (targetGroup && targetGroup !== 'ALL') {
+              matchesGroup = friendGroups.some(function(g) {
+                return g.toLowerCase() === targetGroup.toLowerCase();
+              });
+            }
+          } else {
+            matchesGroup = activeGroupFilter === 'ALL' || friendGroups.some(function(g) {
+              return g.toLowerCase() === activeGroupFilter.toLowerCase();
+            });
+          }
 
           var matchesBank = activeFilter === 'ALL' || friend.accounts.some(function(acc) {
             return acc.bankId === activeFilter;
@@ -1806,7 +1824,7 @@
         if (filtered.length === 0) {
           cardsContainer.innerHTML = [
             '<div class="state-card" style="grid-column: 1 / -1;">',
-            '  <div class="state-icon-box" aria-hidden="true">?</div>',
+            '  <div class="state-icon-box" aria-hidden="true">' + getReiconSvg('Search', '', 36) + '</div>',
             '  <h2 class="state-title">Sin coincidencias</h2>',
             '  <p class="state-desc">No encontramos ningún alias para los criterios seleccionados.</p>',
             '  <button id="reset-filters-btn" class="btn-brutalist" type="button">Restablecer búsqueda</button>',
@@ -2240,6 +2258,9 @@
 
         if (serverData && serverData.grupo) {
           showGroupBranding(serverData.grupo);
+          if (!grupoParam) {
+            grupoParam = serverData.grupo;
+          }
         }
 
         // Cachear en localStorage para carga instantánea (<10ms) en visitas posteriores
@@ -2338,6 +2359,9 @@
             friendsData = normalizeFriendData(parsedCache.data);
             if (parsedCache.grupo) {
               showGroupBranding(parsedCache.grupo);
+              if (!grupoParam) {
+                grupoParam = parsedCache.grupo;
+              }
             }
             updateSyncStatus(true, 'Actualizando...');
             renderGroupFilterChips();
