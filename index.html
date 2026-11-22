@@ -1744,6 +1744,10 @@
     }
 
     .dialog-footer {
+      position: -webkit-sticky;
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
       padding: 14px 20px;
       background: var(--surface-muted);
       border-top: var(--border-width) solid var(--border);
@@ -2417,41 +2421,43 @@
       <button class="dialog-close-btn" type="button" data-close-modal="modal-add-alias" aria-label="Cerrar ventana"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
 
-    <form id="form-add-alias" onsubmit="return false;" class="dialog-body">
+    <form id="form-add-alias" onsubmit="return false;">
       <input type="hidden" id="alias-edit-friend-id" value="">
       
-      <div class="form-group">
-        <label for="alias-person-name" class="form-label">Nombre de la persona</label>
-        <input 
-          type="text" 
-          id="alias-person-name" 
-          class="form-control" 
-          placeholder="Ej: Martín Gómez" 
-          required 
-          autocomplete="name"
-        >
-      </div>
-
-      <!-- Contenedor Dinámico de Cuentas Asociadas -->
-      <div class="form-group" style="margin-bottom: 8px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-          <label class="form-label" style="margin-bottom: 0;">Cuentas bancarias</label>
-          <button type="button" id="btn-add-alias-account" class="btn-brutalist btn-sm btn-mint font-mono" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 0.75rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="13" height="13" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-            <span>+ Agregar otra cuenta</span>
-          </button>
+      <div class="dialog-body">
+        <div class="form-group">
+          <label for="alias-person-name" class="form-label">Nombre de la persona</label>
+          <input 
+            type="text" 
+            id="alias-person-name" 
+            class="form-control" 
+            placeholder="Ej: Martín Gómez" 
+            required 
+            autocomplete="name"
+          >
         </div>
 
-        <div id="alias-accounts-container" style="display: flex; flex-direction: column; gap: 14px;">
-          <!-- Filas/Cards dinámicas de cuentas generadas en JS -->
+        <!-- Contenedor Dinámico de Cuentas Asociadas -->
+        <div class="form-group" style="margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <label class="form-label" style="margin-bottom: 0;">Cuentas bancarias</label>
+            <button type="button" id="btn-add-alias-account" class="btn-brutalist btn-sm btn-mint font-mono" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 0.75rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="13" height="13" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <span>+ Agregar otra cuenta</span>
+            </button>
+          </div>
+
+          <div id="alias-accounts-container" style="display: flex; flex-direction: column; gap: 14px;">
+            <!-- Filas/Cards dinámicas de cuentas generadas en JS -->
+          </div>
+        </div>
+
+        <div class="info-note font-mono" style="background: var(--surface-muted); border: 2px solid var(--border); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; color: var(--text-muted); line-height: 1.4; margin-top: 10px;">
+          Si no sos el administrador del grupo, el alias se publicará de inmediato como 'Pendiente de confirmación'.
         </div>
       </div>
 
-      <div class="info-note font-mono" style="background: var(--surface-muted); border: 2px solid var(--border); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; color: var(--text-muted); line-height: 1.4; margin-top: 10px;">
-        Si no sos el administrador del grupo, el alias se publicará de inmediato como 'Pendiente de confirmación'.
-      </div>
-
-      <div class="dialog-footer" style="padding: 12px 0 0 0; background: transparent; border-top: none;">
+      <div class="dialog-footer">
         <button type="button" class="btn-brutalist btn-secondary" data-close-modal="modal-add-alias">Cancelar</button>
         <button type="submit" id="btn-submit-alias" class="btn-brutalist btn-primary">Guardar Datos</button>
       </div>
