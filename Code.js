@@ -10,7 +10,6 @@ const GROUPS_SHEET_NAME = 'Grupos';
 const SPREADSHEET_PROP_KEY = 'SPREADSHEET_ID';
 const TOKEN_MAP_KEY = 'GROUP_TOKENS';
 const ADMIN_KEY_PROP = 'ADMIN_KEY';
-const DEFAULT_ADMIN_KEY = 'aliasdb_admin_2026';
 
 const HEADERS = [
   'id_persona',
@@ -374,6 +373,16 @@ function doGet(e) {
           return jsonResponse({ success: true, data: getDistinctGroups() });
         }
 
+        case 'validateCBU': {
+          const cbu = (e.parameter.cbu || (e.parameter.payload && JSON.parse(e.parameter.payload).cbu) || '').trim();
+          return jsonResponse(validateCBU(cbu));
+        }
+
+        case 'getShareText': {
+          const personId = (e.parameter.id || e.parameter.id_persona || e.parameter.friendId || '').trim();
+          return jsonResponse(getShareTextInternal(personId));
+        }
+
         // --- Creación Autoservicio de Grupos ---
         case 'createGroup': {
           let body = null;
@@ -510,7 +519,8 @@ function doGet(e) {
             const ss = SpreadsheetApp.openById(targetId);
             PropertiesService.getScriptProperties().setProperty(SPREADSHEET_PROP_KEY, ss.getId());
             getAccountsSheet();
-            SpreadsheetApp.flush();
+            invalidateGroupsCache();
+        SpreadsheetApp.flush();
             return jsonResponse({
               success: true,
               data: {
@@ -586,26 +596,63 @@ function jsonResponse(obj) {
 // ===================================================================
 
 /**
+ * Normaliza una cadena de texto para comparaciones insensibles a mayúsculas, espacios y tildes.
+ * @param {string} str Cadena a normalizar
+ * @returns {string} Cadena normalizada sin tildes ni caracteres de control
+ */
+function normalizeText(str) {
+  return String(str || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+/**
+ * Computa el hash criptográfico SHA-256 en formato hexadecimal para proteger claves en reposo.
+ * @param {string} key Clave en texto plano
+ * @returns {string} Hash SHA-256 en minúsculas (64 caracteres)
+ */
+function hashKey(key) {
+  if (!key) return '';
+  const rawBytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(key).trim(), Utilities.Charset.UTF_8);
+  let hex = '';
+  for (let i = 0; i < rawBytes.length; i++) {
+    const byteVal = (rawBytes[i] < 0) ? rawBytes[i] + 256 : rawBytes[i];
+    const byteHex = byteVal.toString(16);
+    hex += (byteHex.length === 1) ? '0' + byteHex : byteHex;
+  }
+  return hex.toLowerCase();
+}
+
+/**
+ * Compara dos cadenas en tiempo constante para mitigar ataques de temporización (timing attacks).
+ * @param {string} a Primera cadena
+ * @param {string} b Segunda cadena
+ * @returns {boolean} true si ambas cadenas son idénticas
+ */
+function timingSafeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+/**
  * Valida la clave de administrador provista en la petición HTTP.
- * Si no hay clave configurada en ScriptProperties, inicializa DEFAULT_ADMIN_KEY.
+ * Requiere que ADMIN_KEY esté configurada en ScriptProperties; bloquea el acceso si no lo está.
  * @param {Object} e Evento de petición HTTP
  * @returns {TextOutput|null} null si la clave es válida; salida JSON con error si es inválida
  */
 function requireAdmin(e) {
   const adminKey = (e && e.parameter && e.parameter.adminKey) ? String(e.parameter.adminKey).trim() : '';
   const scriptProps = PropertiesService.getScriptProperties();
-  let storedKey = scriptProps.getProperty(ADMIN_KEY_PROP);
+  const storedKey = scriptProps.getProperty(ADMIN_KEY_PROP);
 
   if (!storedKey) {
-    storedKey = DEFAULT_ADMIN_KEY;
-    try {
-      scriptProps.setProperty(ADMIN_KEY_PROP, storedKey);
-    } catch (err) {
-      console.warn('No se pudo inicializar ADMIN_KEY por defecto:', err);
-    }
+    return jsonResponse({ success: false, error: 'ADMIN_KEY no configurada. Configure desde el menú AliasDB en Google Sheets.' });
   }
 
-  if (!adminKey || adminKey !== storedKey) {
+  if (!adminKey || !isValidAdminKey(adminKey)) {
     return jsonResponse({ success: false, error: 'No autorizado. adminKey inválida.' });
   }
 
@@ -613,18 +660,33 @@ function requireAdmin(e) {
 }
 
 /**
- * Comprueba de forma booleana si una clave provista coincide con ADMIN_KEY.
+ * Comprueba de forma booleana y criptográficamente segura si una clave provista coincide con ADMIN_KEY.
+ * Soporta hashes SHA-256 nativos y migración transparente de claves heredadas en texto plano.
  * @param {string} key Clave a verificar
  * @returns {boolean} true si es válida
  */
 function isValidAdminKey(key) {
   if (!key) return false;
   const scriptProps = PropertiesService.getScriptProperties();
-  let storedKey = scriptProps.getProperty(ADMIN_KEY_PROP);
-  if (!storedKey) {
-    storedKey = DEFAULT_ADMIN_KEY;
+  const storedKey = scriptProps.getProperty(ADMIN_KEY_PROP);
+  if (!storedKey) return false;
+  const cleanInput = String(key).trim();
+
+  // Validación con hash SHA-256 (64 hex characters)
+  if (/^[a-f0-9]{64}$/i.test(storedKey)) {
+    return timingSafeEqual(hashKey(cleanInput), storedKey.toLowerCase());
   }
-  return String(key).trim() === storedKey;
+
+  // Migración transparente retrocompatible si la propiedad guardada era texto plano
+  if (timingSafeEqual(cleanInput, storedKey)) {
+    try {
+      scriptProps.setProperty(ADMIN_KEY_PROP, hashKey(storedKey));
+    } catch (migErr) {
+      console.warn('No se pudo migrar ADMIN_KEY a SHA-256:', migErr);
+    }
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -686,8 +748,9 @@ function setAdminKey(key) {
     return { success: false, error: 'La clave de administración no puede estar vacía.' };
   }
   const cleanKey = key.trim();
-  PropertiesService.getScriptProperties().setProperty(ADMIN_KEY_PROP, cleanKey);
-  return { success: true, message: 'ADMIN_KEY actualizada correctamente.' };
+  const hashed = hashKey(cleanKey);
+  PropertiesService.getScriptProperties().setProperty(ADMIN_KEY_PROP, hashed);
+  return { success: true, message: 'ADMIN_KEY actualizada y asegurada criptográficamente.' };
 }
 
 // ===================================================================
@@ -746,10 +809,7 @@ function generateGroupToken(groupName, customToken) {
   if (customToken && String(customToken).trim()) {
     token = String(customToken).trim().toLowerCase();
   } else {
-    const prefix = cleanGroup
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+    const prefix = normalizeText(cleanGroup)
       .replace(/[^a-z0-9]/g, '')
       .slice(0, 6) || 'grp';
     token = prefix + '_' + Utilities.getUuid().slice(0, 4);
@@ -877,7 +937,7 @@ function renameGroupInternal(oldName, newName) {
       return { success: true, updatedCount: 0 };
     }
 
-    const normOld = cleanOld.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const normOld = normalizeText(cleanOld);
     let updatedCount = 0;
     const rowsToUpdate = [];
 
@@ -890,7 +950,7 @@ function renameGroupInternal(oldName, newName) {
       const parts = currentGroup.split(',').map(s => s.trim()).filter(Boolean);
       let modified = false;
       const updatedParts = parts.map(function(grp) {
-        const norm = grp.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const norm = normalizeText(grp);
         if (norm === normOld) {
           modified = true;
           return cleanNew;
@@ -914,7 +974,7 @@ function renameGroupInternal(oldName, newName) {
       const gData = groupsSheet.getDataRange().getValues();
       for (let j = 1; j < gData.length; j++) {
         const gName = String(gData[j][1] || '').trim();
-        const normG = gName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const normG = normalizeText(gName);
         if (normG === normOld) {
           groupsSheet.getRange(j + 1, 2).setValue(cleanNew);
         }
@@ -932,7 +992,7 @@ function renameGroupInternal(oldName, newName) {
         let tokensUpdated = false;
         Object.keys(tokenMap).forEach(function(token) {
           const tGroup = String(tokenMap[token] || '').trim();
-          const normTGroup = tGroup.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const normTGroup = normalizeText(tGroup);
           if (normTGroup === normOld) {
             tokenMap[token] = cleanNew;
             tokensUpdated = true;
@@ -945,6 +1005,8 @@ function renameGroupInternal(oldName, newName) {
         console.warn('Error actualizando tokens durante renombre de grupo:', err);
       }
     }
+
+    invalidateGroupsCache();
 
     return {
       success: true,
@@ -989,7 +1051,7 @@ function deleteGroupInternal(targetIdentifier) {
     const targetGroup = findGroupById(cleanTarget) || findGroupByName(cleanTarget);
     const targetName = targetGroup ? targetGroup.nombre_grupo : cleanTarget;
     const targetId = targetGroup ? targetGroup.id_grupo : '';
-    const normTarget = targetName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const normTarget = normalizeText(targetName);
 
     // 2. Eliminar o purgar de la hoja 'Grupos'
     try {
@@ -1001,7 +1063,7 @@ function deleteGroupInternal(targetIdentifier) {
           const row = gData[j];
           const gId = String(row[0] || '').trim();
           const gName = String(row[1] || '').trim();
-          const normG = gName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const normG = normalizeText(gName);
           if (normG === normTarget || (targetId && gId.toLowerCase() === targetId.toLowerCase())) {
             continue; // omitir fila del grupo eliminado
           }
@@ -1031,7 +1093,7 @@ function deleteGroupInternal(targetIdentifier) {
         const currentGroup = String(row[2] || '').trim();
         const parts = currentGroup.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
         const filteredParts = parts.filter(function(grp) {
-          const norm = grp.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const norm = normalizeText(grp);
           return norm !== normTarget;
         });
 
@@ -1064,7 +1126,7 @@ function deleteGroupInternal(targetIdentifier) {
         let tokensUpdated = false;
         Object.keys(tokenMap).forEach(function(token) {
           const tGroup = String(tokenMap[token] || '').trim();
-          const normTGroup = tGroup.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const normTGroup = normalizeText(tGroup);
           if (normTGroup === normTarget || (targetGroup && (token === targetGroup.read_token || token === targetGroup.admin_token))) {
             delete tokenMap[token];
             tokensUpdated = true;
@@ -1078,6 +1140,7 @@ function deleteGroupInternal(targetIdentifier) {
       }
     }
 
+    invalidateGroupsCache();
     SpreadsheetApp.flush();
 
     return {
@@ -1218,6 +1281,7 @@ function getGroupsSheet() {
  * @param {Sheet} [sheet] Pestaña de grupos opcional
  */
 function seedDefaultGroups(sheet) {
+  invalidateGroupsCache();
   const targetSheet = sheet || getGroupsSheet();
   const now = new Date().toISOString();
   const rows = DEFAULT_GROUPS_SEED.map(function(g) {
@@ -1234,15 +1298,32 @@ function seedDefaultGroups(sheet) {
   syncGroupTokensToProperties();
 }
 
+/** Caché en memoria para evitar lecturas redundantes de la hoja 'Grupos' por request */
+let _groupsCache = null;
+
 /**
- * Obtiene todos los grupos registrados en la hoja 'Grupos'.
+ * Invalida la caché en memoria de grupos para forzar lectura fresca en la siguiente consulta.
+ */
+function invalidateGroupsCache() {
+  _groupsCache = null;
+}
+
+/**
+ * Obtiene todos los grupos registrados en la hoja 'Grupos' con optimización de caché por petición.
+ * @param {boolean} [forceRefresh=false] Indica si se debe ignorar la caché y reconsultar la hoja
  * @returns {Array<Object>} Lista de grupos
  */
-function getAllGroupsList() {
+function getAllGroupsList(forceRefresh) {
+  if (_groupsCache !== null && !forceRefresh) {
+    return _groupsCache;
+  }
   try {
     const sheet = getGroupsSheet();
     const data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return [];
+    if (data.length <= 1) {
+      _groupsCache = [];
+      return [];
+    }
     const list = [];
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
@@ -1258,6 +1339,7 @@ function getAllGroupsList() {
         created_at: String(row[5] || '').trim()
       });
     }
+    _groupsCache = list;
     return list;
   } catch (err) {
     console.error('Error en getAllGroupsList:', err);
@@ -1321,11 +1403,11 @@ function findGroupById(id) {
  */
 function findGroupByName(name) {
   if (!name) return null;
-  const clean = String(name).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const clean = normalizeText(name);
   const groups = getAllGroupsList();
   for (let i = 0; i < groups.length; i++) {
     const g = groups[i];
-    const norm = g.nombre_grupo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const norm = normalizeText(g.nombre_grupo);
     if (norm === clean) return g;
   }
   return null;
@@ -1438,6 +1520,7 @@ function createGroupInternal(params) {
       console.warn('Error actualizando GROUP_TOKENS en createGroup:', propErr);
     }
 
+    invalidateGroupsCache();
     SpreadsheetApp.flush();
 
     return {
@@ -1789,6 +1872,7 @@ function saveFriendWithAccounts(friendObj, options) {
     if (remainingRows.length > 0) {
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setValues(remainingRows);
     }
+    invalidateGroupsCache();
     SpreadsheetApp.flush();
 
     const savedData = {
@@ -1909,6 +1993,7 @@ function confirmFriendInternal(e) {
     });
 
     sheet.getRange(2, 1, updatedRows.length, HEADERS.length).setValues(updatedRows);
+    invalidateGroupsCache();
     SpreadsheetApp.flush();
 
     return {
@@ -2069,6 +2154,7 @@ function rejectFriendInternal(e) {
         if (otherRows.length > 0) {
           sheet.getRange(2, 1, otherRows.length, HEADERS.length).setValues(otherRows);
         }
+        invalidateGroupsCache();
         SpreadsheetApp.flush();
 
         return {
@@ -2093,6 +2179,7 @@ function rejectFriendInternal(e) {
     if (remainingRows.length > 0) {
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setValues(remainingRows);
     }
+    invalidateGroupsCache();
     SpreadsheetApp.flush();
 
     return {
@@ -2147,6 +2234,7 @@ function deleteFriend(friendId) {
     if (remainingRows.length > 0) {
       sheet.getRange(2, 1, remainingRows.length, HEADERS.length).setValues(remainingRows);
     }
+    invalidateGroupsCache();
     SpreadsheetApp.flush();
 
     return { success: true, data: { id: friendId, deleted: true } };
@@ -2246,6 +2334,7 @@ function deleteAccount(accountId) {
     if (updatedRows.length > 0) {
       sheet.getRange(2, 1, updatedRows.length, HEADERS.length).setValues(updatedRows);
     }
+    invalidateGroupsCache();
     SpreadsheetApp.flush();
 
     return { success: true, data: { id: accountId, deleted: true } };
@@ -2347,7 +2436,7 @@ function getFriendsDataInternal(groupFilter, options) {
 
   const friendsMap = new Map();
   const normalizedFilter = groupFilter
-    ? String(groupFilter).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    ? normalizeText(groupFilter)
     : null;
 
   for (let i = 1; i < fullData.length; i++) {
@@ -2368,7 +2457,7 @@ function getFriendsDataInternal(groupFilter, options) {
         isMatch = true;
       } else if (normalizedFilter && normalizedFilter !== 'all') {
         isMatch = groupsArray.some(function(g) {
-          const norm = g.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const norm = normalizeText(g);
           return norm === normalizedFilter;
         });
       }
@@ -2450,4 +2539,82 @@ function getInitials(name) {
   if (parts.length === 0) return '??';
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+/**
+ * Valida un CBU o CVU de 22 dígitos según el algoritmo oficial de ponderación y dígitos verificadores del BCRA.
+ * Bloque 1 (entidad y sucursal, posiciones 0-7): ponderadores [7, 1, 3, 9, 7, 1, 3], dígito verificador en pos 7.
+ * Bloque 2 (cuenta bancaria, posiciones 8-21): ponderadores [3, 9, 7, 1, 3, 9, 7, 3, 9, 7, 1, 3, 9], dígito verificador en pos 21.
+ * @param {string} cbu CBU o CVU a validar
+ * @returns {Object} { valid: boolean, error?: string, cbu?: string }
+ */
+function validateCBU(cbu) {
+  const clean = String(cbu || '').trim().replace(/[\s-]/g, '');
+  if (!clean) {
+    return { valid: false, error: 'CBU/CVU vacío.' };
+  }
+  if (!/^\d{22}$/.test(clean)) {
+    return { valid: false, error: 'El CBU/CVU debe tener exactamente 22 dígitos numéricos.' };
+  }
+
+  // Verificación Bloque 1 (Banco y Sucursal)
+  const w1 = [7, 1, 3, 9, 7, 1, 3];
+  let sum1 = 0;
+  for (let i = 0; i < 7; i++) {
+    sum1 += parseInt(clean.charAt(i), 10) * w1[i];
+  }
+  const check1 = (10 - (sum1 % 10)) % 10;
+  if (check1 !== parseInt(clean.charAt(7), 10)) {
+    return { valid: false, error: 'Dígito verificador de entidad/sucursal inválido (bloque 1).' };
+  }
+
+  // Verificación Bloque 2 (Cuenta)
+  const w2 = [3, 9, 7, 1, 3, 9, 7, 3, 9, 7, 1, 3, 9];
+  let sum2 = 0;
+  for (let j = 0; j < 13; j++) {
+    sum2 += parseInt(clean.charAt(j + 8), 10) * w2[j];
+  }
+  const check2 = (10 - (sum2 % 10)) % 10;
+  if (check2 !== parseInt(clean.charAt(21), 10)) {
+    return { valid: false, error: 'Dígito verificador de cuenta inválido (bloque 2).' };
+  }
+
+  return { valid: true, cbu: clean };
+}
+
+/**
+ * Genera un texto preformateado y optimizado para compartir por WhatsApp o clipboard.
+ * @param {string} personId Identificador de la persona
+ * @returns {Object} { success: boolean, text?: string, error?: string }
+ */
+function getShareTextInternal(personId) {
+  if (!personId) {
+    return { success: false, error: 'Identificador de persona requerido (id).' };
+  }
+  const friends = getFriendsDataInternal(null, { isAdmin: true });
+  const friend = friends.find(function(f) { return f.id === personId; });
+  if (!friend) {
+    return { success: false, error: 'Contacto no encontrado con ID: ' + personId };
+  }
+
+  let text = '📲 Datos de transferencia — ' + friend.name + '\n';
+  if (friend.group && friend.group !== 'General') {
+    text += '👥 Grupo: ' + friend.group + '\n';
+  }
+
+  if (friend.accounts && friend.accounts.length > 0) {
+    friend.accounts.forEach(function(acc, idx) {
+      text += '\n🏦 ' + (acc.bank || acc.bankName || 'Cuenta ' + (idx + 1));
+      if (acc.type) text += ' (' + acc.type + ')';
+      text += '\n';
+      if (acc.alias) text += '• Alias: ' + acc.alias + '\n';
+      if (acc.cbu) text += '• CBU/CVU: ' + acc.cbu + '\n';
+      if (acc.titular) text += '• Titular: ' + acc.titular + '\n';
+    });
+  } else {
+    text += '\n(Sin cuentas bancarias registradas)\n';
+  }
+
+  text += '\n⚡ Compartido vía AliasDB';
+  return { success: true, text: text.trim(), person: friend };
 }
