@@ -3039,6 +3039,11 @@
             '      <button class="btn-brutalist btn-sm btn-rename-group" type="button" data-group-name="' + escapeHtml(groupName) + '">',
             '        ' + getReiconSvg('Edit', '', 14) + ' <span>Renombrar</span>',
             '      </button>',
+            (groupName.toLowerCase() !== 'general' ? [
+              '      <button class="btn-brutalist btn-sm btn-danger btn-delete-group" type="button" data-group-name="' + escapeHtml(groupName) + '" title="Eliminar grupo ' + escapeHtml(groupName) + '">',
+              '        ' + getReiconSvg('Trash', '', 14) + ' <span>Eliminar</span>',
+              '      </button>'
+            ].join('\n') : ''),
             '    </div>',
             '  </header>',
             '  <div class="group-persons-grid">',
@@ -3127,6 +3132,15 @@
           btn.addEventListener('click', function() {
             var groupName = btn.getAttribute('data-group-name');
             promptRenameGroup(groupName);
+          });
+        });
+
+        // Eliminar grupo (atajo desde header de la card)
+        dom.groupsContainer.querySelectorAll('.btn-delete-group').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var groupName = btn.getAttribute('data-group-name');
+            confirmDeleteGroup(groupName);
           });
         });
       }
@@ -3769,6 +3783,7 @@
             '    <div style="display: flex; gap: 6px;">',
             '      <button class="btn-brutalist btn-sm btn-rename-grp-action" type="button" data-group-name="' + escapeHtml(g) + '">' + getReiconSvg('Edit', '', 14) + ' <span>Renombrar</span></button>',
             '      <button class="btn-brutalist btn-sm btn-cyan btn-group-token-action" type="button" data-group-name="' + escapeHtml(g) + '">' + getReiconSvg('Key', '', 14) + ' <span>Link</span></button>',
+            (g.toLowerCase() !== 'general' ? '      <button class="btn-brutalist btn-sm btn-danger btn-delete-grp-action" type="button" data-group-name="' + escapeHtml(g) + '" title="Eliminar grupo ' + escapeHtml(g) + '">' + getReiconSvg('Trash', '', 14) + ' <span>Eliminar</span></button>' : ''),
             '    </div>',
             '  </td>',
             '</tr>'
@@ -3787,6 +3802,16 @@
           b.addEventListener('click', function() {
             var g = b.getAttribute('data-group-name');
             handleGroupTokenShare(g);
+          });
+        });
+
+        dom.groupsTableBody.querySelectorAll('.btn-delete-grp-action').forEach(function(b) {
+          b.addEventListener('click', function() {
+            var g = b.getAttribute('data-group-name');
+            closeModal(dom.modalGroups);
+            confirmDeleteGroup(g, function() {
+              openGroupsModal();
+            });
           });
         });
 
@@ -3828,6 +3853,85 @@
 
         showToast('Grupo "' + oldName + '" renombrado a "' + newName + '" (' + affected + ' personas)');
         renderDashboard();
+      }
+
+      function confirmDeleteGroup(groupName, onCompleted) {
+        if (!groupName) return;
+        if (groupName.toLowerCase() === 'general') {
+          showToast('El grupo predeterminado "General" no puede ser eliminado', true);
+          return;
+        }
+        confirmDestructiveAction(
+          '¿Estás seguro de que deseás eliminar el grupo <strong>"' + escapeHtml(groupName) + '"</strong>?<br><br><span style="font-size: 0.82rem; color: var(--text-muted);">Las personas asociadas se preservarán y pasarán al grupo <strong>General</strong> si no tienen otros grupos asignados. Los enlaces y tokens de este grupo quedarán revocados.</span>',
+          function() {
+            deleteGroup(groupName, onCompleted);
+          }
+        );
+      }
+
+      function deleteGroup(groupName, onCompleted) {
+        showToast('Eliminando grupo "' + groupName + '"...');
+        var url = BACKEND_API_URL + '?action=deleteGroup&grupo=' + encodeURIComponent(groupName);
+        if (appState.adminKey) url += '&adminKey=' + encodeURIComponent(appState.adminKey);
+
+        // Actualización optimista local
+        var normTarget = groupName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        var affected = 0;
+        appState.persons.forEach(function(p) {
+          var pGroups = p.groups || (p.group ? p.group.split(',').map(function(s) { return s.trim(); }) : ['General']);
+          var filtered = pGroups.filter(function(g) {
+            return g.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') !== normTarget;
+          });
+          if (filtered.length !== pGroups.length) {
+            p.groups = filtered.length > 0 ? Array.from(new Set(filtered)) : ['General'];
+            p.group = p.groups.join(', ');
+            affected++;
+          }
+        });
+
+        // Limpiar tokens locales
+        for (var t in appState.groupTokens) {
+          if (appState.groupTokens[t] === groupName) {
+            delete appState.groupTokens[t];
+          }
+        }
+        saveLocalTokens();
+
+        if (appState.collapsedGroups[groupName]) {
+          delete appState.collapsedGroups[groupName];
+          saveCollapsedGroups();
+        }
+
+        if (appState.selectedGroup === groupName) {
+          appState.selectedGroup = 'ALL';
+        }
+
+        renderDashboard();
+
+        fetch(url)
+          .then(function(res) {
+            if (res.status === 403) throw new Error('NO_AUTH');
+            return res.json();
+          })
+          .then(function(json) {
+            if (json && json.success === false) {
+              var isAuthErr = json.error && (json.error.indexOf('No autorizado') !== -1 || json.error === 'NO_AUTH');
+              if (isAuthErr) {
+                showToast('Error de autenticación: Clave no autorizada', true);
+                openModal(dom.modalAuth);
+                return;
+              }
+              showToast('Error al eliminar grupo en Google Sheets: ' + (json.error || 'Error desconocido'), true);
+              return;
+            }
+            showToast('Grupo "' + groupName + '" eliminado exitosamente (' + affected + ' personas actualizadas)');
+            if (typeof onCompleted === 'function') onCompleted();
+          })
+          .catch(function(err) {
+            console.warn('Backend deleteGroup fallback:', err);
+            showToast('Grupo "' + groupName + '" eliminado localmente (sin conexión)', true);
+            if (typeof onCompleted === 'function') onCompleted();
+          });
       }
 
       /* ======================================================================

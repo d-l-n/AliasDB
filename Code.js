@@ -479,6 +479,14 @@ function doGet(e) {
           return jsonResponse(renameGroupInternal(e.parameter.oldName, e.parameter.newName));
         }
 
+        case 'deleteGroup':
+        case 'removeGroup': {
+          const grupoParam = (e.parameter.grupo || e.parameter.group || e.parameter.nombre || e.parameter.id_grupo || '').trim();
+          const authError = requireAdminOrGroupOwner(e, grupoParam);
+          if (authError) return authError;
+          return jsonResponse(deleteGroupInternal(grupoParam));
+        }
+
         case 'getSpreadsheetInfo': {
           const authError = requireAdmin(e);
           if (authError) return authError;
@@ -642,6 +650,27 @@ function requireAdminOrGroupAdmin(e, friendId) {
           return null;
         }
       }
+    }
+  }
+  return requireAdmin(e);
+}
+
+/**
+ * Valida que el invocador sea superadministrador (adminKey) o administrador del grupo puntual.
+ * @param {Object} e Evento de petición HTTP
+ * @param {string} targetGroupNameOrId Nombre o id_grupo del grupo
+ * @returns {TextOutput|null} null si está autorizado, error JSON si no
+ */
+function requireAdminOrGroupOwner(e, targetGroupNameOrId) {
+  if (isValidAdminKey(e && e.parameter && e.parameter.adminKey)) {
+    return null;
+  }
+  const adminToken = e && e.parameter && (e.parameter.adminToken || e.parameter.admin || e.parameter.token);
+  if (adminToken && targetGroupNameOrId) {
+    const cleanToken = String(adminToken).trim().toLowerCase();
+    const grp = findGroupById(targetGroupNameOrId) || findGroupByName(targetGroupNameOrId);
+    if (grp && grp.admin_token && grp.admin_token.toLowerCase() === cleanToken) {
+      return null;
     }
   }
   return requireAdmin(e);
@@ -925,6 +954,140 @@ function renameGroupInternal(oldName, newName) {
     };
   } catch (error) {
     console.error('Error en renameGroupInternal:', error);
+    return { success: false, error: error.message || String(error) };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Elimina un grupo del sistema:
+ * 1. Remueve el registro en la hoja 'Grupos'.
+ * 2. Limpia o reasigna el grupo en la hoja 'Cuentas' (si una persona queda sin grupos, pasa a 'General').
+ * 3. Elimina los tokens asociados al grupo en ScriptProperties (GROUP_TOKENS).
+ * @param {string} targetIdentifier Nombre o identificador del grupo a eliminar
+ * @returns {Object} { success: true, deletedGroup: string, updatedPersons: number }
+ */
+function deleteGroupInternal(targetIdentifier) {
+  const lock = LockService.getScriptLock();
+  try {
+    const hasLock = lock.tryLock(15000);
+    if (!hasLock) {
+      return { success: false, error: 'Base de datos ocupada. Intente nuevamente en unos instantes.' };
+    }
+
+    const cleanTarget = String(targetIdentifier || '').trim();
+    if (!cleanTarget) {
+      return { success: false, error: 'Nombre o identificador de grupo requerido.' };
+    }
+
+    if (cleanTarget.toLowerCase() === 'general') {
+      return { success: false, error: 'El grupo predeterminado "General" no puede ser eliminado.' };
+    }
+
+    // 1. Identificar el grupo en la hoja 'Grupos'
+    const targetGroup = findGroupById(cleanTarget) || findGroupByName(cleanTarget);
+    const targetName = targetGroup ? targetGroup.nombre_grupo : cleanTarget;
+    const targetId = targetGroup ? targetGroup.id_grupo : '';
+    const normTarget = targetName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    // 2. Eliminar o purgar de la hoja 'Grupos'
+    try {
+      const groupsSheet = getGroupsSheet();
+      const gData = groupsSheet.getDataRange().getValues();
+      if (gData.length > 1) {
+        const remainingGroupRows = [gData[0]];
+        for (let j = 1; j < gData.length; j++) {
+          const row = gData[j];
+          const gId = String(row[0] || '').trim();
+          const gName = String(row[1] || '').trim();
+          const normG = gName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          if (normG === normTarget || (targetId && gId.toLowerCase() === targetId.toLowerCase())) {
+            continue; // omitir fila del grupo eliminado
+          }
+          remainingGroupRows.push(row);
+        }
+        groupsSheet.clearContents();
+        if (remainingGroupRows.length > 0) {
+          groupsSheet.getRange(1, 1, remainingGroupRows.length, GROUPS_HEADERS.length).setValues(remainingGroupRows);
+        }
+      }
+    } catch (gErr) {
+      console.warn('Error purgando registro de hoja Grupos:', gErr);
+    }
+
+    // 3. Actualizar la hoja 'Cuentas'
+    const sheet = getAccountsSheet();
+    const fullData = sheet.getDataRange().getValues();
+    let updatedPersonsCount = 0;
+
+    if (fullData.length > 1) {
+      const rowsToUpdate = [];
+      for (let i = 1; i < fullData.length; i++) {
+        const row = fullData[i];
+        while (row.length < HEADERS.length) {
+          row.push('');
+        }
+        const currentGroup = String(row[2] || '').trim();
+        const parts = currentGroup.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+        const filteredParts = parts.filter(function(grp) {
+          const norm = grp.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          return norm !== normTarget;
+        });
+
+        let modified = (filteredParts.length !== parts.length);
+        if (modified) {
+          if (filteredParts.length === 0) {
+            row[2] = 'General';
+          } else {
+            row[2] = Array.from(new Set(filteredParts)).join(', ');
+          }
+          if (targetId && String(row[11] || '').trim().toLowerCase() === targetId.toLowerCase()) {
+            row[11] = '';
+          }
+          updatedPersonsCount++;
+        }
+        rowsToUpdate.push(row);
+      }
+
+      if (updatedPersonsCount > 0) {
+        sheet.getRange(2, 1, rowsToUpdate.length, HEADERS.length).setValues(rowsToUpdate);
+      }
+    }
+
+    // 4. Purgar tokens asociados en ScriptProperties (TOKEN_MAP_KEY)
+    const scriptProps = PropertiesService.getScriptProperties();
+    const rawTokens = scriptProps.getProperty(TOKEN_MAP_KEY);
+    if (rawTokens) {
+      try {
+        const tokenMap = JSON.parse(rawTokens);
+        let tokensUpdated = false;
+        Object.keys(tokenMap).forEach(function(token) {
+          const tGroup = String(tokenMap[token] || '').trim();
+          const normTGroup = tGroup.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          if (normTGroup === normTarget || (targetGroup && (token === targetGroup.read_token || token === targetGroup.admin_token))) {
+            delete tokenMap[token];
+            tokensUpdated = true;
+          }
+        });
+        if (tokensUpdated) {
+          scriptProps.setProperty(TOKEN_MAP_KEY, JSON.stringify(tokenMap));
+        }
+      } catch (err) {
+        console.warn('Error purgando tokens al eliminar grupo:', err);
+      }
+    }
+
+    SpreadsheetApp.flush();
+
+    return {
+      success: true,
+      deletedGroup: targetName,
+      updatedPersons: updatedPersonsCount,
+      message: 'Grupo "' + targetName + '" eliminado correctamente.'
+    };
+  } catch (error) {
+    console.error('Error en deleteGroupInternal:', error);
     return { success: false, error: error.message || String(error) };
   } finally {
     lock.releaseLock();

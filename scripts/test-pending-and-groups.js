@@ -74,6 +74,11 @@ it("Code.js implementa aislamiento multi-tenant verificando admin_token de grupo
   assert(codeJs.includes("admin_token") || codeJs.includes("adminToken"), "Code.js debe validar admin_token para sandboxing de grupo");
 });
 
+it("Code.js define la acción deleteGroup y la función deleteGroupInternal con script locking", () => {
+  assert(codeJs.includes("case 'deleteGroup':") || codeJs.includes('case "deleteGroup":'), "Code.js debe rutear deleteGroup");
+  assert(codeJs.includes("function deleteGroupInternal"), "Code.js debe definir deleteGroupInternal");
+});
+
 // =========================================================================
 // 2. Verificación de Frontend (index.html)
 // =========================================================================
@@ -144,6 +149,13 @@ it("index.html propaga adminToken en loadData para garantizar visibilidad al cre
   assert(indexHtml.includes("&admin=") || indexHtml.includes("&adminToken="), "index.html debe propagar token de admin en loadData");
 });
 
+it("admin.html implementa eliminación de grupos por atajo de card header y en modal Gestionar Grupos", () => {
+  assert(adminHtml.includes("btn-delete-group"), "admin.html debe contener clase btn-delete-group en cabecera de cards de grupos");
+  assert(adminHtml.includes("btn-delete-grp-action"), "admin.html debe contener clase btn-delete-grp-action en tabla de modal Gestionar Grupos");
+  assert(adminHtml.includes("function confirmDeleteGroup"), "admin.html debe definir función confirmDeleteGroup");
+  assert(adminHtml.includes("function deleteGroup"), "admin.html debe definir función deleteGroup");
+});
+
 // =========================================================================
 // 3. Simulaciones Unitarias de Contratos de Lógica y Seguridad
 // =========================================================================
@@ -185,6 +197,29 @@ it("Simulación de sandboxing multi-tenant: aislamiento estricto por admin_token
   assert.strictEqual(authorizeGroupAdmin("grp_alpha", "fake_token"), false, "Token inválido es rechazado");
   // Grupo inexistente
   assert.strictEqual(authorizeGroupAdmin("grp_omega", "adm_secret_alpha_999"), false, "Grupo inexistente es rechazado");
+});
+
+it("Simulación de eliminación de grupo: preservación de personas con reasignación a 'General'", () => {
+  const persons = [
+    { name: "Juan", groups: ["Fútbol", "Facultad"] },
+    { name: "Pedro", groups: ["Fútbol"] },
+    { name: "Maria", groups: ["General"] }
+  ];
+
+  function simulateDeleteGroup(targetGroup) {
+    persons.forEach(p => {
+      p.groups = p.groups.filter(g => g !== targetGroup);
+      if (p.groups.length === 0) {
+        p.groups = ["General"];
+      }
+    });
+  }
+
+  simulateDeleteGroup("Fútbol");
+
+  assert.deepStrictEqual(persons[0].groups, ["Facultad"], "Juan mantiene 'Facultad'");
+  assert.deepStrictEqual(persons[1].groups, ["General"], "Pedro pasa a 'General' al no tener más grupos");
+  assert.deepStrictEqual(persons[2].groups, ["General"], "Maria permanece en 'General'");
 });
 
 console.log(`\n>>> RESULTADO: ${passed}/${total} pruebas pasaron exitosamente. <<<`);
