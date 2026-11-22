@@ -1583,10 +1583,10 @@ function saveFriendWithAccounts(friendObj, options) {
       try { rawAccounts = JSON.parse(rawAccounts); } catch (e) { rawAccounts = []; }
     }
     if (!Array.isArray(rawAccounts)) rawAccounts = [];
-    if (rawAccounts.length === 0 && (friendObj.alias || friendObj.cbu || friendObj.cbu_cvu || friendObj.bank || friendObj.entidad_banco)) {
+    if (rawAccounts.length === 0 && (friendObj.alias || friendObj.cbu || friendObj.cbu_cvu || friendObj.bank || friendObj.bankName || friendObj.entidad_banco)) {
       rawAccounts = [{
         id: friendObj.id_cuenta || ('acc_' + Utilities.getUuid().slice(0, 8)),
-        bank: friendObj.bank || friendObj.entidad_banco || '',
+        bank: friendObj.bank || friendObj.bankName || friendObj.entidad_banco || '',
         type: friendObj.type || friendObj.tipo_cuenta || 'Caja de Ahorro',
         alias: friendObj.alias || '',
         cbu: friendObj.cbu || friendObj.cbu_cvu || '',
@@ -1722,7 +1722,7 @@ function saveFriendWithAccounts(friendObj, options) {
     } else {
       rawAccounts.forEach(function(acc, idx) {
         const accId = (acc.id || acc.id_cuenta || ('acc_' + Utilities.getUuid().slice(0, 8) + '_' + (idx + 1))).trim();
-        const bank = (acc.bank || acc.entidad_banco || '').trim();
+        const bank = (acc.bank || acc.bankName || acc.entidad_banco || '').trim();
         const type = (acc.type || acc.tipo_cuenta || 'Caja de Ahorro').trim();
         const alias = (acc.alias || '').trim();
         const cbu = (acc.cbu || acc.cbu_cvu || '').trim();
@@ -2427,6 +2427,7 @@ function getFriendsDataInternal(groupFilter, options) {
       friend.accounts.push({
         id: accountId,
         bank: bank,
+        bankName: bank,
         type: type,
         alias: alias,
         cbu: cbu,

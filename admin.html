@@ -2993,7 +2993,9 @@
             }
 
             var pGroups = (person.groups && person.groups.length > 0) ? person.groups : [person.group || 'General'];
-            var badgesHtml = pGroups.map(function(g) {
+            var badgesHtml = pGroups.filter(function(g) {
+              return g.toLowerCase() !== groupName.toLowerCase();
+            }).map(function(g) {
               return '<span class="friend-group-badge">' + getReiconSvg('Folder', '', 10) + ' ' + escapeHtml(g) + '</span>';
             }).join('');
 

@@ -156,6 +156,23 @@ it("admin.html implementa eliminación de grupos por atajo de card header y en m
   assert(adminHtml.includes("function deleteGroup"), "admin.html debe definir función deleteGroup");
 });
 
+it("index.html implementa Zero-UI en status dot cuando está online (display: none !important)", () => {
+  assert(indexHtml.includes(".sync-badge.is-online"), "index.html debe definir regla CSS para .sync-badge.is-online");
+  assert(indexHtml.includes("display: none !important"), "index.html debe ocultar status dot con display: none !important en estado online");
+});
+
+it("index.html implementa repeater multi-cuenta y diálogo de decisión para nombres repetidos y bancos duplicados", () => {
+  assert(indexHtml.includes("alias-accounts-container"), "index.html debe contener contenedor alias-accounts-container");
+  assert(indexHtml.includes("btn-add-alias-account"), "index.html debe incluir botón para sumar otra cuenta");
+  assert(indexHtml.includes("appendAliasAccountCard"), "index.html debe definir función appendAliasAccountCard");
+  assert(indexHtml.includes("modal-alias-decision"), "index.html debe contener diálogo modal-alias-decision");
+  assert(indexHtml.includes("showAliasDecisionModal"), "index.html debe definir función showAliasDecisionModal");
+});
+
+it("Code.js normaliza el campo bank para evitar valor por defecto 'Banco'", () => {
+  assert(codeJs.includes("acc.bank || acc.bankName || acc.entidad_banco"), "Code.js debe normalizar acc.bank con fallbacks bankName y entidad_banco");
+});
+
 // =========================================================================
 // 3. Simulaciones Unitarias de Contratos de Lógica y Seguridad
 // =========================================================================
