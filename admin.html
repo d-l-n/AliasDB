@@ -815,17 +815,18 @@
       gap: 12px;
     }
 
-    @media (min-width: 768px) {
+    /* Prioriza mostrar 2 personas en la misma fila a partir de viewports medianos */
+    @media (min-width: 600px) {
       .group-persons-grid {
-        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-        gap: 14px;
-        padding: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        padding: 12px;
       }
     }
 
-    @media (min-width: 1280px) {
+    @media (min-width: 1400px) {
       .group-persons-grid {
-        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
         gap: 14px;
         padding: 16px;
       }
@@ -842,6 +843,7 @@
       flex-direction: column;
       gap: 10px;
       transition: var(--transition-hover);
+      container-type: inline-size;
     }
 
     .admin-person-card:hover {
@@ -966,9 +968,21 @@
       gap: 8px;
     }
 
-    @media (min-width: 520px) {
+    /* Siempre que sea posible (ancho de tarjeta >= 420px), muestra 2 cuentas en la misma fila */
+    @container (min-width: 420px) {
       .person-accounts-list {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .person-accounts-list > .account-data-box:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (min-width: 920px) {
+      .person-accounts-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
       }
 
@@ -981,21 +995,25 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
+      white-space: nowrap;
+      min-width: 0;
     }
 
     .bank-badge {
       display: inline-flex;
       align-items: center;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       font-family: var(--font-display);
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 900;
       letter-spacing: 0.03em;
       text-transform: uppercase;
       box-shadow: 1px 1px 0px var(--shadow);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .bank-badge-mp { background: var(--bank-mp-bg); color: var(--bank-mp-text); }
@@ -1009,10 +1027,12 @@
     .bank-badge-generic { background: var(--bank-generic-bg); color: var(--bank-generic-text); }
 
     .account-type-tag {
-      font-size: 0.72rem;
+      font-size: 0.6875rem;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .account-data-box {
@@ -1023,36 +1043,44 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      min-width: 0;
     }
 
     .alias-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
+      white-space: nowrap;
+      min-width: 0;
     }
 
     .alias-text {
       font-family: var(--font-mono);
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 800;
       color: var(--text);
-      word-break: break-all;
+      white-space: nowrap;
+      min-width: 0;
     }
 
     .cbu-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      font-size: 0.75rem;
+      gap: 6px;
+      font-size: 0.72rem;
       color: var(--text-muted);
+      white-space: nowrap;
+      min-width: 0;
     }
 
     .cbu-text {
       font-family: var(--font-mono);
       font-weight: 600;
-      word-break: break-all;
+      white-space: nowrap;
+      font-size: 0.6875rem;
+      min-width: 0;
     }
 
     .copy-chip-btn {

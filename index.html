@@ -634,13 +634,15 @@
       gap: 12px;
     }
 
-    @media (min-width: 600px) {
+    /* Prioriza mostrar 2 personas en la misma fila a partir de viewports medianos */
+    @media (min-width: 580px) {
       .cards-grid {
-        gap: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
       }
     }
 
-    @media (min-width: 900px) {
+    @media (min-width: 1400px) {
       .cards-grid {
         grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
         gap: 16px;
@@ -660,6 +662,7 @@
       transition: var(--transition-hover);
       position: relative;
       overflow: hidden;
+      container-type: inline-size;
     }
 
     .friend-card:hover {
@@ -814,9 +817,23 @@
       gap: 8px;
     }
 
-    @media (min-width: 580px) {
+    /* Siempre que sea posible (ancho de tarjeta >= 420px), muestra 2 cuentas en la misma fila */
+    @container (min-width: 420px) {
       .accounts-list {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .accounts-list > .account-item:last-child:nth-child(odd),
+      .accounts-list > .skeleton-account-box:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+    }
+
+    /* Fallback para compatibilidad de media queries */
+    @media (min-width: 920px) {
+      .accounts-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
       }
 
@@ -834,13 +851,16 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      min-width: 0;
     }
 
     .account-meta-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
+      white-space: nowrap;
+      min-width: 0;
     }
 
     /* Bank Badges (Neo-Brutalist High Contrast) */
@@ -852,12 +872,14 @@
       font-size: 0.7rem;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 3px 8px;
+      letter-spacing: 0.05em;
+      padding: 2px 7px;
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       box-shadow: 2px 2px 0px var(--shadow);
       line-height: 1.2;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .bank-badge-mp {
@@ -910,7 +932,9 @@
       font-weight: 800;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     /* ==========================================================================
@@ -919,19 +943,20 @@
     .copy-action-row {
       display: flex;
       align-items: stretch;
-      gap: 8px;
+      gap: 6px;
+      min-width: 0;
     }
 
     /* Alias interactive pill (Touch area 1: Tap the whole chip) */
     .alias-chip {
-      flex: 1;
+      flex: 1 1 auto;
       min-width: 0;
-      min-height: 38px;
+      min-height: 36px;
       background: var(--surface);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
-      padding: 0 10px;
+      padding: 0 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -940,6 +965,7 @@
       user-select: none;
       transition: var(--transition-tap);
       position: relative;
+      white-space: nowrap;
     }
 
     .alias-chip:active {
@@ -953,12 +979,10 @@
 
     .alias-text {
       font-family: var(--font-mono);
-      font-size: clamp(0.8125rem, 3.6vw, 0.9375rem);
+      font-size: clamp(0.78rem, 2.5cqi, 0.875rem);
       font-weight: 800;
       letter-spacing: -0.01em;
       color: var(--text);
-      overflow: hidden;
-      text-overflow: ellipsis;
       white-space: nowrap;
       min-width: 0;
     }
@@ -972,14 +996,17 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      white-space: nowrap;
     }
 
     /* Dedicated Copy Action Button (Touch area 2: Dedicated tactile button) */
     .copy-btn {
-      width: 38px;
-      height: 38px;
-      min-width: 38px;
-      min-height: 38px;
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      flex: 0 0 36px;
+      flex-shrink: 0;
       background: var(--accent-yellow);
       color: #0D0D11;
       border: var(--border-width) solid var(--border);
@@ -989,7 +1016,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
       transition: var(--transition-tap);
     }
 
@@ -1004,8 +1030,8 @@
     }
 
     .copy-btn svg {
-      width: 18px;
-      height: 18px;
+      width: 17px;
+      height: 17px;
       fill: none;
       stroke: currentColor;
       stroke-width: 2.2;
@@ -1044,10 +1070,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
       padding: 3px 6px;
       background: rgba(0, 0, 0, 0.03);
       border-radius: var(--radius-sm);
       font-size: 0.72rem;
+      white-space: nowrap;
+      min-width: 0;
     }
 
     [data-theme="dark"] .cbu-details-row {
@@ -1058,14 +1087,24 @@
       font-family: var(--font-mono);
       font-weight: 600;
       color: var(--text-muted);
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      font-size: 0.6875rem;
+      min-width: 0;
     }
 
     .cbu-copy-mini-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 0.7rem;
+      font-size: 0.6875rem;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 2px 6px;
+      text-decoration: underline;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
       font-weight: 800;
       text-transform: uppercase;
       cursor: pointer;
