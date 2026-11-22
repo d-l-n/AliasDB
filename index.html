@@ -1287,15 +1287,22 @@
       height: 36px;
       min-width: 36px;
       min-height: 36px;
+      max-width: 36px;
+      max-height: 36px;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      flex: 0 0 36px;
+      flex-shrink: 0;
       background: transparent;
       border: none;
       color: #0D0D11;
       cursor: pointer;
-      display: grid;
-      place-items: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
       border-radius: var(--radius-sm);
-      font-weight: 900;
-      font-size: 1.1rem;
     }
 
     /* ==========================================================================
@@ -1361,6 +1368,7 @@
       justify-content: space-between;
       gap: 12px;
       flex-shrink: 0;
+      min-width: 0;
     }
 
     .dialog-title {
@@ -1373,6 +1381,11 @@
       gap: 8px;
       color: var(--text);
       margin: 0;
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .dialog-close-btn {
@@ -1380,23 +1393,49 @@
       height: 36px;
       min-width: 36px;
       min-height: 36px;
+      max-width: 36px;
+      max-height: 36px;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      flex: 0 0 36px;
+      flex-shrink: 0;
       background: var(--surface);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       box-shadow: 2px 2px 0px var(--shadow);
-      font-weight: 900;
-      font-size: 1.2rem;
-      line-height: 1;
-      display: grid;
-      place-items: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       color: var(--text);
+      line-height: 0;
+      overflow: hidden;
       transition: var(--transition-tap);
     }
 
     .dialog-close-btn:active {
       transform: translate(1px, 1px);
       box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    .dialog-close-btn svg,
+    .toast-close-btn svg {
+      display: block;
+      width: 16px;
+      height: 16px;
+      max-width: 16px;
+      max-height: 16px;
+      flex-shrink: 0;
+      margin: auto;
+      pointer-events: none;
+    }
+
+    .btn-remove-alias-account.dialog-close-btn svg {
+      width: 13px;
+      height: 13px;
+      max-width: 13px;
+      max-height: 13px;
     }
 
     .dialog-body {
@@ -1857,7 +1896,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-users" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 1.25C6.37665 1.25 4.25 3.37665 4.25 6C4.25 8.62335 6.37665 10.75 9 10.75C11.6234 10.75 13.75 8.62335 13.75 6C13.75 3.37665 11.6234 1.25 9 1.25ZM5.75 6C5.75 4.20507 7.20507 2.75 9 2.75C10.7949 2.75 12.25 4.20507 12.25 6C12.25 7.79493 10.7949 9.25 9 9.25C7.20507 9.25 5.75 7.79493 5.75 6Z" fill="currentColor"/></svg>
         <span>Crear Nuevo Grupo</span>
       </h2>
-      <button class="dialog-close-btn" type="button" data-close-modal="modal-create-group" aria-label="Cerrar ventana">&times;</button>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-create-group" aria-label="Cerrar ventana"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
     
     <!-- Screen 1: Formulario -->
@@ -1921,7 +1960,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-wallet" aria-hidden="true"><path d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z" fill="currentColor"/></svg>
         <span id="modal-add-alias-heading">Sumar o Editar Alias</span>
       </h2>
-      <button class="dialog-close-btn" type="button" data-close-modal="modal-add-alias" aria-label="Cerrar ventana">&times;</button>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-add-alias" aria-label="Cerrar ventana"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
 
     <form id="form-add-alias" onsubmit="return false;" class="dialog-body">
@@ -1972,7 +2011,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-alert" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span id="alias-decision-heading">Confirmar Acción</span>
       </h2>
-      <button class="dialog-close-btn" type="button" data-close-modal="modal-alias-decision" aria-label="Cerrar">&times;</button>
+      <button class="dialog-close-btn" type="button" data-close-modal="modal-alias-decision" aria-label="Cerrar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
     <div class="dialog-body">
       <div id="alias-decision-msg" style="font-size: 0.92rem; line-height: 1.5; color: var(--text);"></div>
@@ -2277,7 +2316,7 @@
         card.innerHTML = [
           '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px dashed var(--border); padding-bottom: 6px;">',
           '  <span class="alias-account-index font-mono" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Cuenta</span>',
-          '  <button type="button" class="btn-remove-alias-account dialog-close-btn" style="width: 26px; height: 26px; min-width: 26px; min-height: 26px; font-size: 0.85rem; line-height: 1;" title="Eliminar esta cuenta">&times;</button>',
+          '  <button type="button" class="btn-remove-alias-account dialog-close-btn" style="width: 26px; height: 26px; min-width: 26px; min-height: 26px; max-width: 26px; max-height: 26px; flex: 0 0 26px; padding: 0; margin: 0;" title="Eliminar esta cuenta" aria-label="Eliminar cuenta">' + getReiconSvg('X', '', 13) + '</button>',
           '</div>',
           '<div class="form-group" style="margin-bottom: 10px;">',
           '  <label class="form-label" style="font-size: 0.8rem;">Banco / Billetera *</label>',

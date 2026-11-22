@@ -1155,6 +1155,7 @@
       justify-content: space-between;
       gap: 12px;
       flex-shrink: 0;
+      min-width: 0;
     }
 
     .dialog-title {
@@ -1165,6 +1166,11 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .dialog-close-btn {
@@ -1172,21 +1178,49 @@
       height: 36px;
       min-width: 36px;
       min-height: 36px;
+      max-width: 36px;
+      max-height: 36px;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      flex: 0 0 36px;
+      flex-shrink: 0;
       background: var(--surface);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       box-shadow: 2px 2px 0px var(--shadow);
-      font-weight: 900;
-      font-size: 1.1rem;
-      display: grid;
-      place-items: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       color: var(--text);
+      line-height: 0;
+      overflow: hidden;
+      transition: var(--transition-tap);
     }
 
     .dialog-close-btn:active {
       transform: translate(1px, 1px);
       box-shadow: 0px 0px 0px var(--shadow);
+    }
+
+    .dialog-close-btn svg,
+    .toast-close-btn svg {
+      display: block;
+      width: 16px;
+      height: 16px;
+      max-width: 16px;
+      max-height: 16px;
+      flex-shrink: 0;
+      margin: auto;
+      pointer-events: none;
+    }
+
+    .btn-remove-account.dialog-close-btn svg {
+      width: 14px;
+      height: 14px;
+      max-width: 14px;
+      max-height: 14px;
     }
 
     .dialog-body {
@@ -1489,15 +1523,22 @@
       height: 36px;
       min-width: 36px;
       min-height: 36px;
+      max-width: 36px;
+      max-height: 36px;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      flex: 0 0 36px;
+      flex-shrink: 0;
       background: transparent;
       border: none;
       color: inherit;
       cursor: pointer;
-      display: grid;
-      place-items: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
       border-radius: var(--radius-sm);
-      font-weight: 900;
-      font-size: 1.1rem;
     }
 
     
@@ -3322,7 +3363,7 @@
         row.innerHTML = [
           '<div class="account-edit-header">',
           '  <span class="account-edit-index">Cuenta #' + index + '</span>',
-          '  <button class="dialog-close-btn btn-remove-account" type="button" style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; font-size: 0.9rem;" title="Eliminar esta cuenta">' + getReiconSvg('Trash', '', 14) + '</button>',
+          '  <button class="dialog-close-btn btn-remove-account" type="button" style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; max-width: 28px; max-height: 28px; flex: 0 0 28px; padding: 0; margin: 0;" title="Eliminar esta cuenta" aria-label="Eliminar cuenta">' + getReiconSvg('Trash', '', 14) + '</button>',
           '</div>',
           '<div class="account-edit-grid">',
           '  <div class="form-group">',
