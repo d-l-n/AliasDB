@@ -202,7 +202,8 @@
 
     /* Nada debe exceder el ancho disponible: sin scroll horizontal */
     html {
-      overflow-x: clip;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
     body {
@@ -215,7 +216,8 @@
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      overflow-x: clip;
+      max-width: 100%;
+      overflow-x: hidden;
       padding-bottom: calc(var(--touch-min) + 36px + env(safe-area-inset-bottom, 0px) + var(--keyboard-inset-height, 0px));
       transition: background-color 0.2s ease, color 0.2s ease;
     }
@@ -238,11 +240,12 @@
       width: 1px !important;
       height: 1px !important;
       padding: 0 !important;
-      margin: -1px !important;
+      margin: 0 !important;
       overflow: hidden !important;
       clip: rect(0, 0, 0, 0) !important;
       white-space: nowrap !important;
       border: 0 !important;
+      left: 0 !important;
     }
 
     .font-mono {
@@ -292,10 +295,10 @@
       content: "";
       position: absolute;
       top: -80px;
-      left: -40px;
-      right: -40px;
+      left: 0;
+      right: 0;
       height: 80px;
-      background: var(--bg);
+      background: var(--canvas);
       pointer-events: none;
     }
 
@@ -527,7 +530,7 @@
       display: grid;
     }
 
-    /* Horizontal Bank Pills Filter (Carrusel horizontal sin wrap) */
+    /* Horizontal Bank & Group Pills Filter (Carruseles horizontales alineados) */
     .filter-scroll-container {
       display: flex;
       align-items: center;
@@ -536,14 +539,17 @@
       overflow-y: hidden;
       flex-wrap: nowrap;
       white-space: nowrap;
+      width: 100%;
       max-width: 100%;
       min-width: 0;
-      padding-bottom: 6px;
+      margin: 0;
+      padding: 2px 0 6px 0;
       scrollbar-width: none;
       -ms-overflow-style: none;
       -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x proximity;
-      scroll-padding-inline: 0;
+      scroll-snap-type: none;
+      scroll-padding: 0;
+      box-sizing: border-box;
     }
 
     .filter-scroll-container::-webkit-scrollbar {
@@ -570,7 +576,6 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      scroll-snap-align: start;
       flex-shrink: 0;
       transition: var(--transition-tap);
     }
@@ -606,7 +611,12 @@
     }
 
     .group-filter-container {
+      margin: 0;
       margin-bottom: -2px;
+    }
+
+    .bank-filter-container {
+      margin: 0;
     }
 
     /* Chip fantasma "+ Nuevo Grupo": acción de colección, no de filtrado.
@@ -3613,7 +3623,7 @@
                 '    <span class="cbu-number font-mono" style="display: flex; align-items: center; gap: 4px;">' + getReiconSvg('CreditCard', '', 13) + ' ' + cbuTypeLabel + ': ' + cleanCbu + '</span>',
                 '    <div style="display: inline-flex; gap: 4px; align-items: center;">',
                 '      <button class="cbu-copy-mini-btn" type="button" data-cbu="' + cleanCbu + '" data-label="' + cbuTypeLabel + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar ' + cbuTypeLabel + ' ' + cleanCbu + '" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar ' + cbuTypeLabel + '</button>',
-                '      <button class="cbu-qr-mini-btn" type="button" data-qr-text="' + cleanCbu + '" data-qr-title="' + escapeHtml(friend.name) + ' (' + cbuTypeLabel + ')'" aria-label="Ver código QR de ' + cbuTypeLabel + '">' + getReiconSvg('QrCode', '', 12) + '</button>',
+                '      <button class="cbu-qr-mini-btn" type="button" data-qr-text="' + cleanCbu + '" data-qr-title="' + escapeHtml(friend.name) + ' (' + cbuTypeLabel + ')" aria-label="Ver código QR de ' + cbuTypeLabel + '">' + getReiconSvg('QrCode', '', 12) + '</button>',
                 '    </div>',
                 '  </div>'
               ].join('\n') : '';
@@ -3632,7 +3642,7 @@
                 '    <button class="copy-btn" type="button" data-alias="' + acc.alias + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + acc.alias + ' al portapapeles">',
                 '      ' + getReiconSvg('Copy', '', 18),
                 '    </button>',
-                '    <button class="qr-btn" type="button" data-qr-text="' + acc.alias + '" data-qr-title="' + escapeHtml(friend.name) + ' (' + acc.bankName + ')'" aria-label="Ver código QR de alias ' + acc.alias + '">',
+                '    <button class="qr-btn" type="button" data-qr-text="' + acc.alias + '" data-qr-title="' + escapeHtml(friend.name) + ' (' + acc.bankName + ')" aria-label="Ver código QR de alias ' + acc.alias + '">',
                 '      ' + getReiconSvg('QrCode', '', 16),
                 '    </button>',
                 '  </div>',
