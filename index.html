@@ -482,6 +482,7 @@
       text-transform: uppercase;
       margin-top: 4px;
       margin-bottom: 0;
+      overflow-wrap: break-word;
     }
 
     /* Badge Neo-Brutalista de Grupo en Header */
@@ -501,6 +502,9 @@
       box-shadow: 2px 2px 0px var(--shadow);
       line-height: 1.2;
       max-width: 100%;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     [data-theme="dark"] .group-header-badge {
@@ -979,7 +983,8 @@
       gap: 10px;
       transition: var(--transition-hover);
       position: relative;
-      overflow: hidden;
+      min-width: 0;
+      max-width: 100%;
       container-type: inline-size;
     }
 
@@ -993,17 +998,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 8px 10px;
       padding-bottom: 8px;
       border-bottom: var(--border-width) dashed var(--border);
+      min-width: 0;
+      max-width: 100%;
     }
 
     .friend-profile {
       display: flex;
       align-items: center;
       gap: 10px;
-      flex: 1 1 auto;
+      flex: 1 1 170px;
       min-width: 0;
+      max-width: 100%;
     }
 
     .friend-avatar {
@@ -1026,8 +1035,9 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      flex: 1 1 auto;
+      flex: 1 1 0%;
       min-width: 0;
+      max-width: 100%;
     }
 
     .friend-name {
@@ -1036,6 +1046,8 @@
       line-height: 1.2;
       color: var(--text);
       overflow-wrap: anywhere;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .friend-meta {
@@ -1044,6 +1056,18 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      line-height: 1.25;
+      max-width: 100%;
+      min-width: 0;
+      overflow-wrap: break-word;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .friend-meta svg {
+      flex-shrink: 0;
     }
 
     /* ==========================================================================
@@ -1082,6 +1106,8 @@
       flex-wrap: wrap;
       gap: 6px;
       margin-top: 6px;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .friend-card.is-expanded .collapsed-bank-preview {
@@ -1091,10 +1117,13 @@
     .collapse-toggle-btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      height: 38px;
-      min-height: 38px;
-      padding: 0 12px;
+      min-height: 36px;
+      height: auto;
+      padding: 6px 12px;
+      max-width: 100%;
+      min-width: 0;
       background: var(--surface-muted);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
@@ -1102,25 +1131,43 @@
       font-family: var(--font-display);
       font-size: 0.8rem;
       font-weight: 800;
+      line-height: 1.2;
       color: var(--text);
       cursor: pointer;
       transition: var(--transition-tap);
-      flex-shrink: 0;
+      flex: 0 1 auto;
+      margin-left: auto;
       white-space: nowrap;
+    }
+
+    .collapse-toggle-btn svg {
+      flex-shrink: 0;
+    }
+
+    @container (max-width: 360px) {
+      .collapse-toggle-btn {
+        min-height: 34px;
+        padding: 5px 10px;
+        font-size: 0.74rem;
+      }
+    }
+
+    @container (max-width: 240px) {
+      .collapse-toggle-btn {
+        white-space: normal;
+        text-align: center;
+      }
     }
 
     @media (max-width: 420px) {
       .card-header {
         gap: 8px;
-        flex-wrap: wrap;
       }
 
       .collapse-toggle-btn {
-        height: 34px;
         min-height: 34px;
-        padding: 0 10px;
+        padding: 5px 10px;
         font-size: 0.74rem;
-        margin-left: auto;
       }
     }
 
@@ -1170,15 +1217,17 @@
     }
 
     /* Fallback para compatibilidad de media queries */
-    @media (min-width: 920px) {
-      .accounts-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
+    @supports not (container-type: inline-size) {
+      @media (min-width: 920px) {
+        .accounts-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
 
-      .accounts-list > .account-item:last-child:nth-child(odd),
-      .accounts-list > .skeleton-account-box:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
+        .accounts-list > .account-item:last-child:nth-child(odd),
+        .accounts-list > .skeleton-account-box:last-child:nth-child(odd) {
+          grid-column: 1 / -1;
+        }
       }
     }
 
@@ -1191,15 +1240,17 @@
       flex-direction: column;
       gap: 6px;
       min-width: 0;
+      max-width: 100%;
     }
 
     .account-meta-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      white-space: nowrap;
+      flex-wrap: wrap;
+      gap: 4px 6px;
       min-width: 0;
+      max-width: 100%;
     }
 
     /* Bank Badges (Neo-Brutalist High Contrast) */
@@ -1217,8 +1268,12 @@
       border-radius: var(--radius-sm);
       box-shadow: 2px 2px 0px var(--shadow);
       line-height: 1.2;
-      white-space: nowrap;
-      flex-shrink: 0;
+      max-width: 100%;
+      min-width: 0;
+      flex: 0 1 auto;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      text-align: left;
     }
 
     .bank-badge-mp {
@@ -1272,8 +1327,38 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      white-space: nowrap;
+      line-height: 1.2;
+      max-width: 100%;
+      min-width: 0;
+      flex: 0 1 auto;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+
+    .account-titular {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text-muted);
+      margin-top: 2px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .account-titular svg {
       flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .account-titular-text {
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow-wrap: anywhere;
     }
 
     /* ==========================================================================
@@ -1284,18 +1369,21 @@
       align-items: stretch;
       gap: 6px;
       min-width: 0;
+      max-width: 100%;
     }
 
     /* Alias interactive pill (Touch area 1: Tap the whole chip) */
     .alias-chip {
-      flex: 1 1 auto;
+      flex: 1 1 0%;
       min-width: 0;
+      max-width: 100%;
       min-height: 36px;
+      height: auto;
       background: var(--surface);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
-      padding: 0 8px;
+      padding: 6px 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1304,7 +1392,7 @@
       user-select: none;
       transition: var(--transition-tap);
       position: relative;
-      white-space: nowrap;
+      white-space: normal;
     }
 
     .alias-chip:active {
@@ -1317,12 +1405,16 @@
     }
 
     .alias-text {
+      display: block;
+      width: 100%;
       font-family: var(--font-mono);
-      font-size: clamp(0.78rem, 2.5cqi, 0.875rem);
+      font-size: clamp(0.75rem, 2.5cqi, 0.875rem);
       font-weight: 800;
       letter-spacing: -0.01em;
+      line-height: 1.3;
       color: var(--text);
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
       min-width: 0;
     }
 
@@ -1515,7 +1607,6 @@
       font-size: 0.72rem;
       min-width: 0;
       max-width: 100%;
-      overflow: hidden;
     }
 
     [data-theme="dark"] .cbu-details-row {
@@ -1545,8 +1636,10 @@
       cursor: pointer;
       padding: 2px 6px;
       text-decoration: underline;
-      white-space: nowrap;
-      flex-shrink: 0;
+      white-space: normal;
+      max-width: 100%;
+      text-align: left;
+      flex: 0 1 auto;
       margin-left: auto;
     }
 
@@ -1663,12 +1756,15 @@
     }
 
     .btn-brutalist {
-      height: var(--touch-min);
       min-height: var(--touch-min);
-      padding: 0 20px;
+      height: auto;
+      padding: 8px 16px;
+      max-width: 100%;
       font-family: var(--font-display);
       font-size: 0.875rem;
       font-weight: 800;
+      line-height: 1.2;
+      text-align: center;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       background: var(--accent-yellow);
@@ -1682,6 +1778,10 @@
       justify-content: center;
       gap: 8px;
       transition: var(--transition-tap);
+    }
+
+    .btn-brutalist svg {
+      flex-shrink: 0;
     }
 
     .btn-brutalist:active {
@@ -1738,6 +1838,9 @@
       font-size: 0.875rem;
       font-weight: 800;
       line-height: 1.3;
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow-wrap: anywhere;
     }
 
     .toast-icon {
@@ -1948,6 +2051,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
+      flex-wrap: wrap;
       gap: 10px;
       flex-shrink: 0;
     }
@@ -1962,9 +2066,18 @@
     .decision-dialog-footer .btn-brutalist {
       width: 100%;
       min-width: 0;
-      padding: 0 10px;
+      min-height: var(--touch-min);
+      height: auto;
+      padding: 6px 8px;
       font-size: clamp(0.75rem, 3.1vw, 0.85rem);
-      white-space: nowrap;
+      line-height: 1.2;
+      white-space: normal;
+    }
+
+    @media (max-width: 340px) {
+      .decision-dialog-footer {
+        grid-template-columns: 1fr;
+      }
     }
 
     .form-group {
@@ -2353,12 +2466,25 @@
       color: #0D0D11;
       border: 2px solid #0D0D11;
       font-weight: 800;
-      font-size: 11px;
-      padding: 2px 8px;
+      font-size: 0.6875rem;
+      line-height: 1.2;
+      padding: 3px 8px;
       border-radius: var(--radius-sm);
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .badge-pending svg {
+      flex-shrink: 0;
+    }
+
+    .badge-pending > span {
+      min-width: 0;
+      overflow-wrap: break-word;
+      white-space: normal;
     }
 
     .card-admin-actions {
@@ -2366,30 +2492,47 @@
       align-items: center;
       justify-content: flex-end;
       gap: 8px;
-      padding: 10px 14px;
+      padding: 10px 12px;
       background: var(--surface-muted);
       border-top: var(--border-width) solid var(--border);
       border-bottom-left-radius: calc(var(--radius-md) - 2px);
       border-bottom-right-radius: calc(var(--radius-md) - 2px);
       flex-wrap: wrap;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .card-action-btn {
-      height: 32px;
       min-height: 32px;
-      padding: 0 12px;
+      height: auto;
+      padding: 6px 12px;
+      max-width: 100%;
+      min-width: 0;
       font-size: 0.75rem;
       font-weight: 800;
       letter-spacing: 0.03em;
+      line-height: 1.2;
+      text-align: left;
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       cursor: pointer;
       box-shadow: 2px 2px 0px var(--shadow);
       transition: var(--transition-tap);
       user-select: none;
+    }
+
+    .card-action-btn svg {
+      flex-shrink: 0;
+    }
+
+    .card-action-btn > span {
+      min-width: 0;
+      overflow-wrap: break-word;
+      white-space: normal;
     }
 
     .card-action-btn:active {
@@ -2753,14 +2896,18 @@
     }
 
     .modal-tab-btn {
-      height: 36px;
       min-height: 36px;
-      padding: 0 12px;
+      height: auto;
+      padding: 6px 8px;
+      min-width: 0;
+      max-width: 100%;
       font-family: var(--font-display);
       font-size: 0.8125rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.04em;
+      line-height: 1.2;
+      text-align: center;
       background: var(--surface-muted);
       color: var(--text);
       border: var(--border-width) solid var(--border);
@@ -2772,7 +2919,7 @@
       justify-content: center;
       gap: 6px;
       transition: var(--transition-tap);
-      white-space: nowrap;
+      white-space: normal;
     }
 
     .modal-tab-btn:active {
@@ -3328,8 +3475,8 @@
             <div class="modal-area-title"><span>&Aacute;rea P&uacute;blica (Compartir)</span></div>
             <div class="form-group" style="margin-bottom: 0;">
               <label for="share-group-url" class="form-label">Enlace para Compartir (WhatsApp)</label>
-              <div style="display: flex; gap: 6px;">
-                <input type="text" id="share-group-url" class="form-control font-mono" readonly style="font-size: 11px;">
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <input type="text" id="share-group-url" class="form-control font-mono" readonly style="font-size: 11px; flex: 1 1 150px; min-width: 0;">
                 <button type="button" class="btn-brutalist btn-cyan" id="btn-copy-share-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
               </div>
               <p class="form-hint">Compart&iacute; este enlace en WhatsApp para que tus amigos consulten y sumen sus alias.</p>
@@ -3340,13 +3487,13 @@
             <div class="modal-area-title"><span>&Aacute;rea Privada Admin</span></div>
             <div class="form-group" style="margin-bottom: 0;">
               <label for="admin-group-url" class="form-label">Enlace de Administraci&oacute;n</label>
-              <div style="display: flex; gap: 6px;">
-                <input type="text" id="admin-group-url" class="form-control font-mono" readonly style="font-size: 11px;">
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <input type="text" id="admin-group-url" class="form-control font-mono" readonly style="font-size: 11px; flex: 1 1 150px; min-width: 0;">
                 <button type="button" class="btn-brutalist btn-primary" id="btn-copy-admin-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
               </div>
-              <div style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-top: 8px;">
+              <div style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-top: 8px; min-width: 0;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" class="reicon" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-                <span>Guard&aacute; este enlace para aprobar cambios y moderar el grupo</span>
+                <span style="min-width: 0; overflow-wrap: break-word;">Guard&aacute; este enlace para aprobar cambios y moderar el grupo</span>
               </div>
             </div>
           </section>
@@ -4908,15 +5055,15 @@ function getReiconSvg(name, extraClass, size) {
               return [
                 '<div class="account-item">',
                 '  <div class="account-meta-row">',
-                '    <span class="bank-badge ' + acc.badgeClass + '">' + acc.bankName + '</span>',
-                '    <span class="account-type">' + acc.type + '</span>',
+                '    <span class="bank-badge ' + acc.badgeClass + '">' + escapeHtml(acc.bankName) + '</span>',
+                '    <span class="account-type">' + escapeHtml(acc.type) + '</span>',
                 '  </div>',
-                (acc.titular ? '  <div class="account-titular font-mono" style="font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 4px; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">' + getReiconSvg('User', '', 12) + ' Titular: ' + acc.titular + '</div>' : ''),
+                (acc.titular ? '  <div class="account-titular">' + getReiconSvg('User', '', 12) + '<span class="account-titular-text">Titular: ' + escapeHtml(acc.titular) + '</span></div>' : ''),
                 '  <div class="copy-action-row">',
-                '    <div class="alias-chip" role="button" tabindex="0" data-alias="' + acc.alias + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + acc.alias + ' de ' + friend.name + '">',
-                '      <span class="alias-text font-mono">' + acc.alias + '</span>',
+                '    <div class="alias-chip" role="button" tabindex="0" data-alias="' + escapeHtml(acc.alias) + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + escapeHtml(acc.alias) + ' de ' + escapeHtml(friend.name) + '">',
+                '      <span class="alias-text font-mono">' + escapeHtml(acc.alias) + '</span>',
                 '    </div>',
-                '    <button class="copy-btn" type="button" data-alias="' + acc.alias + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + acc.alias + ' al portapapeles">',
+                '    <button class="copy-btn" type="button" data-alias="' + escapeHtml(acc.alias) + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + escapeHtml(acc.alias) + ' al portapapeles">',
                 '      ' + getReiconSvg('Copy', '', 18),
                 '    </button>',
                 '  </div>',
@@ -4928,7 +5075,7 @@ function getReiconSvg(name, extraClass, size) {
           var bankPreviewHtml = '';
           if (hasMultiple) {
             var badges = friend.accounts.map(function(acc) {
-              return '<span class="bank-badge ' + acc.badgeClass + '" style="font-size: 10px; padding: 2px 7px;">' + acc.bankName + '</span>';
+              return '<span class="bank-badge ' + acc.badgeClass + '" style="font-size: 10px; padding: 2px 7px;">' + escapeHtml(acc.bankName) + '</span>';
             }).join('');
             bankPreviewHtml = '<div class="collapsed-bank-preview">' + badges + '</div>';
           }
@@ -4968,12 +5115,12 @@ function getReiconSvg(name, extraClass, size) {
             '    <div class="friend-profile">',
             '      <div class="friend-avatar" style="background: ' + friend.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
             '      <div class="friend-info">',
-            '        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">',
-            '          <h2 class="friend-name">' + friend.name + '</h2>',
+            '        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; max-width: 100%;">',
+            '          <h2 class="friend-name">' + escapeHtml(friend.name) + '</h2>',
             pendingBadgeHtml,
             '        </div>',
-            '        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">',
-            '          <span class="friend-meta" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('CreditCard', '', 12) + ' ' + friend.accounts.length + ' ' + (friend.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
+            '        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; max-width: 100%;">',
+            '          <span class="friend-meta">' + getReiconSvg('CreditCard', '', 12) + '<span>' + friend.accounts.length + ' ' + (friend.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span></span>',
             '        </div>',
             bankPreviewHtml,
             '      </div>',

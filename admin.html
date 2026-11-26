@@ -371,18 +371,28 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      height: 38px;
-      padding: 0 12px;
+      min-height: 38px;
+      height: auto;
+      padding: 6px 12px;
+      max-width: 100%;
       background: var(--surface-muted);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
       font-size: 0.75rem;
       font-weight: 800;
+      line-height: 1.2;
+      text-align: left;
+      white-space: normal;
+      overflow-wrap: break-word;
       text-transform: uppercase;
       cursor: pointer;
       color: var(--text);
       transition: var(--transition-tap);
+    }
+
+    .key-badge svg {
+      flex-shrink: 0;
     }
 
     .key-badge:active {
@@ -402,12 +412,16 @@
 
     /* Botones Neo-Brutalistas */
     .btn-brutalist {
-      height: var(--touch-min);
       min-height: var(--touch-min);
-      padding: 0 16px;
+      height: auto;
+      padding: 8px 14px;
+      max-width: 100%;
+      min-width: 0;
       font-family: var(--font-display);
       font-size: 0.8125rem;
       font-weight: 800;
+      line-height: 1.2;
+      text-align: center;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       background: var(--surface);
@@ -421,8 +435,13 @@
       justify-content: center;
       gap: 8px;
       text-decoration: none;
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: break-word;
       transition: var(--transition-tap);
+    }
+
+    .btn-brutalist svg {
+      flex-shrink: 0;
     }
 
     .btn-brutalist:active {
@@ -456,9 +475,9 @@
     }
 
     .btn-sm {
-      height: 36px;
       min-height: 36px;
-      padding: 0 10px;
+      height: auto;
+      padding: 6px 10px;
       font-size: 0.75rem;
     }
 
@@ -592,6 +611,7 @@
       gap: 2px;
       position: relative;
       overflow: hidden;
+      min-width: 0;
     }
 
     @media (min-width: 768px) {
@@ -625,6 +645,8 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-muted);
+      min-width: 0;
+      overflow-wrap: break-word;
     }
 
     .stat-value {
@@ -633,6 +655,7 @@
       line-height: 1.05;
       font-family: var(--font-mono);
       color: var(--text);
+      min-width: 0;
     }
 
     /* ==========================================================================
@@ -958,6 +981,7 @@
     .group-title-box {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
       cursor: pointer;
       user-select: none;
@@ -966,6 +990,9 @@
       margin: -4px -6px;
       border-radius: var(--radius-sm);
       transition: background-color 0.15s ease;
+      min-width: 0;
+      max-width: 100%;
+      flex: 1 1 180px;
     }
 
     .group-title-box:hover {
@@ -976,6 +1003,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
       transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       color: var(--text-muted);
     }
@@ -989,6 +1017,14 @@
       font-weight: 900;
       letter-spacing: -0.01em;
       text-transform: uppercase;
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      line-height: 1.2;
+    }
+
+    .group-name svg {
+      flex-shrink: 0;
     }
 
     .group-badge-count {
@@ -999,6 +1035,9 @@
       font-size: 0.7rem;
       font-weight: 900;
       box-shadow: 1px 1px 0px var(--shadow);
+      max-width: 100%;
+      min-width: 0;
+      overflow-wrap: break-word;
     }
 
     .group-actions {
@@ -1043,6 +1082,8 @@
       flex-direction: column;
       gap: 10px;
       transition: var(--transition-hover);
+      min-width: 0;
+      max-width: 100%;
       container-type: inline-size;
     }
 
@@ -1055,16 +1096,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
       gap: 8px;
       padding-bottom: 8px;
       border-bottom: var(--border-width) dashed var(--border);
+      min-width: 0;
+      max-width: 100%;
     }
 
     .person-info {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex: 1 1 160px;
       min-width: 0;
+      max-width: 100%;
     }
 
     .person-avatar {
@@ -1086,16 +1132,19 @@
     .person-name-box {
       display: flex;
       flex-direction: column;
+      flex: 1 1 0%;
       min-width: 0;
+      max-width: 100%;
     }
 
     .person-name {
       font-size: 1.05rem;
       font-weight: 800;
       line-height: 1.2;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .person-meta {
@@ -1104,6 +1153,9 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.04em;
+      max-width: 100%;
+      min-width: 0;
+      overflow-wrap: break-word;
     }
 
     .friend-group-badge {
@@ -1119,6 +1171,10 @@
       border-radius: var(--radius-sm);
       background: var(--surface-muted);
       color: var(--text-muted);
+      max-width: 100%;
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .group-select-chip {
@@ -1169,8 +1225,11 @@
     .person-card-actions {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 6px;
-      flex-shrink: 0;
+      flex: 0 1 auto;
+      max-width: 100%;
+      margin-left: auto;
     }
 
     /* Accounts List inside Person Card */
@@ -1192,14 +1251,16 @@
       }
     }
 
-    @media (min-width: 920px) {
-      .person-accounts-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-      }
+    @supports not (container-type: inline-size) {
+      @media (min-width: 920px) {
+        .person-accounts-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+        }
 
-      .person-accounts-list > .account-data-box:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
+        .person-accounts-list > .account-data-box:last-child:nth-child(odd) {
+          grid-column: 1 / -1;
+        }
       }
     }
 
@@ -1207,9 +1268,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      white-space: nowrap;
+      flex-wrap: wrap;
+      gap: 4px 6px;
       min-width: 0;
+      max-width: 100%;
     }
 
     .bank-badge {
@@ -1223,9 +1285,14 @@
       font-weight: 900;
       letter-spacing: 0.03em;
       text-transform: uppercase;
+      line-height: 1.2;
+      text-align: left;
       box-shadow: 1px 1px 0px var(--shadow);
-      white-space: nowrap;
-      flex-shrink: 0;
+      max-width: 100%;
+      min-width: 0;
+      flex: 0 1 auto;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .bank-badge-mp { background: var(--bank-mp-bg); color: var(--bank-mp-text); }
@@ -1243,8 +1310,36 @@
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
-      white-space: nowrap;
+      line-height: 1.2;
+      max-width: 100%;
+      min-width: 0;
+      flex: 0 1 auto;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+
+    .account-titular {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .account-titular svg {
       flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .account-titular-text {
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow-wrap: anywhere;
     }
 
     .account-data-box {
@@ -1256,24 +1351,29 @@
       flex-direction: column;
       gap: 4px;
       min-width: 0;
+      max-width: 100%;
     }
 
     .alias-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      white-space: nowrap;
+      flex-wrap: wrap;
+      gap: 4px 6px;
       min-width: 0;
+      max-width: 100%;
     }
 
     .alias-text {
       font-family: var(--font-mono);
-      font-size: 0.8125rem;
+      font-size: clamp(0.75rem, 2.5cqi, 0.8125rem);
       font-weight: 800;
+      line-height: 1.3;
       color: var(--text);
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: anywhere;
       min-width: 0;
+      flex: 1 1 110px;
     }
 
     .cbu-row {
@@ -1313,11 +1413,13 @@
       padding: 2px 7px;
       font-size: 0.7rem;
       font-weight: 800;
+      line-height: 1.2;
       text-transform: uppercase;
       cursor: pointer;
       box-shadow: 1px 1px 0px var(--shadow);
-      white-space: nowrap;
-      flex-shrink: 0;
+      white-space: normal;
+      max-width: 100%;
+      flex: 0 1 auto;
       margin-left: auto;
       transition: var(--transition-tap);
     }
@@ -1503,6 +1605,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
+      flex-wrap: wrap;
       gap: 10px;
       flex-shrink: 0;
     }
@@ -1823,6 +1926,9 @@
       font-size: 0.875rem;
       font-weight: 800;
       line-height: 1.3;
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow-wrap: anywhere;
     }
 
     .toast-icon {
@@ -1870,8 +1976,15 @@
     }
 
     .neo-dropdown.neo-dropdown--filter {
-      width: auto;
-      min-width: 180px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    @media (min-width: 768px) {
+      .neo-dropdown.neo-dropdown--filter {
+        width: auto;
+        min-width: 180px;
+      }
     }
 
     .neo-select-native {
@@ -2671,7 +2784,7 @@
               autocomplete="off"
               style="font-size: 0.8rem;"
             >
-            <button id="btn-link-sheet" class="btn-brutalist btn-sm btn-cyan" type="button" style="white-space: nowrap;">
+            <button id="btn-link-sheet" class="btn-brutalist btn-sm btn-cyan" type="button">
               Vincular
             </button>
           </div>
@@ -4472,7 +4585,7 @@ function getReiconSvg(name, extraClass, size) {
                   '    <span class="bank-badge ' + badgeClass + '">' + escapeHtml(acc.bank) + '</span>',
                   '    <span class="account-type-tag">' + escapeHtml(acc.type) + '</span>',
                   '  </div>',
-                  (acc.titular ? '  <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">' + getReiconSvg('User', '', 12) + ' Titular: ' + escapeHtml(acc.titular) + '</div>' : ''),
+                  (acc.titular ? '  <div class="account-titular">' + getReiconSvg('User', '', 12) + '<span class="account-titular-text">Titular: ' + escapeHtml(acc.titular) + '</span></div>' : ''),
                   '  <div class="alias-row">',
                   '    <span class="alias-text font-mono">' + escapeHtml(acc.alias) + '</span>',
                   '    <button class="copy-chip-btn" type="button" data-copy-text="' + escapeHtml(acc.alias) + '" data-copy-label="Alias" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar</button>',
@@ -4497,7 +4610,7 @@ function getReiconSvg(name, extraClass, size) {
               '      <div class="person-avatar" style="background: ' + person.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
               '      <div class="person-name-box">',
               '        <h3 class="person-name">' + escapeHtml(person.name) + '</h3>',
-              '        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 2px;">',
+              '        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 2px; min-width: 0; max-width: 100%;">',
               '          <span class="person-meta">' + person.accounts.length + ' ' + (person.accounts.length === 1 ? 'cuenta' : 'cuentas') + '</span>',
               '          ' + badgesHtml,
               '        </div>',
@@ -4522,7 +4635,7 @@ function getReiconSvg(name, extraClass, size) {
             '  <header class="group-header">',
             '    <div class="group-title-box" role="button" tabindex="0" aria-expanded="' + (!isCollapsed) + '" aria-label="Plegar o desplegar grupo ' + escapeHtml(groupName) + '">',
             '      <span class="group-collapse-icon" aria-hidden="true">' + getReiconSvg('ChevronDown', '', 16) + '</span>',
-            '      <h2 class="group-name" style="display: inline-flex; align-items: center; gap: 6px;">' + getReiconSvg('Folder', '', 18) + ' ' + escapeHtml(groupName) + '</h2>',
+            '      <h2 class="group-name" style="display: inline-flex; align-items: center; gap: 6px;">' + getReiconSvg('Folder', '', 18) + ' <span>' + escapeHtml(groupName) + '</span></h2>',
             '      <span class="group-badge-count">' + personsInGroup.length + ' ' + (personsInGroup.length === 1 ? 'persona' : 'personas') + '</span>',
             '    </div>',
             '    <div class="group-actions">',
