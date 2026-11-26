@@ -210,3 +210,62 @@ const searchObserver = new IntersectionObserver(([entry]) => {
 }, { threshold: 0 });
 searchObserver.observe(document.getElementById('search-box'));
 ```
+
+---
+
+### [BACKLOG] Header: `#admin-badge` sin fondo y adaptativo por tema
+
+- Eliminar el fondo/relleno de `#admin-badge` (`.badge-admin.badge-admin-icon`) para renderizar únicamente el ícono limpio (`background: transparent`, sin caja/sombra si corresponde).
+- Color del ícono según tema activo: `#000000` (o `var(--text)`) en tema claro y `#FFFFFF` en tema oscuro (`[data-theme="dark"]`).
+
+---
+
+### [BACKLOG] Acciones Primarias: Renombrar botones del header/dock
+
+- `#btn-open-create-group`: cambiar etiqueta visible de `"Crear Grupo"` a `"Grupos"` (actualizar `aria-label` acorde).
+- `#btn-open-add-alias`: cambiar etiqueta visible de `"Sumar mi Alias"` a `"Agregar Alias"` (actualizar `aria-label` acorde).
+
+---
+
+### [BACKLOG] Carrusel de Chips: Recorte de hover en el chip "Todos" y controles en Desktop
+
+- **Hover del chip `"Todos"` en margen izquierdo:** ampliar el padding lateral/superior del contenedor `.filter-scroll-container` (`#group-filter-container` y `#bank-filter-container`) para evitar que `box-shadow` / desplazamiento en `:hover` quede recortado por el `overflow-x: auto` en el borde izquierdo.
+- **Navegación de carruseles en desktop (`>= 640px`):** agregar controles de desplazamiento horizontal (flechas izquierda/derecha condicionales según `scrollLeft` y/o soporte de arrastre con puntero) para poder recorrer los chips de grupos y bancos cómodamente con mouse.
+
+---
+
+### [BACKLOG] Header: Máscara superior fija contra transparencia al scrollear
+
+- Cubrir la franja entre `top: 0` del viewport y el borde superior del `.app-header` con un elemento o máscara fija sólida del color `var(--bg)` (`z-index` por debajo del header y por encima de las cards), evitando que las tarjetas scrolleadas asomen por encima del header. *(Nota: coordinar su alcance si se aplica el cambio de header estático del backlog).*
+
+---
+
+### [BACKLOG] Modal "Sumar / Editar mis datos" (`#modal-add-alias`): Ajustes en Tabs Persona y Cuentas
+
+1. **Tab `Cuentas` (`#panel-alias-accounts`):** eliminar la cinta de chips de selección rápida de bancos (`.modal-bank-chips`) dentro de cada tarjeta de cuenta, dejando la selección únicamente en el selector principal.
+2. **Tab `Persona` (`#panel-alias-person`):** eliminar o replantear la sección `Área Resumen` y el badge `#alias-person-status-pill` (`"Confirmado directo"`), ya que con el campo `#alias-person-name` vacío induce a error mostrando estado confirmado y habilitando `"Continuar a Cuentas"` cuando luego se exige completar el nombre al guardar. Validar el nombre antes de habilitar el avance o unificar el feedback de estado.
+
+---
+
+### [BACKLOG] Formularios: Dropdowns Neo-Brutalistas unificados (`index.html` y `admin.html`)
+
+- Reemplazar o estilizar integralmente los `<select>` nativos en toda la webapp (selectores de banco y tipo de cuenta como `.bank-select-styled`, `.alias-bank-select`, `.alias-account-type`, y sus equivalentes en `admin.html`) mediante un componente dropdown custom accesible que herede bordes, sombras rígidas, tipografía y paleta de tema claro/oscuro de la app (incluyendo la lista de opciones desplegada).
+
+---
+
+### [BACKLOG] Tarjetas de Contacto: Botón `"Ver cuentas"` / `"Ocultar"` sin recorte en múltiples cuentas
+
+- En tarjetas con más de una cuenta donde aparece `.collapse-toggle-btn`, evitar que el botón se corte horizontalmente en pantallas angostas o encabezados de tarjeta cargados (ajustar `flex-wrap`, `min-width`, acortar/adaptar etiqueta o reubicar en el header/pie de tarjeta).
+
+---
+
+### [BACKLOG] Validación CBU/CVU: Contorno verde al alcanzar 22 dígitos
+
+- En `.alias-cbu-value` (`index.html`) y `.acc-cbu` (`admin.html`), revisar el feedback visual en vivo (`checkCbuLive` / `checkAdminCbuLive`) para que al completar los 22 dígitos numéricos muestre contorno verde de aprobación de formato en lugar del contorno rojo actual por dígito verificador BCRA, evitando confundir al usuario cuando el número de 22 dígitos es válido en longitud o proviene de pruebas/billeteras sin validación estricta. Si se conserva el chequeo BCRA, mostrarlo como aviso informativo no alarmante (sin borde rojo).
+
+---
+
+### [BACKLOG] Navegación: FAB "Ir arriba" en Desktop y Mobile
+
+- Añadir un botón flotante (`Scroll to Top`, con ícono Reicon de flecha superior y estética neo-brutalista) visible únicamente tras superar un umbral de scroll (por ejemplo, `window.scrollY > 300px`) tanto en desktop como en mobile.
+- En mobile (`< 640px`), ubicarlo por encima del `#primary-actions-dock` con margen seguro para evitar colisiones táctiles.
