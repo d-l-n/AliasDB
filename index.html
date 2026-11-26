@@ -254,6 +254,45 @@
     /* ==========================================================================
        TYPOGRAPHY & UTILITIES
        ========================================================================== */
+    .skip-link {
+      position: fixed;
+      top: -100px;
+      left: 12px;
+      z-index: 100000;
+      padding: 8px 14px;
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 3px 3px 0px var(--shadow);
+      font-size: 0.875rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .skip-link:focus {
+      top: 12px;
+    }
+
+    .general-group-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--surface-muted);
+      border: var(--border-width) dashed var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .general-group-hint[hidden] {
+      display: none !important;
+    }
+
     .sr-only {
       position: absolute !important;
       width: 1px !important;
@@ -265,6 +304,10 @@
       white-space: nowrap !important;
       border: 0 !important;
       left: 0 !important;
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     .font-mono {
@@ -415,7 +458,7 @@
       .sticky-command-bar.is-condensed {
         padding: 8px 8px;
         border-bottom-color: var(--border);
-        box-shadow: 0 3px 0px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 3px 0px var(--shadow-subtle);
       }
 
       [data-theme="dark"] .sticky-command-bar.is-condensed {
@@ -428,13 +471,15 @@
       }
 
       .sticky-command-bar .search-input {
-        height: 46px;
         min-height: 46px;
+        height: auto;
+        padding-block: 8px;
       }
 
       .sticky-command-bar.is-condensed .search-input {
-        height: 44px;
         min-height: 44px;
+        height: auto;
+        padding-block: 7px;
       }
 
       .primary-actions-dock {
@@ -530,45 +575,6 @@
     [data-theme="dark"] .group-header-badge {
       background: var(--accent-cyan);
       color: #0D0D11;
-    }
-
-    /* Enlace discreto a Panel Admin */
-    .admin-link-btn {
-      height: var(--touch-min);
-      min-height: var(--touch-min);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 0 12px;
-      background: var(--surface-muted);
-      border: var(--border-width) solid var(--border);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
-      font-size: 0.8125rem;
-      font-weight: 800;
-      color: var(--text);
-      text-decoration: none;
-      cursor: pointer;
-      transition: var(--transition-tap);
-      white-space: nowrap;
-    }
-
-    .admin-link-btn:hover {
-      background: var(--accent-yellow);
-      color: #0D0D11;
-      transform: translate(-1px, -1px);
-      box-shadow: calc(var(--shadow-offset-sm) + 1px) calc(var(--shadow-offset-sm) + 1px) 0px var(--shadow);
-    }
-
-    [data-theme="dark"] .admin-link-btn:hover {
-      background: var(--accent-cyan);
-      color: #0D0D11;
-    }
-
-    .admin-link-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0px 0px 0px var(--shadow);
     }
 
     /* Theme Switch Toggle Button */
@@ -693,9 +699,9 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      height: 50px;
-      min-height: var(--touch-min);
-      padding: 0 44px 0 44px;
+      min-height: 50px;
+      height: auto;
+      padding: 10px 44px;
       font-family: var(--font-display);
       font-size: 1rem;
       font-weight: 700;
@@ -833,9 +839,9 @@
     }
 
     .filter-chip {
-      height: 38px;
       min-height: 38px;
-      padding: 0 14px;
+      height: auto;
+      padding: 6px 14px;
       font-family: var(--font-display);
       font-size: 0.8125rem;
       font-weight: 800;
@@ -955,7 +961,7 @@
 
     .friend-group-badge {
       display: inline-block;
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -1044,7 +1050,7 @@
       display: grid;
       place-items: center;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 1rem;
       color: #0D0D11;
       background: var(--accent-cyan);
       flex-shrink: 0;
@@ -1070,7 +1076,7 @@
     }
 
     .friend-meta {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -1167,7 +1173,7 @@
       .collapse-toggle-btn {
         min-height: 34px;
         padding: 5px 10px;
-        font-size: 0.74rem;
+        font-size: 0.75rem;
       }
     }
 
@@ -1186,7 +1192,7 @@
       .collapse-toggle-btn {
         min-height: 34px;
         padding: 5px 10px;
-        font-size: 0.74rem;
+        font-size: 0.75rem;
       }
     }
 
@@ -1278,7 +1284,7 @@
       align-items: center;
       gap: 6px;
       font-family: var(--font-display);
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -1341,7 +1347,7 @@
     }
 
     .account-type {
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       font-weight: 800;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -1356,7 +1362,7 @@
 
     .account-titular {
       font-family: var(--font-mono);
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       font-weight: 700;
       line-height: 1.3;
       color: var(--text-muted);
@@ -1399,6 +1405,9 @@
       min-height: 36px;
       height: auto;
       background: var(--surface);
+      color: var(--text);
+      font-family: inherit;
+      text-align: left;
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
@@ -1438,7 +1447,7 @@
     }
 
     .alias-sub-hint {
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       font-weight: 800;
       color: var(--text-muted);
       letter-spacing: 0.04em;
@@ -1507,7 +1516,7 @@
     }
 
     .recent-copies-title {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 800;
       color: var(--text-muted);
       letter-spacing: 0.05em;
@@ -1571,10 +1580,10 @@
     }
 
     .recent-chip-label {
-      font-size: 0.68rem;
+      font-size: 0.75rem;
       font-weight: 800;
       padding: 1px 4px;
-      border-radius: 3px;
+      border-radius: var(--radius-sm);
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
@@ -1626,7 +1635,7 @@
       padding: 4px 8px;
       background: rgba(0, 0, 0, 0.03);
       border-radius: var(--radius-sm);
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       min-width: 0;
       max-width: 100%;
     }
@@ -1640,7 +1649,7 @@
       font-weight: 600;
       color: var(--text-muted);
       letter-spacing: 0.01em;
-      font-size: clamp(0.64rem, 2.7vw, 0.6875rem);
+      font-size: clamp(0.75rem, 2.7vw, 0.8125rem);
       line-height: 1.3;
       min-width: 0;
       flex: 1 1 auto;
@@ -1760,7 +1769,7 @@
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
-      font-size: 2rem;
+      font-size: 1.5rem;
       color: #0D0D11;
     }
 
@@ -1981,7 +1990,7 @@
     }
 
     .dialog-title {
-      font-size: 1.1rem;
+      font-size: 1.125rem;
       font-weight: 900;
       letter-spacing: -0.01em;
       text-transform: uppercase;
@@ -1992,9 +2001,10 @@
       margin: 0;
       min-width: 0;
       flex: 1 1 auto;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: break-word;
+      text-wrap: balance;
     }
 
     .dialog-close-btn {
@@ -2133,9 +2143,9 @@
 
     .form-control {
       width: 100%;
-      height: 42px;
       min-height: 42px;
-      padding: 0 12px;
+      height: auto;
+      padding: 8px 12px;
       font-family: var(--font-display);
       font-size: 0.875rem;
       font-weight: 700;
@@ -2161,9 +2171,9 @@
     }
 
     .btn-header-action {
-      height: 36px;
       min-height: 36px;
-      padding: 0 12px;
+      height: auto;
+      padding: 6px 12px;
       font-size: 0.75rem;
       letter-spacing: 0.04em;
       border-radius: var(--radius-sm);
@@ -2222,9 +2232,9 @@
       #dock-btn-search,
       #btn-open-create-group,
       #btn-open-add-alias {
-        height: var(--touch-min);
         min-height: var(--touch-min);
-        padding: 0 12px;
+        height: auto;
+        padding: 6px 12px;
         border-width: var(--border-width);
         border-radius: var(--radius-pill);
         box-shadow: 2px 2px 0px var(--shadow);
@@ -2235,7 +2245,7 @@
         white-space: nowrap;
         flex: 0 0 auto;
         min-width: 0;
-        font-size: 0.78rem;
+        font-size: 0.8125rem;
         transition: width 0.2s ease, min-width 0.2s ease, padding 0.2s ease, gap 0.2s ease, transform 0.08s ease, box-shadow 0.08s ease;
       }
 
@@ -2419,7 +2429,7 @@
       .primary-actions-dock:not(.is-scroll-collapsed):not(.is-compact-icons) #btn-open-add-alias {
         padding: 0 9px;
         gap: 5px;
-        font-size: 0.6875rem;
+        font-size: 0.75rem;
         letter-spacing: 0.01em;
       }
 
@@ -2493,9 +2503,9 @@
     .badge-pending {
       background: var(--accent-yellow);
       color: #0D0D11;
-      border: 2px solid #0D0D11;
+      border: 2px solid var(--border);
       font-weight: 800;
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       line-height: 1.2;
       padding: 3px 8px;
       border-radius: var(--radius-sm);
@@ -2602,7 +2612,7 @@
 
     /* Zero-UI: Visibilidad Condicional Exclusiva ante Fallos o Sincronización */
     .sync-badge {
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       font-weight: 700;
       padding: 3px 8px;
       border: 1.5px solid var(--border);
@@ -2613,8 +2623,8 @@
       align-items: center;
       gap: 6px;
       box-shadow: 1px 1px 0px var(--shadow);
-      line-height: 1;
-      height: 24px;
+      line-height: 1.2;
+      min-height: 24px;
       user-select: none;
     }
 
@@ -2700,7 +2710,7 @@
     }
 
     [data-theme="dark"] select.bank-select-styled:invalid {
-      color: #A6A6B2;
+      color: var(--text-muted);
     }
 
     [data-theme="dark"] select.bank-select-styled option {
@@ -2709,7 +2719,7 @@
     }
 
     [data-theme="dark"] select.bank-select-styled option[value=""] {
-      color: #A6A6B2;
+      color: var(--text-muted);
       font-weight: 600;
     }
 
@@ -3031,12 +3041,12 @@
 
     .modal-area-title {
       font-family: var(--font-mono);
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--text-muted);
-      margin-bottom: 10px;
+      margin: 0 0 10px 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -3099,7 +3109,7 @@
     }
 
     .my-group-name {
-      font-size: 0.95rem;
+      font-size: 0.9375rem;
       font-weight: 900;
       color: var(--text);
     }
@@ -3112,10 +3122,10 @@
     }
 
     .my-group-actions .btn-brutalist {
-      height: 34px;
       min-height: 34px;
-      padding: 0 10px;
-      font-size: 0.72rem;
+      height: auto;
+      padding: 4px 10px;
+      font-size: 0.75rem;
     }
 
     .modal-status-pill {
@@ -3126,7 +3136,7 @@
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-pill);
       font-family: var(--font-mono);
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       margin-top: 6px;
@@ -3167,9 +3177,9 @@
     }
 
     .account-pill-btn {
-      height: 32px;
       min-height: 32px;
-      padding: 0 10px;
+      height: auto;
+      padding: 4px 10px;
       font-family: var(--font-mono);
       font-size: 0.75rem;
       font-weight: 800;
@@ -3212,12 +3222,12 @@
 
     .account-card-section-label {
       font-family: var(--font-mono);
-      font-size: 0.68rem;
+      font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin: 0 0 8px 0;
     }
 
     .account-optional-group {
@@ -3263,6 +3273,8 @@
   </style>
 </head>
 <body>
+
+  <a href="#cards-container" class="skip-link">Saltar al listado</a>
 
   <!-- Screen Reader Live Region for Accessible Announcements -->
   <div id="sr-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -3432,6 +3444,11 @@
         </div>
         <button type="button" class="carousel-arrow-btn carousel-arrow-next is-hidden" aria-label="Desplazar entidades a la derecha"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-chevronright" aria-hidden="true"><polyline points="8.6666 3.6667 17 12 8.6666 20.3333" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></polyline></svg></button>
       </div>
+
+      <div id="general-group-hint" class="general-group-hint" hidden>
+        <span>Eleg&iacute; o cre&aacute; un grupo para sumar o editar tus alias bancarios.</span>
+        <button type="button" id="btn-hint-open-groups" class="btn-brutalist btn-sm btn-secondary" style="min-height: 32px; height: auto; padding: 4px 10px; font-size: 0.75rem;">Abrir Grupos</button>
+      </div>
     </section>
 
     
@@ -3462,8 +3479,8 @@
     </div>
 
     <div class="modal-tabs" role="tablist" aria-label="Secciones de grupos">
-      <button type="button" id="tab-create-group-new" class="modal-tab-btn" role="tab" aria-selected="true" aria-controls="panel-create-group-new">Nuevo Grupo</button>
-      <button type="button" id="tab-create-group-mine" class="modal-tab-btn" role="tab" aria-selected="false" aria-controls="panel-create-group-mine">Mis Grupos</button>
+      <button type="button" id="tab-create-group-new" class="modal-tab-btn" role="tab" aria-selected="true" aria-controls="panel-create-group-new" tabindex="0">Nuevo Grupo</button>
+      <button type="button" id="tab-create-group-mine" class="modal-tab-btn" role="tab" aria-selected="false" aria-controls="panel-create-group-mine" tabindex="-1">Mis Grupos</button>
     </div>
 
     <div class="dialog-body">
@@ -3478,7 +3495,7 @@
         <!-- Screen 1: Formulario -->
         <div id="create-group-form-screen">
           <section class="modal-area" aria-label="Área Identidad">
-            <div class="modal-area-title"><span>&Aacute;rea Identidad</span></div>
+            <h3 class="modal-area-title"><span>&Aacute;rea Identidad</span></h3>
             <div class="form-group" style="margin-bottom: 0;">
               <label for="input-group-name" class="form-label">Nombre del Grupo</label>
               <input 
@@ -3492,14 +3509,14 @@
               >
               <p class="form-hint">Ingresá el nombre con el que identificarán el grupo todos los participantes.</p>
               <div class="group-preview-row">
-                <span class="font-mono" style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted);">Vista previa:</span>
+                <span class="font-mono" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted);">Vista previa:</span>
                 <span id="group-name-preview-badge" class="group-header-badge font-mono">GRUPO: TU GRUPO</span>
               </div>
             </div>
           </section>
 
           <section class="modal-area" aria-label="Qué incluye">
-            <div class="modal-area-title"><span>Qu&eacute; Incluye</span></div>
+            <h3 class="modal-area-title"><span>Qu&eacute; Incluye</span></h3>
             <ul class="group-includes-list">
               <li>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-link" aria-hidden="true"><path d="M15.7285 3.88396C17.1629 2.44407 19.2609 2.41383 20.4224 3.57981C21.586 4.74798 21.5547 6.85922 20.1194 8.30009L17.6956 10.7333C17.4033 11.0268 17.4042 11.5017 17.6976 11.794C17.9911 12.0863 18.466 12.0854 18.7583 11.7919L21.1821 9.35869C23.0934 7.43998 23.3334 4.37665 21.4851 2.5212C19.6346 0.663551 16.5781 0.905664 14.6658 2.82536L9.81817 7.69182C7.90688 9.61053 7.66692 12.6739 9.51519 14.5293C9.80751 14.8228 10.2824 14.8237 10.5758 14.5314C10.8693 14.2391 10.8702 13.7642 10.5779 13.4707C9.41425 12.3026 9.44559 10.1913 10.8809 8.75042L15.7285 3.88396Z" fill="currentColor"/><path d="M14.4851 9.47074C14.1928 9.17728 13.7179 9.17636 13.4244 9.46868C13.131 9.76101 13.1301 10.2359 13.4224 10.5293C14.586 11.6975 14.5547 13.8087 13.1194 15.2496L8.27178 20.1161C6.83745 21.556 4.73937 21.5863 3.57791 20.4203C2.41424 19.2521 2.44559 17.1408 3.88089 15.6999L6.30473 13.2667C6.59706 12.9732 6.59614 12.4984 6.30268 12.206C6.00922 11.9137 5.53434 11.9146 5.24202 12.2081L2.81818 14.6413C0.906876 16.5601 0.666916 19.6234 2.51519 21.4789C4.36567 23.3365 7.42221 23.0944 9.33449 21.1747L14.1821 16.3082C16.0934 14.3895 16.3334 11.3262 14.4851 9.47074Z" fill="currentColor"/></svg>
@@ -3515,24 +3532,24 @@
 
         <!-- Screen 2: Enlaces generados con éxito -->
         <div id="create-group-success-screen" style="display: none;">
-          <div style="background: var(--accent-mint); color: #0D0D11; border: 2px solid var(--border); padding: 12px 14px; border-radius: var(--radius-md); font-weight: 900; font-size: 0.95rem; box-shadow: 2px 2px 0px var(--shadow); margin-bottom: 14px;">
+          <div style="background: var(--accent-mint); color: #0D0D11; border: 2px solid var(--border); padding: 12px 14px; border-radius: var(--radius-md); font-weight: 900; font-size: 0.9375rem; box-shadow: 2px 2px 0px var(--shadow); margin-bottom: 14px;">
             &iexcl;Grupo "<span id="created-group-name-label"></span>" creado con &eacute;xito!
           </div>
 
           <section class="modal-area" aria-label="Área Pública">
-            <div class="modal-area-title"><span>&Aacute;rea P&uacute;blica (Compartir)</span></div>
+            <h3 class="modal-area-title"><span>&Aacute;rea P&uacute;blica (Compartir)</span></h3>
             <div class="form-group" style="margin-bottom: 0;">
               <label for="share-group-url" class="form-label">Enlace para Compartir (WhatsApp)</label>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                 <input type="text" id="share-group-url" class="form-control font-mono" readonly style="font-size: 0.75rem; flex: 1 1 150px; min-width: 0;">
-                <button type="button" class="btn-brutalist btn-cyan" id="btn-copy-share-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
+                <button type="button" class="btn-brutalist btn-cyan" id="btn-copy-share-url" style="padding: 6px 14px; flex-shrink: 0;">Copiar</button>
               </div>
               <p class="form-hint">Compart&iacute; este enlace en WhatsApp para que tus amigos consulten y sumen sus alias.</p>
             </div>
           </section>
 
           <section class="modal-area" aria-label="Área Privada de Administración">
-            <div class="modal-area-title"><span>&Aacute;rea Privada Admin</span></div>
+            <h3 class="modal-area-title"><span>&Aacute;rea Privada Admin</span></h3>
             <div class="form-group" style="margin-bottom: 0;">
               <label for="admin-group-url" class="form-label">Enlace de Administraci&oacute;n</label>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;">
@@ -3549,7 +3566,7 @@
       </div>
 
       <!-- Tab Panel 2: Mis Grupos -->
-      <div id="panel-create-group-mine" role="tabpanel" aria-labelledby="tab-create-group-mine" style="display: none;">
+      <div id="panel-create-group-mine" role="tabpanel" aria-labelledby="tab-create-group-mine" hidden>
         <div id="my-groups-list" class="my-groups-list"></div>
       </div>
     </div>
@@ -3582,15 +3599,15 @@
       <input type="hidden" id="alias-edit-friend-id" value="">
 
       <div class="modal-tabs" role="tablist" aria-label="Secciones del alias">
-        <button type="button" id="tab-alias-person" class="modal-tab-btn" role="tab" aria-selected="true" aria-controls="panel-alias-person">Persona</button>
-        <button type="button" id="tab-alias-accounts" class="modal-tab-btn" role="tab" aria-selected="false" aria-controls="panel-alias-accounts">Cuentas (<span id="alias-accounts-tab-count">1</span>)</button>
+        <button type="button" id="tab-alias-person" class="modal-tab-btn" role="tab" aria-selected="true" aria-controls="panel-alias-person" tabindex="0">Persona</button>
+        <button type="button" id="tab-alias-accounts" class="modal-tab-btn" role="tab" aria-selected="false" aria-controls="panel-alias-accounts" tabindex="-1">Cuentas (<span id="alias-accounts-tab-count">1</span>)</button>
       </div>
 
       <div class="dialog-body">
         <!-- Tab 1: Persona -->
         <div id="panel-alias-person" role="tabpanel" aria-labelledby="tab-alias-person">
           <section class="modal-area" aria-label="Área Identidad">
-            <div class="modal-area-title"><span>&Aacute;rea Identidad</span></div>
+            <h3 class="modal-area-title"><span>&Aacute;rea Identidad</span></h3>
             <div class="form-group" style="margin-bottom: 12px;">
               <label for="alias-person-name" class="form-label">Nombre de la persona</label>
               <input 
@@ -3606,7 +3623,7 @@
                 Ingres&aacute; tu nombre para habilitar la pesta&ntilde;a Cuentas.
               </div>
             </div>
-            <button type="button" id="btn-alias-next-accounts" class="btn-brutalist btn-mint" style="width: 100%; height: 42px; min-height: 42px;" disabled>
+            <button type="button" id="btn-alias-next-accounts" class="btn-brutalist btn-mint" style="width: 100%; min-height: 42px; height: auto;" disabled>
               <span>Continuar a Cuentas</span>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-arrowright" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.4697 5.46967C13.7626 5.17678 14.2374 5.17678 14.5303 5.46967L20.5303 11.4697C20.8232 11.7626 20.8232 12.2374 20.5303 12.5303L14.5303 18.5303C14.2374 18.8232 13.7626 18.8232 13.4697 18.5303C13.1768 18.2374 13.1768 17.7626 13.4697 17.4697L18.1893 12.75H4C3.58579 12.75 3.25 12.4142 3.25 12C3.25 11.5858 3.58579 11.25 4 11.25H18.1893L13.4697 6.53033C13.1768 6.23744 13.1768 5.76256 13.4697 5.46967Z" fill="currentColor"/></svg>
             </button>
@@ -3614,10 +3631,10 @@
         </div>
 
         <!-- Tab 2: Cuentas -->
-        <div id="panel-alias-accounts" role="tabpanel" aria-labelledby="tab-alias-accounts" style="display: none;">
+        <div id="panel-alias-accounts" role="tabpanel" aria-labelledby="tab-alias-accounts" hidden>
           <div class="account-tabs-strip">
             <div id="account-pills-list" class="account-pills-list" role="tablist" aria-label="Selector de cuentas"></div>
-            <button type="button" id="btn-add-alias-account" class="btn-brutalist btn-sm btn-mint font-mono" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 0.75rem; height: 32px; min-height: 32px;">
+            <button type="button" id="btn-add-alias-account" class="btn-brutalist btn-sm btn-mint font-mono" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 0.75rem; min-height: 32px; height: auto;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="13" height="13" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
               <span>Agregar cuenta</span>
             </button>
@@ -3646,7 +3663,7 @@
       <button class="dialog-close-btn" type="button" data-close-modal="modal-alias-decision" aria-label="Cerrar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
     <div class="dialog-body">
-      <div id="alias-decision-msg" style="font-size: 0.92rem; line-height: 1.5; color: var(--text);"></div>
+      <div id="alias-decision-msg" style="font-size: 0.9375rem; line-height: 1.5; color: var(--text);"></div>
     </div>
     <div class="dialog-footer decision-dialog-footer">
       <button type="button" id="btn-alias-decision-secondary" class="btn-brutalist btn-secondary">Cambiar nombre</button>
@@ -3664,7 +3681,7 @@
       <button type="button" id="btn-discard-close-x" class="dialog-close-btn" aria-label="Seguir editando"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
     <div class="dialog-body">
-      <p style="font-size: 0.92rem; line-height: 1.5; color: var(--text);">
+      <p style="font-size: 0.9375rem; line-height: 1.5; color: var(--text);">
         Ten&eacute;s cambios sin guardar. Si cerr&aacute;s ahora, se perder&aacute;n los datos ingresados.
       </p>
     </div>
@@ -4312,6 +4329,25 @@ function getReiconSvg(name, extraClass, size) {
         }
       }
 
+      function bindTablistKeyboard(tabBtns, onActivateIdx) {
+        var list = Array.prototype.filter.call(tabBtns || [], Boolean);
+        list.forEach(function(btn, idx) {
+          btn.addEventListener('keydown', function(e) {
+            if (!list.length) return;
+            var nextIdx = null;
+            if (e.key === 'ArrowRight') nextIdx = (idx + 1) % list.length;
+            else if (e.key === 'ArrowLeft') nextIdx = (idx - 1 + list.length) % list.length;
+            else if (e.key === 'Home') nextIdx = 0;
+            else if (e.key === 'End') nextIdx = list.length - 1;
+            if (nextIdx !== null) {
+              e.preventDefault();
+              var moved = onActivateIdx(nextIdx, list[nextIdx]);
+              if (moved !== false) list[nextIdx].focus();
+            }
+          });
+        });
+      }
+
       function setAliasModalTab(tabKey) {
         var isAccounts = (tabKey === 'accounts');
         if (isAccounts && !isAliasPersonNameValid()) {
@@ -4319,13 +4355,24 @@ function getReiconSvg(name, extraClass, size) {
           if (aliasPersonName) aliasPersonName.setAttribute('aria-invalid', 'true');
           showToast('Ingresá tu nombre antes de pasar a Cuentas.');
           if (aliasPersonName) aliasPersonName.focus();
-          return;
+          return false;
         }
-        if (tabAliasPerson) tabAliasPerson.setAttribute('aria-selected', (!isAccounts).toString());
-        if (tabAliasAccounts) tabAliasAccounts.setAttribute('aria-selected', isAccounts.toString());
-        if (panelAliasPerson) panelAliasPerson.style.display = isAccounts ? 'none' : 'block';
-        if (panelAliasAccounts) panelAliasAccounts.style.display = isAccounts ? 'block' : 'none';
+        if (tabAliasPerson) {
+          tabAliasPerson.setAttribute('aria-selected', (!isAccounts).toString());
+          tabAliasPerson.setAttribute('tabindex', isAccounts ? '-1' : '0');
+        }
+        if (tabAliasAccounts) {
+          tabAliasAccounts.setAttribute('aria-selected', isAccounts.toString());
+          tabAliasAccounts.setAttribute('tabindex', isAccounts ? '0' : '-1');
+        }
+        if (panelAliasPerson) panelAliasPerson.hidden = isAccounts;
+        if (panelAliasAccounts) panelAliasAccounts.hidden = !isAccounts;
+        return true;
       }
+
+      bindTablistKeyboard([tabAliasPerson, tabAliasAccounts], function(nextIdx) {
+        return setAliasModalTab(nextIdx === 1 ? 'accounts' : 'person');
+      });
 
       function setActiveAccountCard(idx) {
         if (!aliasAccountsContainer) return;
@@ -4345,6 +4392,7 @@ function getReiconSvg(name, extraClass, size) {
             var active = (i === activeAccountIndex);
             pill.classList.toggle('is-active', active);
             pill.setAttribute('aria-selected', active.toString());
+            pill.setAttribute('tabindex', active ? '0' : '-1');
           });
         }
       }
@@ -4405,7 +4453,7 @@ function getReiconSvg(name, extraClass, size) {
           '  <button type="button" class="btn-remove-alias-account dialog-close-btn" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; max-width: 32px; max-height: 32px; flex: 0 0 32px; padding: 0; margin: 0;" title="Eliminar esta cuenta" aria-label="Eliminar cuenta">' + getReiconSvg('X', '', 14) + '</button>',
           '</div>',
           '<div class="account-card-section">',
-          '  <div class="account-card-section-label">1. Entidad y Tipo</div>',
+          '  <h4 class="account-card-section-label">1. Entidad y Tipo</h4>',
           '  <div class="form-group" style="margin-bottom: 10px;">',
           '    <label for="' + bankSelectId + '" class="form-label" style="font-size: 0.8rem;">Banco / Billetera *</label>',
           '    <select id="' + bankSelectId + '" class="form-control bank-select-styled alias-bank-select" required>',
@@ -4440,7 +4488,7 @@ function getReiconSvg(name, extraClass, size) {
           '  </div>',
           '</div>',
           '<div class="account-card-section">',
-          '  <div class="account-card-section-label">2. Datos de Transferencia</div>',
+          '  <h4 class="account-card-section-label">2. Datos de Transferencia</h4>',
           '  <div class="form-group" style="margin-bottom: 10px;">',
           '    <label for="' + aliasInputId + '" class="form-label" style="font-size: 0.8rem;">Alias (validado, requerido) *</label>',
           '    <input id="' + aliasInputId + '" type="text" class="form-control font-mono alias-input-value" value="' + escapeHtml(alias) + '" placeholder="Ej: mi.alias.personal" required autocomplete="off" spellcheck="false">',
@@ -4572,14 +4620,19 @@ function getReiconSvg(name, extraClass, size) {
           var pillsHtml = '';
           cards.forEach(function(card, idx) {
             var isAct = (idx === activeAccountIndex);
-            pillsHtml += '<button type="button" class="account-pill-btn' + (isAct ? ' is-active' : '') + '" data-account-idx="' + idx + '" role="tab" aria-selected="' + isAct + '">Cuenta #' + (idx + 1) + '</button>';
+            pillsHtml += '<button type="button" class="account-pill-btn' + (isAct ? ' is-active' : '') + '" data-account-idx="' + idx + '" role="tab" aria-selected="' + isAct + '" tabindex="' + (isAct ? '0' : '-1') + '">Cuenta #' + (idx + 1) + '</button>';
           });
           accountPillsList.innerHTML = pillsHtml;
-          accountPillsList.querySelectorAll('.account-pill-btn').forEach(function(pill) {
+          var pills = accountPillsList.querySelectorAll('.account-pill-btn');
+          pills.forEach(function(pill) {
             pill.addEventListener('click', function() {
               var targetIdx = parseInt(pill.getAttribute('data-account-idx'), 10);
               setActiveAccountCard(isNaN(targetIdx) ? 0 : targetIdx);
             });
+          });
+          bindTablistKeyboard(pills, function(nextIdx) {
+            setActiveAccountCard(nextIdx);
+            return true;
           });
         }
         setActiveAccountCard(activeAccountIndex);
@@ -4645,6 +4698,14 @@ function getReiconSvg(name, extraClass, size) {
         return Boolean(token);
       }
 
+      var generalGroupHint = document.getElementById('general-group-hint');
+      var btnHintOpenGroups = document.getElementById('btn-hint-open-groups');
+      if (btnHintOpenGroups && btnOpenCreateGroup) {
+        btnHintOpenGroups.addEventListener('click', function() {
+          btnOpenCreateGroup.click();
+        });
+      }
+
       function updateAdminUI() {
         var isAdmin = isCurrentAdmin();
         if (adminBadge) {
@@ -4653,6 +4714,9 @@ function getReiconSvg(name, extraClass, size) {
         var inGroup = Boolean(grupoParam || (activeGroupFilter && activeGroupFilter !== 'ALL'));
         if (btnOpenAddAlias) {
           btnOpenAddAlias.style.display = inGroup ? 'inline-flex' : 'none';
+        }
+        if (generalGroupHint) {
+          generalGroupHint.hidden = inGroup;
         }
         // Habilita el apilado de los FAB en mobile (ver bloque FAB en el CSS)
         if (document.body) {
@@ -5183,9 +5247,9 @@ function getReiconSvg(name, extraClass, size) {
                 '  </div>',
                 (acc.titular ? '  <div class="account-titular">' + getReiconSvg('User', '', 12) + '<span class="account-titular-text">Titular: ' + escapeHtml(acc.titular) + '</span></div>' : ''),
                 '  <div class="copy-action-row">',
-                '    <div class="alias-chip" role="button" tabindex="0" data-alias="' + escapeHtml(acc.alias) + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + escapeHtml(acc.alias) + ' de ' + escapeHtml(friend.name) + '">',
+                '    <button type="button" class="alias-chip" data-alias="' + escapeHtml(acc.alias) + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + escapeHtml(acc.alias) + ' de ' + escapeHtml(friend.name) + '">',
                 '      <span class="alias-text font-mono">' + escapeHtml(acc.alias) + '</span>',
-                '    </div>',
+                '    </button>',
                 '    <button class="copy-btn" type="button" data-alias="' + escapeHtml(acc.alias) + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar alias ' + escapeHtml(acc.alias) + ' al portapapeles">',
                 '      ' + getReiconSvg('Copy', '', 18),
                 '    </button>',
@@ -5302,12 +5366,6 @@ function getReiconSvg(name, extraClass, size) {
           var friendName = chip.dataset.friendName || '';
           chip.addEventListener('click', function() {
             copyToClipboard(alias, chip, 'Alias', isPending, friendName);
-          });
-          chip.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              copyToClipboard(alias, chip, 'Alias', isPending, friendName);
-            }
           });
         });
 
@@ -5474,7 +5532,7 @@ function getReiconSvg(name, extraClass, size) {
       }
 
       function isCreateGroupDirty() {
-        var isNewTabActive = !panelCreateGroupNew || panelCreateGroupNew.style.display !== 'none';
+        var isNewTabActive = !panelCreateGroupNew || !panelCreateGroupNew.hidden;
         var isFormVisible = Boolean(createGroupFormScreen && createGroupFormScreen.style.display !== 'none');
         var hasText = Boolean(inputGroupName && inputGroupName.value.trim().length > 0);
         return isNewTabActive && isFormVisible && hasText;
@@ -5531,9 +5589,9 @@ function getReiconSvg(name, extraClass, size) {
         if (!Array.isArray(list) || list.length === 0) {
           myGroupsList.innerHTML = [
             '<div class="modal-area" style="text-align: center; padding: 20px 14px;">',
-            '  <p style="font-weight: 800; font-size: 0.92rem; margin-bottom: 6px;">Todavía no creaste grupos en este dispositivo</p>',
+            '  <p style="font-weight: 800; font-size: 0.9375rem; margin-bottom: 6px;">Todavía no creaste grupos en este dispositivo</p>',
             '  <p class="form-hint" style="margin-bottom: 12px;">Creá un grupo nuevo para obtener su enlace de WhatsApp y su enlace privado de administración.</p>',
-            '  <button type="button" id="btn-empty-go-new-group" class="btn-brutalist btn-primary" style="height: 38px; min-height: 38px;">Crear Nuevo Grupo</button>',
+            '  <button type="button" id="btn-empty-go-new-group" class="btn-brutalist btn-primary" style="min-height: 38px; height: auto;">Crear Nuevo Grupo</button>',
             '</div>'
           ].join('\n');
           var goNewBtn = document.getElementById('btn-empty-go-new-group');
@@ -5563,7 +5621,7 @@ function getReiconSvg(name, extraClass, size) {
             '<article class="my-group-card" data-my-group-idx="' + idx + '">',
             '  <div class="my-group-card-head">',
             '    <span class="my-group-name">' + escapeHtml(name) + '</span>',
-            (admTok ? '    <span class="group-header-badge font-mono" style="font-size: 0.65rem;">ADMIN</span>' : ''),
+            (admTok ? '    <span class="group-header-badge font-mono" style="font-size: 0.75rem;">ADMIN</span>' : ''),
             '  </div>',
             '  <div class="my-group-actions">',
             '    <a class="btn-brutalist btn-mint" href="' + escapeHtml(openUrl) + '" style="text-decoration: none;">Abrir</a>',
@@ -5588,10 +5646,16 @@ function getReiconSvg(name, extraClass, size) {
 
       function setCreateGroupTab(tabKey) {
         var isMine = (tabKey === 'mine');
-        if (tabCreateGroupNew) tabCreateGroupNew.setAttribute('aria-selected', (!isMine).toString());
-        if (tabCreateGroupMine) tabCreateGroupMine.setAttribute('aria-selected', isMine.toString());
-        if (panelCreateGroupNew) panelCreateGroupNew.style.display = isMine ? 'none' : 'block';
-        if (panelCreateGroupMine) panelCreateGroupMine.style.display = isMine ? 'block' : 'none';
+        if (tabCreateGroupNew) {
+          tabCreateGroupNew.setAttribute('aria-selected', (!isMine).toString());
+          tabCreateGroupNew.setAttribute('tabindex', isMine ? '-1' : '0');
+        }
+        if (tabCreateGroupMine) {
+          tabCreateGroupMine.setAttribute('aria-selected', isMine.toString());
+          tabCreateGroupMine.setAttribute('tabindex', isMine ? '0' : '-1');
+        }
+        if (panelCreateGroupNew) panelCreateGroupNew.hidden = isMine;
+        if (panelCreateGroupMine) panelCreateGroupMine.hidden = !isMine;
 
         if (isMine) {
           renderMyGroupsList();
@@ -5603,6 +5667,11 @@ function getReiconSvg(name, extraClass, size) {
           setCreateGroupScreen(isSuccess ? 'success' : 'form');
         }
       }
+
+      bindTablistKeyboard([tabCreateGroupNew, tabCreateGroupMine], function(nextIdx) {
+        setCreateGroupTab(nextIdx === 1 ? 'mine' : 'new');
+        return true;
+      });
 
       if (tabCreateGroupNew) {
         tabCreateGroupNew.addEventListener('click', function() {
