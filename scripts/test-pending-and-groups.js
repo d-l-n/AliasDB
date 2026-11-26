@@ -248,7 +248,13 @@ it("index.html implementa Command Bar Sticky desktop, Dock Mobile con atajo Lupa
   assert(indexHtml.includes('id="fab-scroll-top"'), "index.html debe incluir FAB #fab-scroll-top");
   assert(!indexHtml.includes(".primary-actions-dock {\n        display: contents;"), "index.html debe eliminar display: contents en .primary-actions-dock desktop");
   assert(indexHtml.includes('<span class="dock-btn-label">Grupos</span>'), "index.html debe renombrar Crear Grupo a Grupos");
-  assert(indexHtml.includes('<span class="dock-btn-label">Agregar Alias</span>'), "index.html debe renombrar Sumar mi Alias a Agregar Alias");
+  assert(indexHtml.includes('<span class="dock-btn-label">Alias</span>'), "index.html debe renombrar botón de alias a Alias");
+  const dockBlock = indexHtml.slice(indexHtml.indexOf('id="primary-actions-dock"'), indexHtml.indexOf("</nav>", indexHtml.indexOf('id="primary-actions-dock"')));
+  assert(
+    dockBlock.indexOf('id="btn-open-create-group"') < dockBlock.indexOf('id="dock-btn-search"') &&
+      dockBlock.indexOf('id="dock-btn-search"') < dockBlock.indexOf('id="btn-open-add-alias"'),
+    "El botón Buscar (#dock-btn-search) debe ubicarse en el medio de la navbar entre Grupos y Alias"
+  );
   assert(indexHtml.includes("carousel-arrow-btn"), "index.html debe incluir flechas de navegación en carruseles desktop");
   assert(indexHtml.includes("white-space: nowrap;"), "index.html debe evitar recorte horizontal de .collapse-toggle-btn");
   assert(!indexHtml.includes("alias-person-status-pill"), "index.html debe eliminar el badge engañoso #alias-person-status-pill");

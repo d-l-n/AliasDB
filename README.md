@@ -169,7 +169,7 @@ Todos los ítems del backlog UI/UX fueron implementados, verificados en navegado
 - [x] **Mobile: Header de Marca Estático + Atajo de Lupa en Dock:** `#search-box` observado con `IntersectionObserver` para mostrar `#dock-btn-search` (`Buscar`) al hacer scroll hacia abajo.
 - [x] **Header: Máscara superior fija contra transparencia al scrollear:** `#top-scroll-mask` coordinado con `#sticky-command-bar` en desktop.
 - [x] **Header: `#admin-badge` sin fondo y adaptativo por tema:** ícono limpio (`var(--text)` claro / `#FFFFFF` oscuro) sin caja, borde ni sombra.
-- [x] **Acciones Primarias:** botones renombrados a `Grupos` (`#btn-open-create-group`) y `Agregar Alias` (`#btn-open-add-alias`).
+- [x] **Acciones Primarias:** botones renombrados a `Grupos` (`#btn-open-create-group`) y `Alias` (`#btn-open-add-alias`), con el atajo `#dock-btn-search` (`Buscar`) ubicado en el medio de `#primary-actions-dock`.
 - [x] **Carrusel de Chips:** padding expandido en `.filter-scroll-container`, flechas condicionales (`ChevronLeft`/`ChevronRight`) y drag-to-scroll con puntero en desktop.
 - [x] **Tarjetas de Contacto:** `.collapse-toggle-btn` protegido contra recorte horizontal (`min-width: 0`, `white-space: nowrap`, `flex-wrap` responsive).
 - [x] **Modal `#modal-add-alias`:** eliminación de `.modal-bank-chips` en Tab Cuentas y validación real-time del nombre antes de avanzar en Tab Persona (`#alias-person-validation-hint`, sin `#alias-person-status-pill` ni `Área Resumen`).
