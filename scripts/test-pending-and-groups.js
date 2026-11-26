@@ -126,11 +126,11 @@ it("Code.js maneja addFriend y updateFriend en el router de doGet/doPost", () =>
   assert(codeJs.includes("case 'updateFriend':") || codeJs.includes('case "updateFriend":'), "Code.js debe rutear updateFriend");
 });
 
-it("index.html implementa desplegable estilizado Neo-Brutalista y chips rápidos para Banco / Billetera", () => {
-  assert(indexHtml.includes("bank-select-styled"), "index.html debe contener clase bank-select-styled");
+it("index.html implementa dropdown Neo-Brutalista unificado para Banco / Billetera sin modal-bank-chips", () => {
   assert(indexHtml.includes("alias-bank-select"), "index.html debe contener select alias-bank-select");
   assert(indexHtml.includes("alias-bank-custom"), "index.html debe contener input alias-bank-custom");
-  assert(indexHtml.includes("modal-bank-chip"), "index.html debe contener chips de bancos modal-bank-chip");
+  assert(indexHtml.includes("initNeoDropdown"), "index.html debe implementar dropdown custom Neo-Brutalista initNeoDropdown");
+  assert(!indexHtml.includes("modal-bank-chip"), "index.html no debe contener la cinta legacy modal-bank-chip");
 });
 
 it("index.html simplifica el badge En línea con dot minimalista y clases de estado", () => {
@@ -237,6 +237,42 @@ it("Simulación de eliminación de grupo: preservación de personas con reasigna
   assert.deepStrictEqual(persons[0].groups, ["Facultad"], "Juan mantiene 'Facultad'");
   assert.deepStrictEqual(persons[1].groups, ["General"], "Pedro pasa a 'General' al no tener más grupos");
   assert.deepStrictEqual(persons[2].groups, ["General"], "Maria permanece en 'General'");
+});
+
+it("index.html implementa Command Bar Sticky desktop, Dock Mobile con atajo Lupa, Máscara Superior y FAB Scroll-to-Top", () => {
+  assert(indexHtml.includes('id="sticky-command-bar"'), "index.html debe contener #sticky-command-bar");
+  assert(indexHtml.includes('id="search-box"'), "index.html debe asignar id='search-box'");
+  assert(indexHtml.includes('id="dock-btn-search"'), "index.html debe incluir botón lupa #dock-btn-search en el dock");
+  assert(indexHtml.includes("IntersectionObserver"), "index.html debe observar #search-box con IntersectionObserver");
+  assert(indexHtml.includes('id="top-scroll-mask"'), "index.html debe incluir máscara superior #top-scroll-mask");
+  assert(indexHtml.includes('id="fab-scroll-top"'), "index.html debe incluir FAB #fab-scroll-top");
+  assert(!indexHtml.includes(".primary-actions-dock {\n        display: contents;"), "index.html debe eliminar display: contents en .primary-actions-dock desktop");
+  assert(indexHtml.includes('<span class="dock-btn-label">Grupos</span>'), "index.html debe renombrar Crear Grupo a Grupos");
+  assert(indexHtml.includes('<span class="dock-btn-label">Agregar Alias</span>'), "index.html debe renombrar Sumar mi Alias a Agregar Alias");
+  assert(indexHtml.includes("carousel-arrow-btn"), "index.html debe incluir flechas de navegación en carruseles desktop");
+  assert(indexHtml.includes("white-space: nowrap;"), "index.html debe evitar recorte horizontal de .collapse-toggle-btn");
+  assert(!indexHtml.includes("alias-person-status-pill"), "index.html debe eliminar el badge engañoso #alias-person-status-pill");
+  assert(indexHtml.includes("alias-person-validation-hint"), "index.html debe validar en tiempo real el nombre antes de pasar a Cuentas");
+});
+
+it("index.html y admin.html implementan dropdowns Neo-Brutalistas accesibles y validación CBU verde para 22 dígitos", () => {
+  assert(
+    (indexHtml.includes("'role', 'combobox'") || indexHtml.includes('role="combobox"')) &&
+      (indexHtml.includes("'role', 'listbox'") || indexHtml.includes('role="listbox"')),
+    "index.html debe usar roles ARIA combobox/listbox en dropdowns"
+  );
+  assert(
+    adminHtml.includes("initNeoDropdown") &&
+      (adminHtml.includes("'role', 'combobox'") || adminHtml.includes('role="combobox"')) &&
+      (adminHtml.includes("'role', 'listbox'") || adminHtml.includes('role="listbox"')),
+    "admin.html debe unificar selects con dropdowns Neo-Brutalistas accesibles"
+  );
+  assert(indexHtml.includes("/^\\\\d{22}$/") || indexHtml.includes("/^\\d{22}$/"), "index.html checkCbuLive debe aceptar 22 dígitos numéricos con verde");
+  assert(adminHtml.includes("/^\\\\d{22}$/") || adminHtml.includes("/^\\d{22}$/"), "admin.html checkAdminCbuLive debe aceptar 22 dígitos numéricos con verde");
+  const idxCbuBlock = indexHtml.slice(indexHtml.indexOf("function checkCbuLive"), indexHtml.indexOf("cbuInput.addEventListener('input', checkCbuLive)"));
+  const admCbuBlock = adminHtml.slice(adminHtml.indexOf("function checkAdminCbuLive"), adminHtml.indexOf("cbuInput.addEventListener('input', checkAdminCbuLive)"));
+  assert(!idxCbuBlock.includes("var(--accent-red)"), "checkCbuLive no debe pintar borde rojo por dígito verificador BCRA");
+  assert(!admCbuBlock.includes("var(--accent-red)"), "checkAdminCbuLive no debe pintar borde rojo por dígito verificador BCRA");
 });
 
 console.log(`\n>>> RESULTADO: ${passed}/${total} pruebas pasaron exitosamente. <<<`);
