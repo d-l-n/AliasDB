@@ -157,3 +157,56 @@ El panel de administración es una SPA estática independiente que interactúa c
 | `renameGroup` | `GET` | `adminKey` | `oldName`, `newName` | Renombra un grupo en todas las filas y tokens sincronizados. |
 | `getSpreadsheetInfo` | `GET` | `adminKey` | Ninguno | Retorna ID, nombre y URL del Google Sheet vinculado. |
 
+
+
+---
+
+## 🗂️ BACKLOG
+
+### [BACKLOG] Desktop: Sticky Command Bar (Search + Actions)
+
+**Motivación:** el `.app-header` actual ocupa espacio sticky con la marca y los botones de acción en extremos opuestos de la grilla; en viewport estrecho no queda espacio para el buscador en la misma línea.
+
+**Propuesta (Opción A — acordada):** convertir el header de marca en estático y crear un nuevo elemento `.sticky-command-bar` debajo de él que concentre el buscador y los dos botones de acción en una sola fila sticky.
+
+**Implementación técnica:**
+- En `>= 640px`: `.app-header { position: static; }` (deja de ser sticky).
+- Nuevo elemento `<div class="sticky-command-bar">` (posicionado justo debajo del header) con:
+  - `.search-box` → `flex: 1` (el buscador ocupa el espacio disponible).
+  - `#btn-open-create-group` y `#btn-open-add-alias` inline, sin `display: contents` ni dock.
+- CSS: `.sticky-command-bar { position: sticky; top: 0; display: flex; gap: 10px; align-items: center; z-index: 100; }`.
+- Si se agrega animación de condensado: usar histéresis en JS (`scroll > 80px` → activar `.is-condensed`; `scroll < 30px` → desactivar) para evitar jitter.
+- Eliminar el bloque `@media (min-width: 640px) { #primary-actions-dock { display: contents; } }` que actualmente inyecta los botones en la grilla del header.
+
+---
+
+### [BACKLOG] Mobile: Header de Marca Estático + Atajo de Lupa en Dock
+
+**Motivación:** el header sticky en mobile ocupa ~56px permanentes que reducen el viewport útil; el dock ya concentra las acciones primarias en la parte inferior.
+
+**Propuesta (acordada):**
+
+1. **Quitar `position: sticky` del `.app-header` en `< 640px`:** el header de marca queda en flujo normal y sale de pantalla al hacer scroll. Se libera el viewport completo para el contenido.
+2. **Agregar botón Lupa al `#primary-actions-dock`:**
+   - Icono: Reicon `reicon-search` (SVG, igual que los demás botones del dock).
+   - Label: `"Buscar"` (visible en estado expandido del dock).
+   - **Visibilidad condicional:** oculto (`display: none`) por defecto; aparece solo cuando `#search-box` sale del viewport hacia arriba (via `IntersectionObserver` con `threshold: 0`).
+   - **Acción al tocar:** `searchInput.scrollIntoView({ behavior: 'smooth', block: 'start' })` + `searchInput.focus()`.
+   - Participa del colapso de scroll del dock: solo muestra el ícono cuando `.is-scroll-collapsed` está activo; muestra label + ícono cuando el dock está expandido.
+
+**CSS clave:**
+```css
+@media (max-width: 639px) {
+  .app-header { position: static; }
+}
+#dock-btn-search { display: none; }
+#dock-btn-search.visible { display: flex; }
+```
+
+**JS clave:**
+```js
+const searchObserver = new IntersectionObserver(([entry]) => {
+  dockSearchBtn.classList.toggle('visible', !entry.isIntersecting);
+}, { threshold: 0 });
+searchObserver.observe(document.getElementById('search-box'));
+```
