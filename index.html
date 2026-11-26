@@ -669,6 +669,29 @@
       transition: var(--transition-tap);
     }
 
+    .filter-chip:not(.active):hover {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--shadow);
+    }
+
+    [data-theme="dark"] .filter-chip:not(.active):hover {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
+    .filter-chip.group-chip:not(.active):hover,
+    [data-theme="dark"] .filter-chip.group-chip:not(.active):hover {
+      background: var(--accent-mint);
+      color: #0D0D11;
+    }
+
+    .filter-chip.active:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--shadow);
+    }
+
     .filter-chip:active {
       transform: translate(2px, 2px);
       box-shadow: 0px 0px 0px var(--shadow);
@@ -1168,11 +1191,9 @@
     .copy-btn svg {
       width: 17px;
       height: 17px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2.2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+      fill: currentColor;
+      stroke: none;
+      stroke-width: 0;
     }
 
 
@@ -1261,7 +1282,18 @@
       padding: 1px 4px;
       border-radius: 3px;
       background: var(--surface);
+      color: var(--text);
       border: 1px solid var(--border);
+    }
+
+    .recent-chip:hover .recent-chip-label {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    [data-theme="dark"] .recent-chip:hover .recent-chip-label {
+      background: var(--surface);
+      color: #FFFFFF;
     }
 
     /* Microanimación de éxito en chip copiado */
@@ -1295,13 +1327,15 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      padding: 3px 6px;
+      flex-wrap: wrap;
+      gap: 4px 8px;
+      padding: 4px 8px;
       background: rgba(0, 0, 0, 0.03);
       border-radius: var(--radius-sm);
       font-size: 0.72rem;
-      white-space: nowrap;
       min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     [data-theme="dark"] .cbu-details-row {
@@ -1313,9 +1347,13 @@
       font-weight: 600;
       color: var(--text-muted);
       letter-spacing: 0.01em;
-      white-space: nowrap;
-      font-size: 0.6875rem;
+      font-size: clamp(0.64rem, 2.7vw, 0.6875rem);
+      line-height: 1.3;
       min-width: 0;
+      flex: 1 1 auto;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-all;
     }
 
     .cbu-copy-mini-btn {
@@ -1329,6 +1367,7 @@
       text-decoration: underline;
       white-space: nowrap;
       flex-shrink: 0;
+      margin-left: auto;
     }
 
     .cbu-copy-mini-btn:hover {
@@ -1535,9 +1574,9 @@
     .toast-icon svg {
       width: 16px;
       height: 16px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 3;
+      fill: currentColor;
+      stroke: none;
+      stroke-width: 0;
     }
 
     .toast-close-btn {
@@ -1731,6 +1770,21 @@
       justify-content: flex-end;
       gap: 10px;
       flex-shrink: 0;
+    }
+
+    .decision-dialog-footer {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 12px 16px;
+    }
+
+    .decision-dialog-footer .btn-brutalist {
+      width: 100%;
+      min-width: 0;
+      padding: 0 10px;
+      font-size: clamp(0.75rem, 3.1vw, 0.85rem);
+      white-space: nowrap;
     }
 
     .form-group {
@@ -2830,7 +2884,7 @@
                 <button type="button" class="btn-brutalist btn-primary" id="btn-copy-admin-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
               </div>
               <div style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-top: 8px;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="reicon" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" class="reicon" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
                 <span>Guard&aacute; este enlace para aprobar cambios y moderar el grupo</span>
               </div>
             </div>
@@ -2936,17 +2990,17 @@
   <dialog id="modal-alias-decision" aria-labelledby="modal-alias-decision-title" aria-modal="true" style="max-width: 440px;">
     <div class="dialog-header">
       <h2 id="modal-alias-decision-title" class="dialog-title" style="display: inline-flex; align-items: center; gap: 8px;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-alert" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span id="alias-decision-heading">Confirmar Acción</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-alert" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="alias-decision-heading">Confirmar Acci&oacute;n</span>
       </h2>
       <button class="dialog-close-btn" type="button" data-close-modal="modal-alias-decision" aria-label="Cerrar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
     <div class="dialog-body">
       <div id="alias-decision-msg" style="font-size: 0.92rem; line-height: 1.5; color: var(--text);"></div>
     </div>
-    <div class="dialog-footer" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; padding: 14px 20px;">
+    <div class="dialog-footer decision-dialog-footer">
       <button type="button" id="btn-alias-decision-secondary" class="btn-brutalist btn-secondary">Cambiar nombre</button>
-      <button type="button" id="btn-alias-decision-primary" class="btn-brutalist btn-primary">Sumar a esta persona</button>
+      <button type="button" id="btn-alias-decision-primary" class="btn-brutalist btn-primary">Combinar datos</button>
     </div>
   </dialog>
 
@@ -4111,7 +4165,7 @@ function getReiconSvg(name, extraClass, size) {
               var cbuTypeLabel = isCvu ? 'CVU' : 'CBU';
               var cbuDetailsHtml = hasCbu ? [
                 '  <div class="cbu-details-row">',
-                '    <span class="cbu-number font-mono" style="display: flex; align-items: center; gap: 4px;">' + getReiconSvg('CreditCard', '', 13) + ' ' + cbuTypeLabel + ': ' + cleanCbu + '</span>',
+                '    <span class="cbu-number font-mono" style="display: flex; align-items: center; gap: 4px;">' + getReiconSvg('CreditCard', '', 13) + '<span style="min-width: 0; overflow-wrap: anywhere;">' + cbuTypeLabel + ': ' + cleanCbu + '</span></span>',
                 '    <button class="cbu-copy-mini-btn" type="button" data-cbu="' + cleanCbu + '" data-label="' + cbuTypeLabel + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar ' + cbuTypeLabel + ' ' + cleanCbu + '" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar ' + cbuTypeLabel + '</button>',
                 '  </div>'
               ].join('\n') : '';
@@ -5074,9 +5128,9 @@ function getReiconSvg(name, extraClass, size) {
             if (duplicateBanks.length > 0) {
               showAliasDecisionModal({
                 title: 'Cuenta en la misma entidad',
-                message: '<strong>' + escapeHtml(targetName) + '</strong> ya tiene registrada una cuenta en <strong>' + escapeHtml(duplicateBanks.join(', ')) + '</strong>.<br><br>¿Deseas agregar esta cuenta de todas formas?',
-                confirmText: 'Sí, agregar cuenta',
-                cancelText: 'Modificar datos',
+                message: '<strong>' + escapeHtml(targetName) + '</strong> ya tiene una cuenta registrada en <strong>' + escapeHtml(duplicateBanks.join(', ')) + '</strong>.<br><br>¿Querés combinar y agregar esta cuenta de todas formas?',
+                confirmText: 'Agregar igual',
+                cancelText: 'Revisar datos',
                 onConfirm: function() {
                   proceedWithSave(targetId, targetName, accountsToSave, targetGroup);
                 },
@@ -5098,8 +5152,8 @@ function getReiconSvg(name, extraClass, size) {
           if (matchedPerson && !friendId) {
             showAliasDecisionModal({
               title: 'Persona ya registrada',
-              message: 'Ya existe una persona registrada como <strong>' + escapeHtml(matchedPerson.name) + '</strong>.<br><br>¿Deseas sumar estas cuentas a su perfil existente o prefieres cambiar el nombre para crear una persona diferente?',
-              confirmText: 'Sumar a esta persona',
+              message: 'Ya existe un registro a nombre de <strong>' + escapeHtml(matchedPerson.name) + '</strong>.<br><br>¿Querés combinar las cuentas nuevas con sus datos existentes o cambiar el nombre para guardarlo aparte?',
+              confirmText: 'Combinar datos',
               cancelText: 'Cambiar nombre',
               onConfirm: function() {
                 var existingList = (matchedPerson.accounts || []).slice();
