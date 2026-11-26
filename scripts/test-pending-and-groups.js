@@ -259,6 +259,10 @@ it("index.html implementa Command Bar Sticky desktop, Dock Mobile con atajo Lupa
     indexHtml.includes("is-compact-icons") && indexHtml.includes("updateDockCompactFit"),
     "index.html debe colapsar los 3 botones a solo íconos cuando el texto no entra sin recortes"
   );
+  assert(
+    indexHtml.includes(".btn-header-action:hover") && indexHtml.includes(".theme-toggle-btn:hover"),
+    "index.html debe aplicar efecto de elevación en hover a botones de acción y selector de tema"
+  );
   assert(indexHtml.includes("carousel-arrow-btn"), "index.html debe incluir flechas de navegación en carruseles desktop");
   assert(indexHtml.includes("white-space: nowrap;"), "index.html debe evitar recorte horizontal de .collapse-toggle-btn");
   assert(!indexHtml.includes("alias-person-status-pill"), "index.html debe eliminar el badge engañoso #alias-person-status-pill");

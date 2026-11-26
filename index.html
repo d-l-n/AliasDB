@@ -573,6 +573,18 @@
       inset: -5px;
     }
 
+    .theme-toggle-btn:hover {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--shadow);
+    }
+
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
     .theme-toggle-btn:active {
       transform: translate(2px, 2px);
       box-shadow: 0px 0px 0px var(--shadow);
@@ -2014,6 +2026,16 @@
       font-size: 0.75rem;
       letter-spacing: 0.04em;
       border-radius: var(--radius-sm);
+    }
+
+    .btn-header-action:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--shadow);
+    }
+
+    .btn-header-action:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow);
     }
 
     /* CTA contextual de grupo: menta, el acento que ya identifica a los grupos */
