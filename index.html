@@ -277,11 +277,11 @@
       position: sticky;
       top: 12px;
       z-index: 100;
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+      row-gap: 0;
+      column-gap: 12px;
       padding: 14px 16px;
       background: var(--surface);
       border: var(--border-width) solid var(--border);
@@ -289,22 +289,62 @@
       box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
     }
 
-    @media (min-width: 640px) {
-      .app-header {
-        top: 16px;
-        padding: 16px 20px;
-      }
-    }
-
     .brand-group {
+      grid-column: 1;
+      grid-row: 1;
       display: flex;
       align-items: center;
       gap: 12px;
       min-width: 0;
     }
 
-    .header-actions {
+    .brand-group > div:last-child {
       min-width: 0;
+    }
+
+    #theme-toggle {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+      position: relative;
+    }
+
+    .header-actions {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .header-actions:empty {
+      display: none;
+    }
+
+    @media (min-width: 640px) {
+      .app-header {
+        top: 16px;
+        padding: 16px 20px;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 12px;
+      }
+
+      .header-actions {
+        grid-column: 2;
+        grid-row: 1;
+        justify-content: flex-end;
+      }
+
+      #theme-toggle {
+        grid-column: 3;
+        grid-row: 1;
+      }
+
+      .primary-actions-dock {
+        display: contents;
+      }
     }
 
     .brand-icon {
@@ -321,12 +361,19 @@
       -webkit-user-select: none;
     }
 
+    .brand-icon svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
     .brand-title {
-      font-size: 1.25rem;
+      font-size: clamp(1rem, 4.2vw, 1.25rem);
       font-weight: 900;
       letter-spacing: -0.02em;
       line-height: 1.1;
       text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .brand-title-row {
@@ -363,6 +410,7 @@
       border-radius: var(--radius-sm);
       box-shadow: 2px 2px 0px var(--shadow);
       line-height: 1.2;
+      max-width: 100%;
     }
 
     [data-theme="dark"] .group-header-badge {
@@ -411,6 +459,7 @@
 
     /* Theme Switch Toggle Button */
     .theme-toggle-btn {
+      position: relative;
       width: var(--touch-min);
       height: var(--touch-min);
       min-width: var(--touch-min);
@@ -425,6 +474,13 @@
       cursor: pointer;
       color: var(--text);
       transition: var(--transition-tap);
+      flex-shrink: 0;
+    }
+
+    .theme-toggle-btn::after {
+      content: '';
+      position: absolute;
+      inset: -5px;
     }
 
     .theme-toggle-btn:active {
@@ -438,6 +494,42 @@
       fill: currentColor;
       stroke: none;
       stroke-width: 0;
+    }
+
+    @media (max-width: 420px) {
+      .brand-group {
+        gap: 8px;
+      }
+
+      .brand-icon {
+        width: 34px;
+        height: 34px;
+      }
+
+      .brand-title-row {
+        gap: 6px;
+      }
+
+      .theme-toggle-btn {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        min-height: 38px;
+      }
+
+      .theme-toggle-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    @media (max-width: 340px) {
+      .theme-toggle-btn {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        min-height: 34px;
+      }
     }
 
     .icon-sun { display: none; }
@@ -463,13 +555,17 @@
     .search-icon {
       position: absolute;
       left: 14px;
+      z-index: 2;
       width: 20px;
       height: 20px;
       color: var(--text-muted);
       pointer-events: none;
+      transition: var(--transition-hover);
     }
 
     .search-input {
+      position: relative;
+      z-index: 1;
       width: 100%;
       height: 50px;
       min-height: var(--touch-min);
@@ -497,9 +593,15 @@
       box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0px var(--shadow);
     }
 
+    .search-box:focus-within .search-icon {
+      transform: translate(-1px, -1px);
+      color: var(--text);
+    }
+
     .search-clear-btn {
       position: absolute;
       right: 6px;
+      z-index: 2;
       width: 38px;
       height: 38px;
       min-width: 38px;
@@ -1228,12 +1330,6 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-      font-weight: 800;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 4px 8px;
-      text-decoration: underline;
-    }
 
     .cbu-copy-mini-btn:hover {
       color: var(--text);
@@ -1705,83 +1801,121 @@
     }
 
     /* ==========================================================================
-       MOBILE FLOATING ACTION BUTTONS (FAB)
-       En mobile las acciones principales salen del header sticky y flotan
-       abajo a la derecha. En desktop (>= 640px) vuelven al header sin cambios.
+       MOBILE BOTTOM NAVBAR DOCK (< 640px)
+       En mobile las acciones principales viven en una barra inferior fija.
+       Al hacer scroll hacia abajo colapsa a cápsula de íconos; al detenerse o
+       subir vuelve a expandirse mostrando texto.
        ========================================================================== */
     @media (max-width: 639.98px) {
-      :root {
-        --fab-size: 56px;
-        --fab-gap: 16px;
-        --fab-base: calc(var(--fab-gap) + env(safe-area-inset-bottom, 0px) + var(--keyboard-inset-height, 0px));
+      .sync-badge {
+        margin-top: 10px;
+      }
+
+      .primary-actions-dock {
+        position: fixed;
+        left: 50%;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px) + var(--keyboard-inset-height, 0px));
+        transform: translateX(-50%);
+        z-index: 900;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px;
+        background: var(--surface);
+        border: var(--border-thick) solid var(--border);
+        border-radius: var(--radius-pill);
+        box-shadow: 4px 4px 0px var(--shadow);
+        width: max-content;
+        max-width: calc(100vw - 16px);
+        transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1), opacity 0.2s ease, padding 0.2s ease, gap 0.2s ease;
+      }
+
+      body.keyboard-visible .primary-actions-dock {
+        display: none !important;
       }
 
       #btn-open-create-group,
       #btn-open-add-alias {
-        position: fixed;
-        right: calc(var(--fab-gap) + env(safe-area-inset-right, 0px));
-        bottom: var(--fab-base);
-        z-index: 900;
-        width: var(--fab-size);
-        height: var(--fab-size);
-        min-width: var(--fab-size);
-        min-height: var(--fab-size);
-        max-width: var(--fab-size);
-        padding: 0;
-        gap: 0;
-        border-width: var(--border-thick);
-        border-radius: 50%;
-        box-shadow: 3px 3px 0px var(--shadow);
+        height: var(--touch-min);
+        min-height: var(--touch-min);
+        padding: 0 12px;
+        border-width: var(--border-width);
+        border-radius: var(--radius-pill);
+        box-shadow: 2px 2px 0px var(--shadow);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        white-space: nowrap;
+        flex: 0 1 auto;
+        min-width: 0;
+        font-size: 0.78rem;
+        transition: width 0.2s ease, min-width 0.2s ease, padding 0.2s ease, gap 0.2s ease, transform 0.08s ease, box-shadow 0.08s ease;
       }
 
-      /* Acción global: mismo amarillo de marca que el botón de header */
       #btn-open-create-group {
         background: var(--accent-yellow);
         color: #0D0D11;
       }
 
-      /* Acción de grupo: verde menta, el acento que ya identifica a los grupos */
       #btn-open-add-alias {
         background: var(--accent-mint);
         color: #0D0D11;
       }
 
-      /* Si el FAB de alias está visible, "Crear Grupo" se apila arriba */
-      body.is-group-view #btn-open-create-group {
-        bottom: calc(var(--fab-base) + var(--fab-size) + 12px);
-      }
-
-      /* Sólo ícono en mobile; el texto sigue disponible en desktop */
-      #btn-open-create-group > span,
-      #btn-open-add-alias > span {
-        display: none;
-      }
-
       #btn-open-create-group > svg,
       #btn-open-add-alias > svg {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
       }
 
-      /* Aire suficiente para que el último card no quede tapado por los FAB */
+      .primary-actions-dock .dock-btn-label {
+        display: inline-block;
+        max-width: 160px;
+        opacity: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin: 0;
+        visibility: visible;
+        transition: max-width 0.2s ease, opacity 0.14s ease 0.04s, margin 0.2s ease, visibility 0s linear 0s;
+      }
+
+      .primary-actions-dock.is-scroll-collapsed {
+        gap: 6px;
+        padding: 5px;
+      }
+
+      .primary-actions-dock.is-scroll-collapsed #btn-open-create-group,
+      .primary-actions-dock.is-scroll-collapsed #btn-open-add-alias {
+        width: var(--touch-min);
+        min-width: var(--touch-min);
+        flex: 0 0 var(--touch-min);
+        padding: 0;
+        gap: 0;
+        overflow: hidden;
+      }
+
+      .primary-actions-dock.is-scroll-collapsed .dock-btn-label {
+        max-width: 0;
+        opacity: 0;
+        margin: 0;
+        visibility: hidden;
+        transition: opacity 0.04s linear, visibility 0s linear 0.04s, max-width 0.16s ease, margin 0.16s ease;
+      }
+
+      /* Aire suficiente para que el último card no quede tapado por la navbar */
       body {
-        padding-bottom: calc(var(--fab-base) + var(--fab-size) + 24px);
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px) + var(--keyboard-inset-height, 0px));
       }
 
-      body.is-group-view {
-        padding-bottom: calc(var(--fab-base) + (var(--fab-size) * 2) + 36px);
-      }
-
-      /* El toast aparece por encima de los FAB (patrón snackbar sobre FAB) */
+      /* El toast aparece por encima de la navbar inferior */
       .toast-container {
-        bottom: calc(var(--fab-base) + var(--fab-size) + 16px);
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px) + var(--keyboard-inset-height, 0px));
       }
 
-      body.is-group-view .toast-container {
-        bottom: calc(var(--fab-base) + (var(--fab-size) * 2) + 28px);
-      }
-
-      /* Dentro de un modal no hay FAB visible: el toast vuelve a su altura base */
+      /* Dentro de un modal no hay dock visible: el toast vuelve a su altura base */
       dialog .toast-container,
       body.is-group-view dialog .toast-container {
         bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--keyboard-inset-height, 0px));
@@ -1803,6 +1937,11 @@
       color: #0D0D11 !important;
     }
 
+    .btn-danger {
+      background: var(--accent-red) !important;
+      color: #FFFFFF !important;
+    }
+
     .badge-admin {
       background: var(--accent-yellow);
       color: #0D0D11;
@@ -1816,6 +1955,45 @@
       gap: 4px;
       box-shadow: 2px 2px 0px var(--shadow);
       cursor: default;
+    }
+
+    .badge-admin.badge-admin-icon {
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      min-height: 24px;
+      padding: 0;
+      gap: 0;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 360px) {
+      .badge-admin.badge-admin-icon {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        min-height: 22px;
+      }
+
+      .primary-actions-dock {
+        gap: 5px;
+        padding: 5px;
+      }
+
+      .primary-actions-dock:not(.is-scroll-collapsed) #btn-open-create-group,
+      .primary-actions-dock:not(.is-scroll-collapsed) #btn-open-add-alias {
+        padding: 0 9px;
+        gap: 5px;
+        font-size: 0.6875rem;
+        letter-spacing: 0.01em;
+      }
+
+      .primary-actions-dock:not(.is-scroll-collapsed) #btn-open-create-group > svg,
+      .primary-actions-dock:not(.is-scroll-collapsed) #btn-open-add-alias > svg {
+        width: 16px;
+        height: 16px;
+      }
     }
 
     .badge-pending {
@@ -2018,11 +2196,32 @@
       margin-top: 8px;
     }
 
+    @media (max-width: 639.98px) {
+      .modal-bank-chips {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .modal-bank-chips::-webkit-scrollbar {
+        display: none;
+      }
+
+      .modal-bank-chip {
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+    }
+
     .modal-bank-chip {
       font-size: 0.6875rem;
       font-family: var(--font-mono);
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 4px 8px;
       border: 1.5px solid var(--border);
       border-radius: var(--radius-sm);
       background: var(--surface-muted);
@@ -2042,6 +2241,323 @@
       background: var(--accent-yellow);
       color: #0D0D11;
       box-shadow: 2px 2px 0px var(--shadow);
+    }
+
+    /* ==========================================================================
+       REDISEÑO POR ÁREAS Y PESTAÑAS DE MODALES NEO-BRUTALISTAS
+       ========================================================================== */
+    .modal-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--surface);
+      border-bottom: var(--border-width) solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .modal-tab-btn {
+      height: 36px;
+      min-height: 36px;
+      padding: 0 12px;
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--surface-muted);
+      color: var(--text);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: 2px 2px 0px var(--shadow);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: var(--transition-tap);
+      white-space: nowrap;
+    }
+
+    .modal-tab-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px var(--shadow);
+    }
+
+    .modal-tab-btn[aria-selected="true"] {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+    }
+
+    [data-theme="dark"] .modal-tab-btn[aria-selected="true"] {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
+    .modal-steps {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .modal-step-pill {
+      padding: 3px 10px;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-pill);
+      background: var(--surface-muted);
+      color: var(--text-muted);
+    }
+
+    .modal-step-pill.is-active {
+      background: var(--accent-mint);
+      color: #0D0D11;
+      box-shadow: 2px 2px 0px var(--shadow);
+    }
+
+    .modal-step-arrow {
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .modal-area {
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      box-shadow: 2px 2px 0px var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .modal-area:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-area-title {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .group-preview-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .group-includes-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .group-includes-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.35;
+    }
+
+    .group-includes-list svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .my-groups-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .my-group-card {
+      background: var(--surface-muted);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      box-shadow: 2px 2px 0px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .my-group-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .my-group-name {
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .my-group-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .my-group-actions .btn-brutalist {
+      height: 34px;
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 0.72rem;
+    }
+
+    .modal-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .modal-status-pill.is-pending {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+    }
+
+    .modal-status-pill.is-confirmed {
+      background: var(--accent-mint);
+      color: #0D0D11;
+    }
+
+    .account-tabs-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .account-pills-list {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 2px 0;
+    }
+
+    .account-pills-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .account-pill-btn {
+      height: 32px;
+      min-height: 32px;
+      padding: 0 10px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 800;
+      background: var(--surface);
+      color: var(--text);
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-pill);
+      box-shadow: 2px 2px 0px var(--shadow);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: var(--transition-tap);
+    }
+
+    .account-pill-btn.is-active {
+      background: var(--accent-yellow);
+      color: #0D0D11;
+    }
+
+    [data-theme="dark"] .account-pill-btn.is-active {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
+    .alias-account-card.is-tab-hidden {
+      display: none;
+    }
+
+    .account-card-section {
+      padding-top: 10px;
+      margin-top: 10px;
+      border-top: 1.5px dashed var(--border);
+    }
+
+    .account-card-section:first-of-type {
+      padding-top: 0;
+      margin-top: 0;
+      border-top: none;
+    }
+
+    .account-card-section-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .account-optional-group {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: var(--surface);
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .account-optional-group summary {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .account-optional-group summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .account-optional-group[open] summary {
+      margin-bottom: 8px;
     }
 
     /* Accessibility: Reduced Motion Support */
@@ -2138,40 +2654,39 @@
           </g>
         </svg></div>
         <div>
-          <div class="brand-title-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px;">
+          <div class="brand-title-row">
             <h1 class="brand-title">AliasDB</h1>
+            <!-- Status / Admin Badge: Shown if user is Group Admin -->
+            <span id="admin-badge" class="badge-admin badge-admin-icon font-mono" style="display: none;" title="Sos Administrador del Grupo" aria-label="Sos Administrador del Grupo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" class="reicon reicon-crown" aria-hidden="true"><path d="M2.5 19h19v2h-19v-2zm19.57-14.47l-4.57 6.09-5.5-8.62-5.5 8.62-4.57-6.09 1.57 12.47h17l1.57-12.47z"/></svg><span class="sr-only">Admin</span></span>
             <span id="group-header-badge" class="group-header-badge font-mono" style="display: none;"></span>
           </div>
           <p class="brand-tagline">Directorio de Pagos R&aacute;pidos</p>
         </div>
       </div>
       
-      <div class="header-actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <div class="header-actions">
         <span id="sync-status" class="sync-badge font-mono is-offline" title="Estado de sincronización"><span class="status-dot"></span><span class="status-text">Conectando...</span></span>
-        
 
+        <nav id="primary-actions-dock" class="primary-actions-dock" aria-label="Acciones principales">
+          <!-- Button + Crear Grupo -->
+          <button id="btn-open-create-group" class="btn-brutalist btn-header-action" type="button" aria-label="Crear Nuevo Grupo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="15" height="15" class="reicon reicon-users" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 1.25C6.37665 1.25 4.25 3.37665 4.25 6C4.25 8.62335 6.37665 10.75 9 10.75C11.6234 10.75 13.75 8.62335 13.75 6C13.75 3.37665 11.6234 1.25 9 1.25ZM5.75 6C5.75 4.20507 7.20507 2.75 9 2.75C10.7949 2.75 12.25 4.20507 12.25 6C12.25 7.79493 10.7949 9.25 9 9.25C7.20507 9.25 5.75 7.79493 5.75 6Z" fill="currentColor"/><path d="M15 2.25C14.5858 2.25 14.25 2.58579 14.25 3C14.25 3.41421 14.5858 3.75 15 3.75C16.2426 3.75 17.25 4.75736 17.25 6C17.25 7.24264 16.2426 8.25 15 8.25C14.5858 8.25 14.25 8.58579 14.25 9C14.25 9.41421 14.5858 9.75 15 9.75C17.0711 9.75 18.75 8.07107 18.75 6C18.75 3.92893 17.0711 2.25 15 2.25Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.67815 13.5204C5.07752 12.7208 6.96067 12.25 9 12.25C11.0393 12.25 12.9225 12.7208 14.3219 13.5204C15.7 14.3079 16.75 15.5101 16.75 17C16.75 18.4899 15.7 19.6921 14.3219 20.4796C12.9225 21.2792 11.0393 21.75 9 21.75C6.96067 21.75 5.07752 21.2792 3.67815 20.4796C2.3 19.6921 1.25 18.4899 1.25 17C1.25 15.5101 2.3 14.3079 3.67815 13.5204ZM4.42236 14.8228C3.26701 15.483 2.75 16.2807 2.75 17C2.75 17.7193 3.26701 18.517 4.42236 19.1772C5.55649 19.8253 7.17334 20.25 9 20.25C10.8267 20.25 12.4435 19.8253 13.5776 19.1772C14.733 18.517 15.25 17.7193 15.25 17C15.25 16.2807 14.733 15.483 13.5776 14.8228C12.4435 14.1747 10.8267 13.75 9 13.75C7.17334 13.75 5.55649 14.1747 4.42236 14.8228Z" fill="currentColor"/><path d="M18.1607 13.2674C17.7561 13.1787 17.3561 13.4347 17.2674 13.8393C17.1787 14.2439 17.4347 14.6439 17.8393 14.7326C18.6317 14.9064 19.2649 15.2048 19.6829 15.5468C20.1014 15.8892 20.25 16.2237 20.25 16.5C20.25 16.7507 20.1294 17.045 19.7969 17.3539C19.462 17.665 18.9475 17.9524 18.2838 18.1523C17.8871 18.2717 17.6624 18.69 17.7818 19.0867C17.9013 19.4833 18.3196 19.708 18.7162 19.5886C19.5388 19.3409 20.2743 18.9578 20.8178 18.4529C21.3637 17.9457 21.75 17.2786 21.75 16.5C21.75 15.6352 21.2758 14.912 20.6328 14.3859C19.9893 13.8593 19.1225 13.4783 18.1607 13.2674Z" fill="currentColor"/></svg>
+            <span class="dock-btn-label">Crear Grupo</span>
+          </button>
 
-        <!-- Status / Admin Badge: Shown if user is Group Admin -->
-        <span id="admin-badge" class="badge-admin font-mono" style="display: none;" title="Sos Administrador del Grupo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" class="reicon reicon-crown" aria-hidden="true"><path d="M2.5 19h19v2h-19v-2zm19.57-14.47l-4.57 6.09-5.5-8.62-5.5 8.62-4.57-6.09 1.57 12.47h17l1.57-12.47z"/></svg> <span>Admin</span></span>
-
-        <!-- Button + Crear Grupo -->
-        <button id="btn-open-create-group" class="btn-brutalist btn-header-action" type="button" aria-label="Crear Nuevo Grupo">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="13" height="13" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-          <span>Crear Grupo</span>
-        </button>
-
-        <!-- Button + Sumar mi Alias (Visible when inside a group view) -->
-        <button id="btn-open-add-alias" class="btn-brutalist btn-header-action btn-primary" type="button" style="display: none;" aria-label="Sumar mi Alias">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="13" height="13" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-          <span>Sumar mi Alias</span>
-        </button>
-
-        <!-- Theme Switch Button (>=44x44px tap zone) -->
-        <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Alternar entre modo claro y modo oscuro">
-          <svg class="reicon icon-sun" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 1.25C12.4142 1.25 12.75 1.58579 12.75 2V3C12.75 3.41421 12.4142 3.75 12 3.75C11.5858 3.75 11.25 3.41421 11.25 3V2C11.25 1.58579 11.5858 1.25 12 1.25ZM4.39861 4.39861C4.6915 4.10572 5.16638 4.10572 5.45927 4.39861L5.85211 4.79145C6.145 5.08434 6.145 5.55921 5.85211 5.85211C5.55921 6.145 5.08434 6.145 4.79145 5.85211L4.39861 5.45927C4.10572 5.16638 4.10572 4.6915 4.39861 4.39861ZM19.6011 4.39887C19.894 4.69176 19.894 5.16664 19.6011 5.45953L19.2083 5.85237C18.9154 6.14526 18.4405 6.14526 18.1476 5.85237C17.8547 5.55947 17.8547 5.0846 18.1476 4.79171L18.5405 4.39887C18.8334 4.10598 19.3082 4.10598 19.6011 4.39887ZM12 6.75C9.1005 6.75 6.75 9.1005 6.75 12C6.75 14.8995 9.1005 17.25 12 17.25C14.8995 17.25 17.25 14.8995 17.25 12C17.25 9.1005 14.8995 6.75 12 6.75ZM5.25 12C5.25 8.27208 8.27208 5.25 12 5.25C15.7279 5.25 18.75 8.27208 18.75 12C18.75 15.7279 15.7279 18.75 12 18.75C8.27208 18.75 5.25 15.7279 5.25 12ZM1.25 12C1.25 11.5858 1.58579 11.25 2 11.25H3C3.41421 11.25 3.75 11.5858 3.75 12C3.75 12.4142 3.41421 12.75 3 12.75H2C1.58579 12.75 1.25 12.4142 1.25 12ZM20.25 12C20.25 11.5858 20.5858 11.25 21 11.25H22C22.4142 11.25 22.75 11.5858 22.75 12C22.75 12.4142 22.4142 12.75 22 12.75H21C20.5858 12.75 20.25 12.4142 20.25 12ZM18.1476 18.1476C18.4405 17.8547 18.9154 17.8547 19.2083 18.1476L19.6011 18.5405C19.894 18.8334 19.894 19.3082 19.6011 19.6011C19.3082 19.894 18.8334 19.894 18.5405 19.6011L18.1476 19.2083C17.8547 18.9154 17.8547 18.4405 18.1476 18.1476ZM5.85211 18.1479C6.145 18.4408 6.145 18.9157 5.85211 19.2086L5.45927 19.6014C5.16638 19.8943 4.6915 19.8943 4.39861 19.6014C4.10572 19.3085 4.10572 18.8336 4.39861 18.5407L4.79145 18.1479C5.08434 17.855 5.55921 17.855 5.85211 18.1479ZM12 20.25C12.4142 20.25 12.75 20.5858 12.75 21V22C12.75 22.4142 12.4142 22.75 12 22.75C11.5858 22.75 11.25 22.4142 11.25 22V21C11.25 20.5858 11.5858 20.25 12 20.25Z" fill="currentColor"/></svg>
-          <svg class="reicon icon-moon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.0174 2.80157C6.37072 3.29221 2.75 7.22328 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C16.7767 21.25 20.7078 17.6293 21.1984 12.9826C19.8717 14.6669 17.8126 15.75 15.5 15.75C11.4959 15.75 8.25 12.5041 8.25 8.5C8.25 6.18738 9.33315 4.1283 11.0174 2.80157ZM1.25 12C1.25 6.06294 6.06294 1.25 12 1.25C12.7166 1.25 13.0754 1.82126 13.1368 2.27627C13.196 2.71398 13.0342 3.27065 12.531 3.57467C10.8627 4.5828 9.75 6.41182 9.75 8.5C9.75 11.6756 12.3244 14.25 15.5 14.25C17.5882 14.25 19.4172 13.1373 20.4253 11.469C20.7293 10.9658 21.286 10.804 21.7237 10.8632C22.1787 10.9246 22.75 11.2834 22.75 12C22.75 17.9371 17.9371 22.75 12 22.75C6.06294 22.75 1.25 17.9371 1.25 12Z" fill="currentColor"/></svg>
-        </button>
+          <!-- Button + Sumar mi Alias (Visible when inside a group view) -->
+          <button id="btn-open-add-alias" class="btn-brutalist btn-header-action btn-primary" type="button" style="display: none;" aria-label="Sumar mi Alias">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="15" height="15" class="reicon reicon-wallet" aria-hidden="true"><path d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.94358 3.25H13.0564C14.8942 3.24998 16.3498 3.24997 17.489 3.40314C18.6614 3.56076 19.6104 3.89288 20.3588 4.64124C21.2831 5.56563 21.5777 6.80363 21.6847 8.41008C22.2619 8.6641 22.6978 9.2013 22.7458 9.88179C22.7501 9.94199 22.75 10.0069 22.75 10.067C22.75 10.0725 22.75 10.0779 22.75 10.0833V13.9167C22.75 13.9221 22.75 13.9275 22.75 13.933C22.75 13.9931 22.7501 14.058 22.7458 14.1182C22.6978 14.7987 22.2619 15.3359 21.6847 15.5899C21.5777 17.1964 21.2831 18.4344 20.3588 19.3588C19.6104 20.1071 18.6614 20.4392 17.489 20.5969C16.3498 20.75 14.8942 20.75 13.0564 20.75H9.94359C8.10583 20.75 6.65019 20.75 5.51098 20.5969C4.33856 20.4392 3.38961 20.1071 2.64124 19.3588C1.89288 18.6104 1.56076 17.6614 1.40314 16.489C1.24997 15.3498 1.24998 13.8942 1.25 12.0564V11.9436C1.24998 10.1058 1.24997 8.65019 1.40314 7.51098C1.56076 6.33856 1.89288 5.38961 2.64124 4.64124C3.38961 3.89288 4.33856 3.56076 5.51098 3.40314C6.65019 3.24997 8.10582 3.24998 9.94358 3.25ZM20.1679 15.75H18.2308C16.0856 15.75 14.25 14.1224 14.25 12C14.25 9.87756 16.0856 8.25 18.2308 8.25H20.1679C20.0541 6.90855 19.7966 6.20043 19.2981 5.7019C18.8749 5.27869 18.2952 5.02502 17.2892 4.88976C16.2615 4.75159 14.9068 4.75 13 4.75H10C8.09318 4.75 6.73851 4.75159 5.71085 4.88976C4.70476 5.02502 4.12511 5.27869 3.7019 5.7019C3.27869 6.12511 3.02502 6.70476 2.88976 7.71085C2.75159 8.73851 2.75 10.0932 2.75 12C2.75 13.9068 2.75159 15.2615 2.88976 16.2892C3.02502 17.2952 3.27869 17.8749 3.7019 18.2981C4.12511 18.7213 4.70476 18.975 5.71085 19.1102C6.73851 19.2484 8.09318 19.25 10 19.25H13C14.9068 19.25 16.2615 19.2484 17.2892 19.1102C18.2952 18.975 18.8749 18.7213 19.2981 18.2981C19.7966 17.7996 20.0541 17.0915 20.1679 15.75ZM5.25 8C5.25 7.58579 5.58579 7.25 6 7.25H10C10.4142 7.25 10.75 7.58579 10.75 8C10.75 8.41421 10.4142 8.75 10 8.75H6C5.58579 8.75 5.25 8.41421 5.25 8ZM20.9235 9.75023C20.9032 9.75001 20.8766 9.75 20.8333 9.75H18.2308C16.8074 9.75 15.75 10.8087 15.75 12C15.75 13.1913 16.8074 14.25 18.2308 14.25H20.8333C20.8766 14.25 20.9032 14.25 20.9235 14.2498C20.936 14.2496 20.9426 14.2495 20.9457 14.2493L20.9479 14.2492C21.1541 14.2367 21.2427 14.0976 21.2495 14.0139C21.2495 14.0139 21.2497 14.0076 21.2498 13.9986C21.25 13.9808 21.25 13.9572 21.25 13.9167V10.0833C21.25 10.0428 21.25 10.0192 21.2498 10.0014C21.2497 9.99238 21.2495 9.98609 21.2495 9.98609C21.2427 9.90242 21.1541 9.7633 20.9479 9.75076C20.9479 9.75076 20.943 9.75043 20.9235 9.75023Z" fill="currentColor"/></svg>
+            <span class="dock-btn-label">Sumar mi Alias</span>
+          </button>
+        </nav>
       </div>
+
+      <!-- Theme Switch Button (>=44x44px tap zone) -->
+      <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Alternar entre modo claro y modo oscuro">
+        <svg class="reicon icon-sun" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 1.25C12.4142 1.25 12.75 1.58579 12.75 2V3C12.75 3.41421 12.4142 3.75 12 3.75C11.5858 3.75 11.25 3.41421 11.25 3V2C11.25 1.58579 11.5858 1.25 12 1.25ZM4.39861 4.39861C4.6915 4.10572 5.16638 4.10572 5.45927 4.39861L5.85211 4.79145C6.145 5.08434 6.145 5.55921 5.85211 5.85211C5.55921 6.145 5.08434 6.145 4.79145 5.85211L4.39861 5.45927C4.10572 5.16638 4.10572 4.6915 4.39861 4.39861ZM19.6011 4.39887C19.894 4.69176 19.894 5.16664 19.6011 5.45953L19.2083 5.85237C18.9154 6.14526 18.4405 6.14526 18.1476 5.85237C17.8547 5.55947 17.8547 5.0846 18.1476 4.79171L18.5405 4.39887C18.8334 4.10598 19.3082 4.10598 19.6011 4.39887ZM12 6.75C9.1005 6.75 6.75 9.1005 6.75 12C6.75 14.8995 9.1005 17.25 12 17.25C14.8995 17.25 17.25 14.8995 17.25 12C17.25 9.1005 14.8995 6.75 12 6.75ZM5.25 12C5.25 8.27208 8.27208 5.25 12 5.25C15.7279 5.25 18.75 8.27208 18.75 12C18.75 15.7279 15.7279 18.75 12 18.75C8.27208 18.75 5.25 15.7279 5.25 12ZM1.25 12C1.25 11.5858 1.58579 11.25 2 11.25H3C3.41421 11.25 3.75 11.5858 3.75 12C3.75 12.4142 3.41421 12.75 3 12.75H2C1.58579 12.75 1.25 12.4142 1.25 12ZM20.25 12C20.25 11.5858 20.5858 11.25 21 11.25H22C22.4142 11.25 22.75 11.5858 22.75 12C22.75 12.4142 22.4142 12.75 22 12.75H21C20.5858 12.75 20.25 12.4142 20.25 12ZM18.1476 18.1476C18.4405 17.8547 18.9154 17.8547 19.2083 18.1476L19.6011 18.5405C19.894 18.8334 19.894 19.3082 19.6011 19.6011C19.3082 19.894 18.8334 19.894 18.5405 19.6011L18.1476 19.2083C17.8547 18.9154 17.8547 18.4405 18.1476 18.1476ZM5.85211 18.1479C6.145 18.4408 6.145 18.9157 5.85211 19.2086L5.45927 19.6014C5.16638 19.8943 4.6915 19.8943 4.39861 19.6014C4.10572 19.3085 4.10572 18.8336 4.39861 18.5407L4.79145 18.1479C5.08434 17.855 5.55921 17.855 5.85211 18.1479ZM12 20.25C12.4142 20.25 12.75 20.5858 12.75 21V22C12.75 22.4142 12.4142 22.75 12 22.75C11.5858 22.75 11.25 22.4142 11.25 22V21C11.25 20.5858 11.5858 20.25 12 20.25Z" fill="currentColor"/></svg>
+        <svg class="reicon icon-moon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.0174 2.80157C6.37072 3.29221 2.75 7.22328 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C16.7767 21.25 20.7078 17.6293 21.1984 12.9826C19.8717 14.6669 17.8126 15.75 15.5 15.75C11.4959 15.75 8.25 12.5041 8.25 8.5C8.25 6.18738 9.33315 4.1283 11.0174 2.80157ZM1.25 12C1.25 6.06294 6.06294 1.25 12 1.25C12.7166 1.25 13.0754 1.82126 13.1368 2.27627C13.196 2.71398 13.0342 3.27065 12.531 3.57467C10.8627 4.5828 9.75 6.41182 9.75 8.5C9.75 11.6756 12.3244 14.25 15.5 14.25C17.5882 14.25 19.4172 13.1373 20.4253 11.469C20.7293 10.9658 21.286 10.804 21.7237 10.8632C22.1787 10.9246 22.75 11.2834 22.75 12C22.75 17.9371 17.9371 22.75 12 22.75C6.06294 22.75 1.25 17.9371 1.25 12Z" fill="currentColor"/></svg>
+      </button>
     </header>
 
     <!-- Search & Bank Filters Controls -->
@@ -2226,66 +2741,119 @@
 
   </div>
 
-  <!-- Modal 1: Crear Nuevo Grupo -->
+  <!-- Modal 1: Crear Nuevo Grupo / Mis Grupos -->
   <dialog id="modal-create-group" aria-labelledby="modal-create-group-title" aria-modal="true">
     <div class="dialog-header">
       <h2 id="modal-create-group-title" class="dialog-title">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-users" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 1.25C6.37665 1.25 4.25 3.37665 4.25 6C4.25 8.62335 6.37665 10.75 9 10.75C11.6234 10.75 13.75 8.62335 13.75 6C13.75 3.37665 11.6234 1.25 9 1.25ZM5.75 6C5.75 4.20507 7.20507 2.75 9 2.75C10.7949 2.75 12.25 4.20507 12.25 6C12.25 7.79493 10.7949 9.25 9 9.25C7.20507 9.25 5.75 7.79493 5.75 6Z" fill="currentColor"/></svg>
-        <span>Crear Nuevo Grupo</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-users" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 1.25C6.37665 1.25 4.25 3.37665 4.25 6C4.25 8.62335 6.37665 10.75 9 10.75C11.6234 10.75 13.75 8.62335 13.75 6C13.75 3.37665 11.6234 1.25 9 1.25ZM5.75 6C5.75 4.20507 7.20507 2.75 9 2.75C10.7949 2.75 12.25 4.20507 12.25 6C12.25 7.79493 10.7949 9.25 9 9.25C7.20507 9.25 5.75 7.79493 5.75 6Z" fill="currentColor"/><path d="M15 2.25C14.5858 2.25 14.25 2.58579 14.25 3C14.25 3.41421 14.5858 3.75 15 3.75C16.2426 3.75 17.25 4.75736 17.25 6C17.25 7.24264 16.2426 8.25 15 8.25C14.5858 8.25 14.25 8.58579 14.25 9C14.25 9.41421 14.5858 9.75 15 9.75C17.0711 9.75 18.75 8.07107 18.75 6C18.75 3.92893 17.0711 2.25 15 2.25Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.67815 13.5204C5.07752 12.7208 6.96067 12.25 9 12.25C11.0393 12.25 12.9225 12.7208 14.3219 13.5204C15.7 14.3079 16.75 15.5101 16.75 17C16.75 18.4899 15.7 19.6921 14.3219 20.4796C12.9225 21.2792 11.0393 21.75 9 21.75C6.96067 21.75 5.07752 21.2792 3.67815 20.4796C2.3 19.6921 1.25 18.4899 1.25 17C1.25 15.5101 2.3 14.3079 3.67815 13.5204ZM4.42236 14.8228C3.26701 15.483 2.75 16.2807 2.75 17C2.75 17.7193 3.26701 18.517 4.42236 19.1772C5.55649 19.8253 7.17334 20.25 9 20.25C10.8267 20.25 12.4435 19.8253 13.5776 19.1772C14.733 18.517 15.25 17.7193 15.25 17C15.25 16.2807 14.733 15.483 13.5776 14.8228C12.4435 14.1747 10.8267 13.75 9 13.75C7.17334 13.75 5.55649 14.1747 4.42236 14.8228Z" fill="currentColor"/><path d="M18.1607 13.2674C17.7561 13.1787 17.3561 13.4347 17.2674 13.8393C17.1787 14.2439 17.4347 14.6439 17.8393 14.7326C18.6317 14.9064 19.2649 15.2048 19.6829 15.5468C20.1014 15.8892 20.25 16.2237 20.25 16.5C20.25 16.7507 20.1294 17.045 19.7969 17.3539C19.462 17.665 18.9475 17.9524 18.2838 18.1523C17.8871 18.2717 17.6624 18.69 17.7818 19.0867C17.9013 19.4833 18.3196 19.708 18.7162 19.5886C19.5388 19.3409 20.2743 18.9578 20.8178 18.4529C21.3637 17.9457 21.75 17.2786 21.75 16.5C21.75 15.6352 21.2758 14.912 20.6328 14.3859C19.9893 13.8593 19.1225 13.4783 18.1607 13.2674Z" fill="currentColor"/></svg>
+        <span>Grupos</span>
       </h2>
       <button class="dialog-close-btn" type="button" data-close-modal="modal-create-group" aria-label="Cerrar ventana"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
-    
-    <!-- Screen 1: Formulario -->
-    <div id="create-group-form-screen" class="dialog-body">
-      <div class="form-group">
-        <label for="input-group-name" class="form-label">Nombre del Grupo</label>
-        <input 
-          type="text" 
-          id="input-group-name" 
-          class="form-control" 
-          placeholder="Ej: Fútbol de los Jueves" 
-          autocomplete="off" 
-          spellcheck="false" 
-          required
-        >
-        <p class="form-hint">Ingresá el nombre con el que identificarán el grupo todos los participantes.</p>
+
+    <div class="modal-tabs" role="tablist" aria-label="Secciones de grupos">
+      <button type="button" id="tab-create-group-new" class="modal-tab-btn" role="tab" aria-selected="true" aria-controls="panel-create-group-new">Nuevo Grupo</button>
+      <button type="button" id="tab-create-group-mine" class="modal-tab-btn" role="tab" aria-selected="false" aria-controls="panel-create-group-mine">Mis Grupos</button>
+    </div>
+
+    <div class="dialog-body">
+      <!-- Tab Panel 1: Nuevo Grupo -->
+      <div id="panel-create-group-new" role="tabpanel" aria-labelledby="tab-create-group-new">
+        <div class="modal-steps" aria-label="Progreso de creación">
+          <span id="cg-step-1" class="modal-step-pill is-active">1. Identidad</span>
+          <span class="modal-step-arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="14" height="14" class="reicon reicon-arrowright" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.4697 5.46967C13.7626 5.17678 14.2374 5.17678 14.5303 5.46967L20.5303 11.4697C20.8232 11.7626 20.8232 12.2374 20.5303 12.5303L14.5303 18.5303C14.2374 18.8232 13.7626 18.8232 13.4697 18.5303C13.1768 18.2374 13.1768 17.7626 13.4697 17.4697L18.1893 12.75H4C3.58579 12.75 3.25 12.4142 3.25 12C3.25 11.5858 3.58579 11.25 4 11.25H18.1893L13.4697 6.53033C13.1768 6.23744 13.1768 5.76256 13.4697 5.46967Z" fill="currentColor"/></svg></span>
+          <span id="cg-step-2" class="modal-step-pill">2. Enlaces</span>
+        </div>
+
+        <!-- Screen 1: Formulario -->
+        <div id="create-group-form-screen">
+          <section class="modal-area" aria-label="Área Identidad">
+            <div class="modal-area-title"><span>&Aacute;rea Identidad</span></div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="input-group-name" class="form-label">Nombre del Grupo</label>
+              <input 
+                type="text" 
+                id="input-group-name" 
+                class="form-control" 
+                placeholder="Ej: Fútbol de los Jueves" 
+                autocomplete="off" 
+                spellcheck="false" 
+                required
+              >
+              <p class="form-hint">Ingresá el nombre con el que identificarán el grupo todos los participantes.</p>
+              <div class="group-preview-row">
+                <span class="font-mono" style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted);">Vista previa:</span>
+                <span id="group-name-preview-badge" class="group-header-badge font-mono">GRUPO: TU GRUPO</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="modal-area" aria-label="Qué incluye">
+            <div class="modal-area-title"><span>Qu&eacute; Incluye</span></div>
+            <ul class="group-includes-list">
+              <li>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-link" aria-hidden="true"><path d="M15.7285 3.88396C17.1629 2.44407 19.2609 2.41383 20.4224 3.57981C21.586 4.74798 21.5547 6.85922 20.1194 8.30009L17.6956 10.7333C17.4033 11.0268 17.4042 11.5017 17.6976 11.794C17.9911 12.0863 18.466 12.0854 18.7583 11.7919L21.1821 9.35869C23.0934 7.43998 23.3334 4.37665 21.4851 2.5212C19.6346 0.663551 16.5781 0.905664 14.6658 2.82536L9.81817 7.69182C7.90688 9.61053 7.66692 12.6739 9.51519 14.5293C9.80751 14.8228 10.2824 14.8237 10.5758 14.5314C10.8693 14.2391 10.8702 13.7642 10.5779 13.4707C9.41425 12.3026 9.44559 10.1913 10.8809 8.75042L15.7285 3.88396Z" fill="currentColor"/><path d="M14.4851 9.47074C14.1928 9.17728 13.7179 9.17636 13.4244 9.46868C13.131 9.76101 13.1301 10.2359 13.4224 10.5293C14.586 11.6975 14.5547 13.8087 13.1194 15.2496L8.27178 20.1161C6.83745 21.556 4.73937 21.5863 3.57791 20.4203C2.41424 19.2521 2.44559 17.1408 3.88089 15.6999L6.30473 13.2667C6.59706 12.9732 6.59614 12.4984 6.30268 12.206C6.00922 11.9137 5.53434 11.9146 5.24202 12.2081L2.81818 14.6413C0.906876 16.5601 0.666916 19.6234 2.51519 21.4789C4.36567 23.3365 7.42221 23.0944 9.33449 21.1747L14.1821 16.3082C16.0934 14.3895 16.3334 11.3262 14.4851 9.47074Z" fill="currentColor"/></svg>
+                <span>Enlace p&uacute;blico para compartir en WhatsApp y que tus contactos consulten o propongan sus alias.</span>
+              </li>
+              <li>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-key" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M15.6809 5.34814C14.0521 5.34814 12.7265 6.66395 12.7265 8.29353C12.7265 9.92311 14.0521 11.2389 15.6809 11.2389C17.3097 11.2389 18.6353 9.92311 18.6353 8.29353C18.6353 6.66395 17.3097 5.34814 15.6809 5.34814ZM14.2265 8.29353C14.2265 7.49816 14.8748 6.84814 15.6809 6.84814C16.487 6.84814 17.1353 7.49816 17.1353 8.29353C17.1353 9.0889 16.487 9.73891 15.6809 9.73891C14.8748 9.73891 14.2265 9.0889 14.2265 8.29353Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.52998 20.8783C9.86298 20.414 9.97017 19.9429 9.96222 19.5233C10.3544 19.6387 10.7424 19.6533 11.1141 19.5828C11.8825 19.437 12.4511 18.9512 12.7527 18.5507L12.758 18.5437L12.7631 18.5366C13.2883 17.8043 13.2872 17.0543 13.1586 16.5164C13.0956 16.2528 13.0021 16.0361 12.9245 15.8846C12.8853 15.8081 12.849 15.746 12.8207 15.7005C12.8132 15.6885 12.8063 15.6775 12.7999 15.6677C12.7112 15.5021 12.6111 15.3719 12.5269 15.2737L12.5359 15.2647L13.0001 14.8024C13.3817 14.9849 13.7957 15.0999 14.1583 15.1749C14.744 15.2962 15.3171 15.3369 15.6807 15.3369C19.582 15.3369 22.75 12.1863 22.75 8.29344C22.75 4.40056 19.582 1.25 15.6807 1.25C11.7794 1.25 8.61144 4.40056 8.61144 8.29344C8.61144 9.2105 8.82018 9.99588 9.02588 10.549C9.07825 10.6898 9.13081 10.8166 9.18035 10.9279L1.92511 18.1535C1.66869 18.4089 1.36789 18.853 1.27697 19.4092C1.17837 20.0124 1.34031 20.6829 1.92511 21.2654L2.80687 22.1435C2.82046 22.1571 2.83457 22.1701 2.84916 22.1825C3.10385 22.3999 3.53164 22.6513 4.04572 22.7273C4.59712 22.8088 5.23527 22.6818 5.77579 22.1435L6.34232 21.5793C6.87523 21.8849 7.43853 21.9545 7.95941 21.8548C8.63497 21.7254 9.19686 21.321 9.51964 20.8924L9.5249 20.8854L9.52998 20.8783Z" fill="currentColor"/></svg>
+                <span>Enlace privado de administraci&oacute;n para confirmar solicitudes y moderar el grupo.</span>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <!-- Screen 2: Enlaces generados con éxito -->
+        <div id="create-group-success-screen" style="display: none;">
+          <div style="background: var(--accent-mint); color: #0D0D11; border: 2px solid var(--border); padding: 12px 14px; border-radius: var(--radius-md); font-weight: 900; font-size: 0.95rem; box-shadow: 2px 2px 0px var(--shadow); margin-bottom: 14px;">
+            &iexcl;Grupo "<span id="created-group-name-label"></span>" creado con &eacute;xito!
+          </div>
+
+          <section class="modal-area" aria-label="Área Pública">
+            <div class="modal-area-title"><span>&Aacute;rea P&uacute;blica (Compartir)</span></div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="share-group-url" class="form-label">Enlace para Compartir (WhatsApp)</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="share-group-url" class="form-control font-mono" readonly style="font-size: 11px;">
+                <button type="button" class="btn-brutalist btn-cyan" id="btn-copy-share-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
+              </div>
+              <p class="form-hint">Compart&iacute; este enlace en WhatsApp para que tus amigos consulten y sumen sus alias.</p>
+            </div>
+          </section>
+
+          <section class="modal-area" aria-label="Área Privada de Administración">
+            <div class="modal-area-title"><span>&Aacute;rea Privada Admin</span></div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="admin-group-url" class="form-label">Enlace de Administraci&oacute;n</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="admin-group-url" class="form-control font-mono" readonly style="font-size: 11px;">
+                <button type="button" class="btn-brutalist btn-primary" id="btn-copy-admin-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
+              </div>
+              <div style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-top: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="reicon" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                <span>Guard&aacute; este enlace para aprobar cambios y moderar el grupo</span>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
-      <div class="dialog-footer" style="padding: 12px 0 0 0; background: transparent; border-top: none;">
-        <button type="button" class="btn-brutalist btn-secondary" data-close-modal="modal-create-group">Cancelar</button>
-        <button type="button" id="btn-submit-create-group" class="btn-brutalist btn-primary">Crear Grupo</button>
+
+      <!-- Tab Panel 2: Mis Grupos -->
+      <div id="panel-create-group-mine" role="tabpanel" aria-labelledby="tab-create-group-mine" style="display: none;">
+        <div id="my-groups-list" class="my-groups-list"></div>
       </div>
     </div>
 
-    <!-- Screen 2: Enlaces generados con éxito -->
-    <div id="create-group-success-screen" class="dialog-body" style="display: none;">
-      <div style="background: var(--accent-mint); color: #0D0D11; border: 2px solid var(--border); padding: 10px 14px; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.95rem;">
-        ¡Grupo "<span id="created-group-name-label"></span>" creado con éxito!
+    <div class="dialog-footer">
+      <div id="create-group-footer-form" style="display: flex; gap: 10px; justify-content: flex-end; width: 100%;">
+        <button type="button" class="btn-brutalist btn-secondary" data-close-modal="modal-create-group">Cancelar</button>
+        <button type="button" id="btn-submit-create-group" class="btn-brutalist btn-primary">Crear Grupo</button>
       </div>
-      
-      <div class="form-group" style="margin-top: 14px;">
-        <label for="share-group-url" class="form-label">Enlace para Compartir (WhatsApp)</label>
-        <div style="display: flex; gap: 6px;">
-          <input type="text" id="share-group-url" class="form-control font-mono" readonly style="font-size: 11px;">
-          <button type="button" class="btn-brutalist btn-cyan" id="btn-copy-share-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
-        </div>
-        <p class="form-hint">Compartí este enlace en WhatsApp para que tus amigos consulten y sumen sus alias.</p>
-      </div>
-
-      <div class="form-group">
-        <label for="admin-group-url" class="form-label">Enlace de Administración</label>
-        <div style="display: flex; gap: 6px;">
-          <input type="text" id="admin-group-url" class="form-control font-mono" readonly style="font-size: 11px;">
-          <button type="button" class="btn-brutalist btn-primary" id="btn-copy-admin-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
-        </div>
-        <div style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-top: 6px;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="reicon" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-          <span>Guardá este enlace para aprobar cambios y moderar el grupo</span>
-        </div>
-      </div>
-
-      <div class="dialog-footer" style="padding: 12px 0 0 0; background: transparent; border-top: none;">
+      <div id="create-group-footer-success" style="display: none; gap: 10px; width: 100%;">
         <button type="button" id="btn-open-created-group" class="btn-brutalist btn-mint" style="width: 100%;">Ir al Grupo Ahora</button>
+      </div>
+      <div id="create-group-footer-mine" style="display: none; gap: 10px; justify-content: flex-end; width: 100%;">
+        <button type="button" class="btn-brutalist btn-secondary" data-close-modal="modal-create-group">Cerrar</button>
       </div>
     </div>
   </dialog>
@@ -2294,45 +2862,66 @@
   <dialog id="modal-add-alias" aria-labelledby="modal-add-alias-title" aria-modal="true">
     <div class="dialog-header">
       <h2 id="modal-add-alias-title" class="dialog-title">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-wallet" aria-hidden="true"><path d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z" fill="currentColor"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-wallet" aria-hidden="true"><path d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.94358 3.25H13.0564C14.8942 3.24998 16.3498 3.24997 17.489 3.40314C18.6614 3.56076 19.6104 3.89288 20.3588 4.64124C21.2831 5.56563 21.5777 6.80363 21.6847 8.41008C22.2619 8.6641 22.6978 9.2013 22.7458 9.88179C22.7501 9.94199 22.75 10.0069 22.75 10.067C22.75 10.0725 22.75 10.0779 22.75 10.0833V13.9167C22.75 13.9221 22.75 13.9275 22.75 13.933C22.75 13.9931 22.7501 14.058 22.7458 14.1182C22.6978 14.7987 22.2619 15.3359 21.6847 15.5899C21.5777 17.1964 21.2831 18.4344 20.3588 19.3588C19.6104 20.1071 18.6614 20.4392 17.489 20.5969C16.3498 20.75 14.8942 20.75 13.0564 20.75H9.94359C8.10583 20.75 6.65019 20.75 5.51098 20.5969C4.33856 20.4392 3.38961 20.1071 2.64124 19.3588C1.89288 18.6104 1.56076 17.6614 1.40314 16.489C1.24997 15.3498 1.24998 13.8942 1.25 12.0564V11.9436C1.24998 10.1058 1.24997 8.65019 1.40314 7.51098C1.56076 6.33856 1.89288 5.38961 2.64124 4.64124C3.38961 3.89288 4.33856 3.56076 5.51098 3.40314C6.65019 3.24997 8.10582 3.24998 9.94358 3.25ZM20.1679 15.75H18.2308C16.0856 15.75 14.25 14.1224 14.25 12C14.25 9.87756 16.0856 8.25 18.2308 8.25H20.1679C20.0541 6.90855 19.7966 6.20043 19.2981 5.7019C18.8749 5.27869 18.2952 5.02502 17.2892 4.88976C16.2615 4.75159 14.9068 4.75 13 4.75H10C8.09318 4.75 6.73851 4.75159 5.71085 4.88976C4.70476 5.02502 4.12511 5.27869 3.7019 5.7019C3.27869 6.12511 3.02502 6.70476 2.88976 7.71085C2.75159 8.73851 2.75 10.0932 2.75 12C2.75 13.9068 2.75159 15.2615 2.88976 16.2892C3.02502 17.2952 3.27869 17.8749 3.7019 18.2981C4.12511 18.7213 4.70476 18.975 5.71085 19.1102C6.73851 19.2484 8.09318 19.25 10 19.25H13C14.9068 19.25 16.2615 19.2484 17.2892 19.1102C18.2952 18.975 18.8749 18.7213 19.2981 18.2981C19.7966 17.7996 20.0541 17.0915 20.1679 15.75ZM5.25 8C5.25 7.58579 5.58579 7.25 6 7.25H10C10.4142 7.25 10.75 7.58579 10.75 8C10.75 8.41421 10.4142 8.75 10 8.75H6C5.58579 8.75 5.25 8.41421 5.25 8ZM20.9235 9.75023C20.9032 9.75001 20.8766 9.75 20.8333 9.75H18.2308C16.8074 9.75 15.75 10.8087 15.75 12C15.75 13.1913 16.8074 14.25 18.2308 14.25H20.8333C20.8766 14.25 20.9032 14.25 20.9235 14.2498C20.936 14.2496 20.9426 14.2495 20.9457 14.2493L20.9479 14.2492C21.1541 14.2367 21.2427 14.0976 21.2495 14.0139C21.2495 14.0139 21.2497 14.0076 21.2498 13.9986C21.25 13.9808 21.25 13.9572 21.25 13.9167V10.0833C21.25 10.0428 21.25 10.0192 21.2498 10.0014C21.2497 9.99238 21.2495 9.98609 21.2495 9.98609C21.2427 9.90242 21.1541 9.7633 20.9479 9.75076C20.9479 9.75076 20.943 9.75043 20.9235 9.75023Z" fill="currentColor"/></svg>
         <span id="modal-add-alias-heading">Sumar o Editar Alias</span>
       </h2>
       <button class="dialog-close-btn" type="button" data-close-modal="modal-add-alias" aria-label="Cerrar ventana"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
     </div>
 
-    <form id="form-add-alias" onsubmit="return false;">
+    <form id="form-add-alias" onsubmit="return false;" novalidate>
       <input type="hidden" id="alias-edit-friend-id" value="">
-      
+
+      <div class="modal-tabs" role="tablist" aria-label="Secciones del alias">
+        <button type="button" id="tab-alias-person" class="modal-tab-btn" role="tab" aria-selected="true" aria-controls="panel-alias-person">Persona</button>
+        <button type="button" id="tab-alias-accounts" class="modal-tab-btn" role="tab" aria-selected="false" aria-controls="panel-alias-accounts">Cuentas (<span id="alias-accounts-tab-count">1</span>)</button>
+      </div>
+
       <div class="dialog-body">
-        <div class="form-group">
-          <label for="alias-person-name" class="form-label">Nombre de la persona</label>
-          <input 
-            type="text" 
-            id="alias-person-name" 
-            class="form-control" 
-            placeholder="Ej: Martín Gómez" 
-            required 
-            autocomplete="name"
-          >
+        <!-- Tab 1: Persona -->
+        <div id="panel-alias-person" role="tabpanel" aria-labelledby="tab-alias-person">
+          <section class="modal-area" aria-label="Área Identidad">
+            <div class="modal-area-title"><span>&Aacute;rea Identidad</span></div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="alias-person-name" class="form-label">Nombre de la persona</label>
+              <input 
+                type="text" 
+                id="alias-person-name" 
+                class="form-control" 
+                placeholder="Ej: Martín Gómez" 
+                required 
+                autocomplete="name"
+              >
+              <div>
+                <span id="alias-person-status-pill" class="modal-status-pill is-pending">Pendiente de confirmaci&oacute;n</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="modal-area" aria-label="Área Resumen">
+            <div class="modal-area-title"><span>&Aacute;rea Resumen</span></div>
+            <p id="alias-person-summary-text" class="form-hint" style="margin-top: 0; margin-bottom: 12px;">
+              Ten&eacute;s 1 cuenta lista para completar. Pas&aacute; a la pesta&ntilde;a Cuentas para elegir banco y alias.
+            </p>
+            <button type="button" id="btn-alias-next-accounts" class="btn-brutalist btn-mint" style="width: 100%; height: 40px; min-height: 40px;">
+              <span>Continuar a Cuentas</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-arrowright" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.4697 5.46967C13.7626 5.17678 14.2374 5.17678 14.5303 5.46967L20.5303 11.4697C20.8232 11.7626 20.8232 12.2374 20.5303 12.5303L14.5303 18.5303C14.2374 18.8232 13.7626 18.8232 13.4697 18.5303C13.1768 18.2374 13.1768 17.7626 13.4697 17.4697L18.1893 12.75H4C3.58579 12.75 3.25 12.4142 3.25 12C3.25 11.5858 3.58579 11.25 4 11.25H18.1893L13.4697 6.53033C13.1768 6.23744 13.1768 5.76256 13.4697 5.46967Z" fill="currentColor"/></svg>
+            </button>
+          </section>
         </div>
 
-        <!-- Contenedor Dinámico de Cuentas Asociadas -->
-        <div class="form-group" style="margin-bottom: 8px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-            <label class="form-label" style="margin-bottom: 0;">Cuentas bancarias</label>
-            <button type="button" id="btn-add-alias-account" class="btn-brutalist btn-sm btn-mint font-mono" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 0.75rem;">
+        <!-- Tab 2: Cuentas -->
+        <div id="panel-alias-accounts" role="tabpanel" aria-labelledby="tab-alias-accounts" style="display: none;">
+          <div class="account-tabs-strip">
+            <div id="account-pills-list" class="account-pills-list" role="tablist" aria-label="Selector de cuentas"></div>
+            <button type="button" id="btn-add-alias-account" class="btn-brutalist btn-sm btn-mint font-mono" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 0.75rem; height: 32px; min-height: 32px;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="13" height="13" class="reicon reicon-plus" aria-hidden="true"><path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-              <span>+ Agregar otra cuenta</span>
+              <span>Agregar cuenta</span>
             </button>
           </div>
 
           <div id="alias-accounts-container" style="display: flex; flex-direction: column; gap: 14px;">
             <!-- Filas/Cards dinámicas de cuentas generadas en JS -->
           </div>
-        </div>
-
-        <div class="info-note font-mono" style="background: var(--surface-muted); border: 2px solid var(--border); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; color: var(--text-muted); line-height: 1.4; margin-top: 10px;">
-          Si no sos el administrador del grupo, el alias se publicará de inmediato como 'Pendiente de confirmación'.
         </div>
       </div>
 
@@ -2358,6 +2947,26 @@
     <div class="dialog-footer" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; padding: 14px 20px;">
       <button type="button" id="btn-alias-decision-secondary" class="btn-brutalist btn-secondary">Cambiar nombre</button>
       <button type="button" id="btn-alias-decision-primary" class="btn-brutalist btn-primary">Sumar a esta persona</button>
+    </div>
+  </dialog>
+
+  <!-- Modal 4: Confirmar Descarte de Cambios -->
+  <dialog id="modal-discard-confirm" aria-labelledby="modal-discard-title" aria-modal="true" style="max-width: 420px;">
+    <div class="dialog-header">
+      <h2 id="modal-discard-title" class="dialog-title">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-alerttriangle" aria-hidden="true"><path d="M12 7.25C12.4142 7.25 12.75 7.58579 12.75 8V13C12.75 13.4142 12.4142 13.75 12 13.75C11.5858 13.75 11.25 13.4142 11.25 13V8C11.25 7.58579 11.5858 7.25 12 7.25Z" fill="currentColor"/><path d="M12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.2944 4.47643C9.36631 3.11493 10.5018 2.25 12 2.25C13.4981 2.25 14.6336 3.11493 15.7056 4.47643C16.7598 5.81544 17.8769 7.79622 19.3063 10.3305L19.7418 11.1027C20.9234 13.1976 21.8566 14.8523 22.3468 16.1804C22.8478 17.5376 22.9668 18.7699 22.209 19.8569C21.4736 20.9118 20.2466 21.3434 18.6991 21.5471C17.1576 21.75 15.0845 21.75 12.4248 21.75H11.5752C8.91552 21.75 6.84239 21.75 5.30082 21.5471C3.75331 21.3434 2.52637 20.9118 1.79099 19.8569C1.03318 18.7699 1.15218 17.5376 1.65314 16.1804C2.14334 14.8523 3.07658 13.1977 4.25818 11.1027L4.69361 10.3307C6.123 7.79629 7.24019 5.81547 8.2944 4.47643ZM9.47297 5.40432C8.49896 6.64148 7.43704 8.51988 5.96495 11.1299L5.60129 11.7747C4.37507 13.9488 3.50368 15.4986 3.06034 16.6998C2.6227 17.8855 2.68338 18.5141 3.02148 18.9991C3.38202 19.5163 4.05873 19.8706 5.49659 20.0599C6.92858 20.2484 8.9026 20.25 11.6363 20.25H12.3636C15.0974 20.25 17.0714 20.2484 18.5034 20.0599C19.9412 19.8706 20.6179 19.5163 20.9785 18.9991C21.3166 18.5141 21.3773 17.8855 20.9396 16.6998C20.4963 15.4986 19.6249 13.9488 18.3987 11.7747L18.035 11.1299C16.5629 8.51987 15.501 6.64148 14.527 5.40431C13.562 4.17865 12.8126 3.75 12 3.75C11.1874 3.75 10.4379 4.17865 9.47297 5.40432Z" fill="currentColor"/></svg>
+        <span>&iquest;Descartar cambios?</span>
+      </h2>
+      <button type="button" id="btn-discard-close-x" class="dialog-close-btn" aria-label="Seguir editando"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
+    </div>
+    <div class="dialog-body">
+      <p style="font-size: 0.92rem; line-height: 1.5; color: var(--text);">
+        Ten&eacute;s cambios sin guardar. Si cerr&aacute;s ahora, se perder&aacute;n los datos ingresados.
+      </p>
+    </div>
+    <div class="dialog-footer">
+      <button type="button" id="btn-discard-keep" class="btn-brutalist btn-secondary" autofocus>Seguir editando</button>
+      <button type="button" id="btn-discard-confirm" class="btn-brutalist btn-danger">Descartar y cerrar</button>
     </div>
   </dialog>
 
@@ -2563,13 +3172,25 @@ function getReiconSvg(name, extraClass, size) {
       var toastCloseBtn = document.getElementById('toast-close');
 
       var adminBadge = document.getElementById('admin-badge');
+      var primaryActionsDock = document.getElementById('primary-actions-dock');
       var btnOpenCreateGroup = document.getElementById('btn-open-create-group');
       var btnOpenAddAlias = document.getElementById('btn-open-add-alias');
 
       var modalCreateGroup = document.getElementById('modal-create-group');
+      var tabCreateGroupNew = document.getElementById('tab-create-group-new');
+      var tabCreateGroupMine = document.getElementById('tab-create-group-mine');
+      var panelCreateGroupNew = document.getElementById('panel-create-group-new');
+      var panelCreateGroupMine = document.getElementById('panel-create-group-mine');
+      var cgStep1 = document.getElementById('cg-step-1');
+      var cgStep2 = document.getElementById('cg-step-2');
       var createGroupFormScreen = document.getElementById('create-group-form-screen');
       var createGroupSuccessScreen = document.getElementById('create-group-success-screen');
+      var createGroupFooterForm = document.getElementById('create-group-footer-form');
+      var createGroupFooterSuccess = document.getElementById('create-group-footer-success');
+      var createGroupFooterMine = document.getElementById('create-group-footer-mine');
       var inputGroupName = document.getElementById('input-group-name');
+      var groupNamePreviewBadge = document.getElementById('group-name-preview-badge');
+      var myGroupsList = document.getElementById('my-groups-list');
       var btnSubmitCreateGroup = document.getElementById('btn-submit-create-group');
       var createdGroupNameLabel = document.getElementById('created-group-name-label');
       var shareGroupUrlInput = document.getElementById('share-group-url');
@@ -2581,11 +3202,29 @@ function getReiconSvg(name, extraClass, size) {
       var modalAddAlias = document.getElementById('modal-add-alias');
       var modalAddAliasHeading = document.getElementById('modal-add-alias-heading');
       var formAddAlias = document.getElementById('form-add-alias');
+      var tabAliasPerson = document.getElementById('tab-alias-person');
+      var tabAliasAccounts = document.getElementById('tab-alias-accounts');
+      var aliasAccountsTabCount = document.getElementById('alias-accounts-tab-count');
+      var panelAliasPerson = document.getElementById('panel-alias-person');
+      var panelAliasAccounts = document.getElementById('panel-alias-accounts');
+      var aliasPersonStatusPill = document.getElementById('alias-person-status-pill');
+      var aliasPersonSummaryText = document.getElementById('alias-person-summary-text');
+      var btnAliasNextAccounts = document.getElementById('btn-alias-next-accounts');
+      var accountPillsList = document.getElementById('account-pills-list');
       var aliasEditFriendId = document.getElementById('alias-edit-friend-id');
       var aliasPersonName = document.getElementById('alias-person-name');
       var aliasAccountsContainer = document.getElementById('alias-accounts-container');
       var btnAddAliasAccount = document.getElementById('btn-add-alias-account');
       var btnSubmitAlias = document.getElementById('btn-submit-alias');
+
+      var modalDiscardConfirm = document.getElementById('modal-discard-confirm');
+      var btnDiscardKeep = document.getElementById('btn-discard-keep');
+      var btnDiscardConfirm = document.getElementById('btn-discard-confirm');
+      var btnDiscardCloseX = document.getElementById('btn-discard-close-x');
+
+      var activeAccountIndex = 0;
+      var initialAddAliasSnapshot = '';
+      var pendingDiscardModal = null;
 
       var modalAliasDecision = document.getElementById('modal-alias-decision');
       var aliasDecisionHeading = document.getElementById('modal-alias-decision-title');
@@ -2637,6 +3276,70 @@ function getReiconSvg(name, extraClass, size) {
         });
       }
 
+      function setAliasModalTab(tabKey) {
+        var isAccounts = (tabKey === 'accounts');
+        if (tabAliasPerson) tabAliasPerson.setAttribute('aria-selected', (!isAccounts).toString());
+        if (tabAliasAccounts) tabAliasAccounts.setAttribute('aria-selected', isAccounts.toString());
+        if (panelAliasPerson) panelAliasPerson.style.display = isAccounts ? 'none' : 'block';
+        if (panelAliasAccounts) panelAliasAccounts.style.display = isAccounts ? 'block' : 'none';
+      }
+
+      function updateAliasPersonStatusPill() {
+        if (!aliasPersonStatusPill) return;
+        var isAdmin = isCurrentAdmin();
+        aliasPersonStatusPill.classList.toggle('is-confirmed', isAdmin);
+        aliasPersonStatusPill.classList.toggle('is-pending', !isAdmin);
+        aliasPersonStatusPill.textContent = isAdmin ? 'Confirmado directo' : 'Pendiente de confirmación';
+      }
+
+      function updateAliasSummary() {
+        if (!aliasPersonSummaryText || !aliasAccountsContainer) return;
+        var count = aliasAccountsContainer.querySelectorAll('.alias-account-card').length;
+        aliasPersonSummaryText.textContent = count === 1
+          ? 'Tenés 1 cuenta cargada en este formulario. Pasá a Cuentas para elegir banco y alias.'
+          : 'Tenés ' + count + ' cuentas cargadas en este formulario. Pasá a Cuentas para editarlas.';
+      }
+
+      function setActiveAccountCard(idx) {
+        if (!aliasAccountsContainer) return;
+        var cards = aliasAccountsContainer.querySelectorAll('.alias-account-card');
+        if (cards.length === 0) {
+          activeAccountIndex = 0;
+          return;
+        }
+        if (idx < 0) idx = 0;
+        if (idx >= cards.length) idx = cards.length - 1;
+        activeAccountIndex = idx;
+        cards.forEach(function(c, i) {
+          c.classList.toggle('is-tab-hidden', i !== activeAccountIndex);
+        });
+        if (accountPillsList) {
+          accountPillsList.querySelectorAll('.account-pill-btn').forEach(function(pill, i) {
+            var active = (i === activeAccountIndex);
+            pill.classList.toggle('is-active', active);
+            pill.setAttribute('aria-selected', active.toString());
+          });
+        }
+      }
+
+      if (tabAliasPerson) {
+        tabAliasPerson.addEventListener('click', function() {
+          setAliasModalTab('person');
+        });
+      }
+
+      if (tabAliasAccounts) {
+        tabAliasAccounts.addEventListener('click', function() {
+          setAliasModalTab('accounts');
+        });
+      }
+
+      if (btnAliasNextAccounts) {
+        btnAliasNextAccounts.addEventListener('click', function() {
+          setAliasModalTab('accounts');
+        });
+      }
+
       function appendAliasAccountCard(accData) {
         if (!aliasAccountsContainer) return null;
         accData = accData || { bank: 'Mercado Pago', bankName: 'Mercado Pago', type: 'CVU', alias: '', cbu: '', titular: '' };
@@ -2650,6 +3353,7 @@ function getReiconSvg(name, extraClass, size) {
         var standardBanks = ['Mercado Pago', 'Banco Galicia', 'Banco Santander', 'Brubank', 'Lemon Cash', 'BBVA', 'Ualá', 'Naranja X', 'Banco Nación', 'Banco Provincia', 'Banco Macro', 'Banco Ciudad', 'Personal Pay', 'Prex', 'Belo'];
         var isCustom = bankName && standardBanks.indexOf(bankName) === -1;
         var selValue = isCustom ? 'OTRO' : (standardBanks.indexOf(bankName) !== -1 ? bankName : '');
+        var hasTitular = Boolean(titular && titular.trim().length > 0);
 
         var card = document.createElement('div');
         card.className = 'alias-account-card';
@@ -2661,59 +3365,68 @@ function getReiconSvg(name, extraClass, size) {
           '  <span class="alias-account-index font-mono" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Cuenta</span>',
           '  <button type="button" class="btn-remove-alias-account dialog-close-btn" style="width: 26px; height: 26px; min-width: 26px; min-height: 26px; max-width: 26px; max-height: 26px; flex: 0 0 26px; padding: 0; margin: 0;" title="Eliminar esta cuenta" aria-label="Eliminar cuenta">' + getReiconSvg('X', '', 13) + '</button>',
           '</div>',
-          '<div class="form-group" style="margin-bottom: 10px;">',
-          '  <label class="form-label" style="font-size: 0.8rem;">Banco / Billetera *</label>',
-          '  <select class="form-control bank-select-styled alias-bank-select" required>',
-          '    <option value=""' + (!selValue ? ' selected' : '') + '>Seleccioná tu banco o billetera...</option>',
-          '    <option value="Mercado Pago"' + (selValue === 'Mercado Pago' ? ' selected' : '') + '>Mercado Pago</option>',
-          '    <option value="Banco Galicia"' + (selValue === 'Banco Galicia' ? ' selected' : '') + '>Banco Galicia</option>',
-          '    <option value="Banco Santander"' + (selValue === 'Banco Santander' ? ' selected' : '') + '>Banco Santander</option>',
-          '    <option value="Brubank"' + (selValue === 'Brubank' ? ' selected' : '') + '>Brubank</option>',
-          '    <option value="Lemon Cash"' + (selValue === 'Lemon Cash' ? ' selected' : '') + '>Lemon Cash</option>',
-          '    <option value="BBVA"' + (selValue === 'BBVA' ? ' selected' : '') + '>Banco BBVA</option>',
-          '    <option value="Ualá"' + (selValue === 'Ualá' ? ' selected' : '') + '>Ualá</option>',
-          '    <option value="Naranja X"' + (selValue === 'Naranja X' ? ' selected' : '') + '>Naranja X</option>',
-          '    <option value="Banco Nación"' + (selValue === 'Banco Nación' ? ' selected' : '') + '>Banco Nación</option>',
-          '    <option value="Banco Provincia"' + (selValue === 'Banco Provincia' ? ' selected' : '') + '>Banco Provincia</option>',
-          '    <option value="Banco Macro"' + (selValue === 'Banco Macro' ? ' selected' : '') + '>Banco Macro</option>',
-          '    <option value="Banco Ciudad"' + (selValue === 'Banco Ciudad' ? ' selected' : '') + '>Banco Ciudad</option>',
-          '    <option value="Personal Pay"' + (selValue === 'Personal Pay' ? ' selected' : '') + '>Personal Pay</option>',
-          '    <option value="Prex"' + (selValue === 'Prex' ? ' selected' : '') + '>Prex</option>',
-          '    <option value="Belo"' + (selValue === 'Belo' ? ' selected' : '') + '>Belo</option>',
-          '    <option value="OTRO"' + (selValue === 'OTRO' ? ' selected' : '') + '>Otro banco / billetera...</option>',
-          '  </select>',
-          '  <div class="modal-bank-chips" aria-label="Selección rápida de entidad" style="margin-top: 6px;">',
-          '    <button type="button" class="modal-bank-chip' + (bankName === 'Mercado Pago' ? ' active' : '') + '" data-bank="Mercado Pago">MP</button>',
-          '    <button type="button" class="modal-bank-chip' + (bankName === 'Banco Galicia' ? ' active' : '') + '" data-bank="Banco Galicia">Galicia</button>',
-          '    <button type="button" class="modal-bank-chip' + (bankName === 'Banco Santander' ? ' active' : '') + '" data-bank="Banco Santander">Santander</button>',
-          '    <button type="button" class="modal-bank-chip' + (bankName === 'Brubank' ? ' active' : '') + '" data-bank="Brubank">Brubank</button>',
-          '    <button type="button" class="modal-bank-chip' + (bankName === 'Lemon Cash' ? ' active' : '') + '" data-bank="Lemon Cash">Lemon</button>',
-          '    <button type="button" class="modal-bank-chip' + (bankName === 'BBVA' ? ' active' : '') + '" data-bank="BBVA">BBVA</button>',
-          '    <button type="button" class="modal-bank-chip' + (bankName === 'Ualá' ? ' active' : '') + '" data-bank="Ualá">Ualá</button>',
-          '    <button type="button" class="modal-bank-chip' + (bankName === 'Naranja X' ? ' active' : '') + '" data-bank="Naranja X">Naranja X</button>',
+          '<div class="account-card-section">',
+          '  <div class="account-card-section-label">1. Entidad y Tipo</div>',
+          '  <div class="form-group" style="margin-bottom: 10px;">',
+          '    <label class="form-label" style="font-size: 0.8rem;">Banco / Billetera *</label>',
+          '    <select class="form-control bank-select-styled alias-bank-select" required>',
+          '      <option value=""' + (!selValue ? ' selected' : '') + '>Seleccioná tu banco o billetera...</option>',
+          '      <option value="Mercado Pago"' + (selValue === 'Mercado Pago' ? ' selected' : '') + '>Mercado Pago</option>',
+          '      <option value="Banco Galicia"' + (selValue === 'Banco Galicia' ? ' selected' : '') + '>Banco Galicia</option>',
+          '      <option value="Banco Santander"' + (selValue === 'Banco Santander' ? ' selected' : '') + '>Banco Santander</option>',
+          '      <option value="Brubank"' + (selValue === 'Brubank' ? ' selected' : '') + '>Brubank</option>',
+          '      <option value="Lemon Cash"' + (selValue === 'Lemon Cash' ? ' selected' : '') + '>Lemon Cash</option>',
+          '      <option value="BBVA"' + (selValue === 'BBVA' ? ' selected' : '') + '>Banco BBVA</option>',
+          '      <option value="Ualá"' + (selValue === 'Ualá' ? ' selected' : '') + '>Ualá</option>',
+          '      <option value="Naranja X"' + (selValue === 'Naranja X' ? ' selected' : '') + '>Naranja X</option>',
+          '      <option value="Banco Nación"' + (selValue === 'Banco Nación' ? ' selected' : '') + '>Banco Nación</option>',
+          '      <option value="Banco Provincia"' + (selValue === 'Banco Provincia' ? ' selected' : '') + '>Banco Provincia</option>',
+          '      <option value="Banco Macro"' + (selValue === 'Banco Macro' ? ' selected' : '') + '>Banco Macro</option>',
+          '      <option value="Banco Ciudad"' + (selValue === 'Banco Ciudad' ? ' selected' : '') + '>Banco Ciudad</option>',
+          '      <option value="Personal Pay"' + (selValue === 'Personal Pay' ? ' selected' : '') + '>Personal Pay</option>',
+          '      <option value="Prex"' + (selValue === 'Prex' ? ' selected' : '') + '>Prex</option>',
+          '      <option value="Belo"' + (selValue === 'Belo' ? ' selected' : '') + '>Belo</option>',
+          '      <option value="OTRO"' + (selValue === 'OTRO' ? ' selected' : '') + '>Otro banco / billetera...</option>',
+          '    </select>',
+          '    <div class="modal-bank-chips" aria-label="Selección rápida de entidad" style="margin-top: 6px;">',
+          '      <button type="button" class="modal-bank-chip' + (bankName === 'Mercado Pago' ? ' active' : '') + '" data-bank="Mercado Pago">MP</button>',
+          '      <button type="button" class="modal-bank-chip' + (bankName === 'Banco Galicia' ? ' active' : '') + '" data-bank="Banco Galicia">Galicia</button>',
+          '      <button type="button" class="modal-bank-chip' + (bankName === 'Banco Santander' ? ' active' : '') + '" data-bank="Banco Santander">Santander</button>',
+          '      <button type="button" class="modal-bank-chip' + (bankName === 'Brubank' ? ' active' : '') + '" data-bank="Brubank">Brubank</button>',
+          '      <button type="button" class="modal-bank-chip' + (bankName === 'Lemon Cash' ? ' active' : '') + '" data-bank="Lemon Cash">Lemon</button>',
+          '      <button type="button" class="modal-bank-chip' + (bankName === 'BBVA' ? ' active' : '') + '" data-bank="BBVA">BBVA</button>',
+          '      <button type="button" class="modal-bank-chip' + (bankName === 'Ualá' ? ' active' : '') + '" data-bank="Ualá">Ualá</button>',
+          '      <button type="button" class="modal-bank-chip' + (bankName === 'Naranja X' ? ' active' : '') + '" data-bank="Naranja X">Naranja X</button>',
+          '    </div>',
+          '    <input type="text" class="form-control alias-bank-custom" placeholder="Escribí el nombre de la entidad..." value="' + (isCustom ? escapeHtml(bankName) : '') + '" style="display: ' + (isCustom ? 'block' : 'none') + '; margin-top: 6px;">',
           '  </div>',
-          '  <input type="text" class="form-control alias-bank-custom" placeholder="Escribí el nombre de la entidad..." value="' + (isCustom ? escapeHtml(bankName) : '') + '" style="display: ' + (isCustom ? 'block' : 'none') + '; margin-top: 6px;">',
+          '  <div class="form-group" style="margin-bottom: 0;">',
+          '    <label class="form-label" style="font-size: 0.8rem;">Tipo de cuenta *</label>',
+          '    <select class="form-control bank-select-styled alias-account-type" required>',
+          '      <option value="CVU"' + (type === 'CVU' ? ' selected' : '') + '>CVU</option>',
+          '      <option value="Caja de Ahorro"' + (type === 'Caja de Ahorro' ? ' selected' : '') + '>Caja de Ahorro</option>',
+          '      <option value="Cuenta Corriente"' + (type === 'Cuenta Corriente' ? ' selected' : '') + '>Cuenta Corriente</option>',
+          '    </select>',
+          '  </div>',
           '</div>',
-          '<div class="form-group" style="margin-bottom: 10px;">',
-          '  <label class="form-label" style="font-size: 0.8rem;">Tipo de cuenta *</label>',
-          '  <select class="form-control bank-select-styled alias-account-type" required>',
-          '    <option value="CVU"' + (type === 'CVU' ? ' selected' : '') + '>CVU</option>',
-          '    <option value="Caja de Ahorro"' + (type === 'Caja de Ahorro' ? ' selected' : '') + '>Caja de Ahorro</option>',
-          '    <option value="Cuenta Corriente"' + (type === 'Cuenta Corriente' ? ' selected' : '') + '>Cuenta Corriente</option>',
-          '  </select>',
+          '<div class="account-card-section">',
+          '  <div class="account-card-section-label">2. Datos de Transferencia</div>',
+          '  <div class="form-group" style="margin-bottom: 10px;">',
+          '    <label class="form-label" style="font-size: 0.8rem;">Alias (validado, requerido) *</label>',
+          '    <input type="text" class="form-control font-mono alias-input-value" value="' + escapeHtml(alias) + '" placeholder="Ej: mi.alias.personal" required autocomplete="off" spellcheck="false">',
+          '  </div>',
+          '  <div class="form-group" style="margin-bottom: 0;">',
+          '    <label class="form-label" style="font-size: 0.8rem;">CBU / CVU (opcional, 22 dígitos)</label>',
+          '    <input type="text" class="form-control font-mono alias-cbu-value" value="' + escapeHtml(cbu) + '" placeholder="22 dígitos numéricos" maxlength="22" inputmode="numeric" autocomplete="off">',
+          '  </div>',
           '</div>',
-          '<div class="form-group" style="margin-bottom: 10px;">',
-          '  <label class="form-label" style="font-size: 0.8rem;">Alias (validado, requerido) *</label>',
-          '  <input type="text" class="form-control font-mono alias-input-value" value="' + escapeHtml(alias) + '" placeholder="Ej: mi.alias.personal" required autocomplete="off" spellcheck="false">',
-          '</div>',
-          '<div class="form-group" style="margin-bottom: 10px;">',
-          '  <label class="form-label" style="font-size: 0.8rem;">CBU / CVU (opcional, 22 dígitos)</label>',
-          '  <input type="text" class="form-control font-mono alias-cbu-value" value="' + escapeHtml(cbu) + '" placeholder="22 dígitos numéricos" maxlength="22" inputmode="numeric" autocomplete="off">',
-          '</div>',
-          '<div class="form-group" style="margin-bottom: 0;">',
-          '  <label class="form-label" style="font-size: 0.8rem;">Titular diferente (opcional)</label>',
-          '  <input type="text" class="form-control alias-titular-value" value="' + escapeHtml(titular) + '" placeholder="Dejar vacío si está a tu nombre" autocomplete="off">',
-          '</div>'
+          '<details class="account-optional-group"' + (hasTitular ? ' open' : '') + '>',
+          '  <summary><span>3. Titular diferente</span><span class="font-mono" style="font-size: 0.68rem; color: var(--text-muted);">Opcional</span></summary>',
+          '  <div class="form-group" style="margin-bottom: 0;">',
+          '    <label class="form-label" style="font-size: 0.8rem;">Titular de la cuenta</label>',
+          '    <input type="text" class="form-control alias-titular-value" value="' + escapeHtml(titular) + '" placeholder="Dejar vacío si está a tu nombre" autocomplete="off">',
+          '  </div>',
+          '</details>'
         ].join('\n');
 
         var selectEl = card.querySelector('.alias-bank-select');
@@ -2756,10 +3469,13 @@ function getReiconSvg(name, extraClass, size) {
             return;
           }
           card.remove();
+          var remaining = aliasAccountsContainer.querySelectorAll('.alias-account-card');
+          if (activeAccountIndex >= remaining.length) {
+            activeAccountIndex = Math.max(0, remaining.length - 1);
+          }
           refreshAccountCardIndices();
         });
 
-        
         var cbuInput = card.querySelector('.alias-cbu-value');
         if (cbuInput) {
           function checkCbuLive() {
@@ -2798,6 +3514,9 @@ function getReiconSvg(name, extraClass, size) {
       function refreshAccountCardIndices() {
         if (!aliasAccountsContainer) return;
         var cards = aliasAccountsContainer.querySelectorAll('.alias-account-card');
+        if (activeAccountIndex >= cards.length) {
+          activeAccountIndex = Math.max(0, cards.length - 1);
+        }
         cards.forEach(function(card, idx) {
           var idxSpan = card.querySelector('.alias-account-index');
           if (idxSpan) idxSpan.textContent = 'Cuenta #' + (idx + 1);
@@ -2806,11 +3525,34 @@ function getReiconSvg(name, extraClass, size) {
             removeBtn.style.display = (cards.length > 1) ? 'flex' : 'none';
           }
         });
+        if (aliasAccountsTabCount) {
+          aliasAccountsTabCount.textContent = String(cards.length);
+        }
+        if (accountPillsList) {
+          var pillsHtml = '';
+          cards.forEach(function(card, idx) {
+            var isAct = (idx === activeAccountIndex);
+            pillsHtml += '<button type="button" class="account-pill-btn' + (isAct ? ' is-active' : '') + '" data-account-idx="' + idx + '" role="tab" aria-selected="' + isAct + '">Cuenta #' + (idx + 1) + '</button>';
+          });
+          accountPillsList.innerHTML = pillsHtml;
+          accountPillsList.querySelectorAll('.account-pill-btn').forEach(function(pill) {
+            pill.addEventListener('click', function() {
+              var targetIdx = parseInt(pill.getAttribute('data-account-idx'), 10);
+              setActiveAccountCard(isNaN(targetIdx) ? 0 : targetIdx);
+            });
+          });
+        }
+        setActiveAccountCard(activeAccountIndex);
+        updateAliasSummary();
       }
 
       if (btnAddAliasAccount) {
         btnAddAliasAccount.addEventListener('click', function() {
           appendAliasAccountCard();
+          var cards = aliasAccountsContainer ? aliasAccountsContainer.querySelectorAll('.alias-account-card') : [];
+          if (cards.length > 0) {
+            setActiveAccountCard(cards.length - 1);
+          }
         });
       }
 
@@ -3676,16 +4418,187 @@ function getReiconSvg(name, extraClass, size) {
         showToast('Solicitud de ' + name + ' descartada.');
       }
 
+      function serializeAddAliasForm() {
+        var nameVal = aliasPersonName ? aliasPersonName.value.trim() : '';
+        var cards = aliasAccountsContainer ? aliasAccountsContainer.querySelectorAll('.alias-account-card') : [];
+        var accs = [];
+        cards.forEach(function(card) {
+          var selectEl = card.querySelector('.alias-bank-select');
+          var customEl = card.querySelector('.alias-bank-custom');
+          var typeEl = card.querySelector('.alias-account-type');
+          var aliasEl = card.querySelector('.alias-input-value');
+          var cbuEl = card.querySelector('.alias-cbu-value');
+          var titularEl = card.querySelector('.alias-titular-value');
+          accs.push({
+            bankSelect: selectEl ? selectEl.value : '',
+            bankCustom: customEl ? customEl.value.trim() : '',
+            type: typeEl ? typeEl.value : '',
+            alias: aliasEl ? aliasEl.value.trim() : '',
+            cbu: cbuEl ? cbuEl.value.trim() : '',
+            titular: titularEl ? titularEl.value.trim() : ''
+          });
+        });
+        return JSON.stringify({ name: nameVal, accounts: accs });
+      }
+
+      function isCreateGroupDirty() {
+        var isNewTabActive = !panelCreateGroupNew || panelCreateGroupNew.style.display !== 'none';
+        var isFormVisible = Boolean(createGroupFormScreen && createGroupFormScreen.style.display !== 'none');
+        var hasText = Boolean(inputGroupName && inputGroupName.value.trim().length > 0);
+        return isNewTabActive && isFormVisible && hasText;
+      }
+
+      function isAddAliasDirty() {
+        return serializeAddAliasForm() !== initialAddAliasSnapshot;
+      }
+
+      function requestModalClose(dlg) {
+        if (!dlg) return;
+        if (dlg === modalCreateGroup && isCreateGroupDirty()) {
+          pendingDiscardModal = modalCreateGroup;
+          openModal(modalDiscardConfirm);
+          return;
+        }
+        if (dlg === modalAddAlias && isAddAliasDirty()) {
+          pendingDiscardModal = modalAddAlias;
+          openModal(modalDiscardConfirm);
+          return;
+        }
+        closeModal(dlg);
+      }
+
+      function updateGroupNamePreview() {
+        if (!groupNamePreviewBadge) return;
+        var val = inputGroupName ? inputGroupName.value.trim() : '';
+        groupNamePreviewBadge.textContent = 'GRUPO: ' + (val || 'TU GRUPO');
+      }
+
+      if (inputGroupName) {
+        inputGroupName.addEventListener('input', updateGroupNamePreview);
+      }
+
+      function setCreateGroupScreen(screen) {
+        var isSuccess = (screen === 'success');
+        if (createGroupFormScreen) createGroupFormScreen.style.display = isSuccess ? 'none' : 'block';
+        if (createGroupSuccessScreen) createGroupSuccessScreen.style.display = isSuccess ? 'block' : 'none';
+        if (cgStep1) cgStep1.classList.toggle('is-active', !isSuccess);
+        if (cgStep2) cgStep2.classList.toggle('is-active', isSuccess);
+        if (createGroupFooterForm) createGroupFooterForm.style.display = isSuccess ? 'none' : 'flex';
+        if (createGroupFooterSuccess) createGroupFooterSuccess.style.display = isSuccess ? 'flex' : 'none';
+        if (createGroupFooterMine) createGroupFooterMine.style.display = 'none';
+      }
+
+      function renderMyGroupsList() {
+        if (!myGroupsList) return;
+        var list = [];
+        try {
+          list = JSON.parse(localStorage.getItem('aliasdb_my_groups') || '[]');
+        } catch (e) {
+          list = [];
+        }
+        if (!Array.isArray(list) || list.length === 0) {
+          myGroupsList.innerHTML = [
+            '<div class="modal-area" style="text-align: center; padding: 20px 14px;">',
+            '  <p style="font-weight: 800; font-size: 0.92rem; margin-bottom: 6px;">Todavía no creaste grupos en este dispositivo</p>',
+            '  <p class="form-hint" style="margin-bottom: 12px;">Creá un grupo nuevo para obtener su enlace de WhatsApp y su enlace privado de administración.</p>',
+            '  <button type="button" id="btn-empty-go-new-group" class="btn-brutalist btn-primary" style="height: 38px; min-height: 38px;">Crear Nuevo Grupo</button>',
+            '</div>'
+          ].join('\n');
+          var goNewBtn = document.getElementById('btn-empty-go-new-group');
+          if (goNewBtn) {
+            goNewBtn.addEventListener('click', function() {
+              setCreateGroupTab('new');
+              if (inputGroupName) inputGroupName.focus();
+            });
+          }
+          return;
+        }
+
+        var currentUrl = new URL(window.location.href);
+        currentUrl.search = '';
+        currentUrl.hash = '';
+        var baseHref = currentUrl.toString();
+
+        myGroupsList.innerHTML = list.map(function(g, idx) {
+          var name = g && g.name ? String(g.name) : 'Grupo';
+          var readTok = g && g.readToken ? String(g.readToken) : '';
+          var admTok = g && g.adminToken ? String(g.adminToken) : '';
+          var publicUrl = baseHref + '?grupo=' + encodeURIComponent(name) + (readTok ? '&token=' + encodeURIComponent(readTok) : '');
+          var adminUrl = admTok ? (baseHref + '?grupo=' + encodeURIComponent(name) + '&admin=' + encodeURIComponent(admTok)) : '';
+          var openUrl = adminUrl || publicUrl;
+
+          return [
+            '<article class="my-group-card" data-my-group-idx="' + idx + '">',
+            '  <div class="my-group-card-head">',
+            '    <span class="my-group-name">' + escapeHtml(name) + '</span>',
+            (admTok ? '    <span class="group-header-badge font-mono" style="font-size: 0.65rem;">ADMIN</span>' : ''),
+            '  </div>',
+            '  <div class="my-group-actions">',
+            '    <a class="btn-brutalist btn-mint" href="' + escapeHtml(openUrl) + '" style="text-decoration: none;">Abrir</a>',
+            '    <button type="button" class="btn-brutalist btn-cyan btn-copy-my-group-public" data-url="' + escapeHtml(publicUrl) + '">Link P&uacute;blico</button>',
+            (adminUrl ? '    <button type="button" class="btn-brutalist btn-primary btn-copy-my-group-admin" data-url="' + escapeHtml(adminUrl) + '">Link Admin</button>' : ''),
+            '  </div>',
+            '</article>'
+          ].filter(Boolean).join('\n');
+        }).join('\n');
+
+        myGroupsList.querySelectorAll('.btn-copy-my-group-public').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            copyToClipboard(btn.getAttribute('data-url') || '', btn, 'Link público');
+          });
+        });
+        myGroupsList.querySelectorAll('.btn-copy-my-group-admin').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            copyToClipboard(btn.getAttribute('data-url') || '', btn, 'Link admin');
+          });
+        });
+      }
+
+      function setCreateGroupTab(tabKey) {
+        var isMine = (tabKey === 'mine');
+        if (tabCreateGroupNew) tabCreateGroupNew.setAttribute('aria-selected', (!isMine).toString());
+        if (tabCreateGroupMine) tabCreateGroupMine.setAttribute('aria-selected', isMine.toString());
+        if (panelCreateGroupNew) panelCreateGroupNew.style.display = isMine ? 'none' : 'block';
+        if (panelCreateGroupMine) panelCreateGroupMine.style.display = isMine ? 'block' : 'none';
+
+        if (isMine) {
+          renderMyGroupsList();
+          if (createGroupFooterForm) createGroupFooterForm.style.display = 'none';
+          if (createGroupFooterSuccess) createGroupFooterSuccess.style.display = 'none';
+          if (createGroupFooterMine) createGroupFooterMine.style.display = 'flex';
+        } else {
+          var isSuccess = Boolean(createGroupSuccessScreen && createGroupSuccessScreen.style.display === 'block');
+          setCreateGroupScreen(isSuccess ? 'success' : 'form');
+        }
+      }
+
+      if (tabCreateGroupNew) {
+        tabCreateGroupNew.addEventListener('click', function() {
+          setCreateGroupTab('new');
+        });
+      }
+
+      if (tabCreateGroupMine) {
+        tabCreateGroupMine.addEventListener('click', function() {
+          setCreateGroupTab('mine');
+        });
+      }
+
       function openAddAliasModal() {
         if (!modalAddAlias) return;
         if (formAddAlias) formAddAlias.reset();
         if (aliasEditFriendId) aliasEditFriendId.value = '';
         if (modalAddAliasHeading) modalAddAliasHeading.textContent = 'Sumar mi Alias';
         if (btnSubmitAlias) btnSubmitAlias.textContent = 'Guardar Datos';
+        activeAccountIndex = 0;
+        setAliasModalTab('person');
+        updateAliasPersonStatusPill();
         if (aliasAccountsContainer) {
           aliasAccountsContainer.innerHTML = '';
           appendAliasAccountCard();
+          setActiveAccountCard(0);
         }
+        initialAddAliasSnapshot = serializeAddAliasForm();
         openModal(modalAddAlias);
         if (aliasPersonName) {
           setTimeout(function() { aliasPersonName.focus(); }, 100);
@@ -3699,6 +4612,9 @@ function getReiconSvg(name, extraClass, size) {
         if (aliasEditFriendId) aliasEditFriendId.value = friend.id;
         if (modalAddAliasHeading) modalAddAliasHeading.textContent = 'Editar mis datos';
         if (btnSubmitAlias) btnSubmitAlias.textContent = 'Actualizar Datos';
+        activeAccountIndex = 0;
+        setAliasModalTab('person');
+        updateAliasPersonStatusPill();
 
         if (aliasPersonName) aliasPersonName.value = friend.name || '';
         if (aliasAccountsContainer) {
@@ -3710,7 +4626,9 @@ function getReiconSvg(name, extraClass, size) {
           } else {
             appendAliasAccountCard();
           }
+          setActiveAccountCard(0);
         }
+        initialAddAliasSnapshot = serializeAddAliasForm();
         openModal(modalAddAlias);
         if (aliasPersonName) {
           setTimeout(function() { aliasPersonName.focus(); }, 100);
@@ -3722,17 +4640,42 @@ function getReiconSvg(name, extraClass, size) {
         btn.addEventListener('click', function() {
           var targetId = btn.getAttribute('data-close-modal');
           var dlg = document.getElementById(targetId);
-          if (dlg) closeModal(dlg);
-        });
-      });
-
-      [modalCreateGroup, modalAddAlias].forEach(function(dlg) {
-        if (!dlg) return;
-        dlg.addEventListener('click', function(e) {
-          if (e.target === dlg) {
+          if (!dlg) return;
+          if (dlg === modalCreateGroup || dlg === modalAddAlias) {
+            requestModalClose(dlg);
+          } else {
             closeModal(dlg);
           }
         });
+      });
+
+      function isPointerOutsideDialog(dlg, e) {
+        if (!dlg || e.target !== dlg) return false;
+        var rect = dlg.getBoundingClientRect();
+        return (
+          e.clientX < rect.left ||
+          e.clientX > rect.right ||
+          e.clientY < rect.top ||
+          e.clientY > rect.bottom
+        );
+      }
+
+      [modalCreateGroup, modalAddAlias].forEach(function(dlg) {
+        if (!dlg) return;
+        var pointerDownOutside = false;
+
+        dlg.addEventListener('pointerdown', function(e) {
+          pointerDownOutside = isPointerOutsideDialog(dlg, e);
+        });
+
+        dlg.addEventListener('pointerup', function(e) {
+          var shouldClose = pointerDownOutside && isPointerOutsideDialog(dlg, e);
+          pointerDownOutside = false;
+          if (shouldClose) {
+            requestModalClose(dlg);
+          }
+        });
+
         function restoreToastContainer() {
           var toastContainer = document.querySelector('.toast-container');
           if (toastContainer && toastContainer.parentElement !== document.body) {
@@ -3740,16 +4683,65 @@ function getReiconSvg(name, extraClass, size) {
           }
         }
         dlg.addEventListener('close', restoreToastContainer);
-        dlg.addEventListener('cancel', restoreToastContainer);
+        dlg.addEventListener('cancel', function(e) {
+          e.preventDefault();
+          requestModalClose(dlg);
+        });
       });
+
+      if (modalDiscardConfirm) {
+        var discardPointerDownOutside = false;
+        modalDiscardConfirm.addEventListener('pointerdown', function(e) {
+          discardPointerDownOutside = isPointerOutsideDialog(modalDiscardConfirm, e);
+        });
+        modalDiscardConfirm.addEventListener('pointerup', function(e) {
+          var shouldClose = discardPointerDownOutside && isPointerOutsideDialog(modalDiscardConfirm, e);
+          discardPointerDownOutside = false;
+          if (shouldClose) {
+            pendingDiscardModal = null;
+            closeModal(modalDiscardConfirm);
+          }
+        });
+        modalDiscardConfirm.addEventListener('cancel', function(e) {
+          e.preventDefault();
+          pendingDiscardModal = null;
+          closeModal(modalDiscardConfirm);
+        });
+      }
+
+      if (btnDiscardKeep) {
+        btnDiscardKeep.addEventListener('click', function() {
+          pendingDiscardModal = null;
+          closeModal(modalDiscardConfirm);
+        });
+      }
+
+      if (btnDiscardCloseX) {
+        btnDiscardCloseX.addEventListener('click', function() {
+          pendingDiscardModal = null;
+          closeModal(modalDiscardConfirm);
+        });
+      }
+
+      if (btnDiscardConfirm) {
+        btnDiscardConfirm.addEventListener('click', function() {
+          var targetModal = pendingDiscardModal;
+          pendingDiscardModal = null;
+          closeModal(modalDiscardConfirm);
+          if (targetModal) {
+            closeModal(targetModal);
+          }
+        });
+      }
 
       if (btnOpenCreateGroup) {
         btnOpenCreateGroup.addEventListener('click', function() {
-          if (createGroupFormScreen) createGroupFormScreen.style.display = 'block';
-          if (createGroupSuccessScreen) createGroupSuccessScreen.style.display = 'none';
           if (inputGroupName) {
             inputGroupName.value = '';
           }
+          updateGroupNamePreview();
+          setCreateGroupScreen('form');
+          setCreateGroupTab('new');
           openModal(modalCreateGroup);
           if (inputGroupName) {
             setTimeout(function() { inputGroupName.focus(); }, 100);
@@ -3761,6 +4753,8 @@ function getReiconSvg(name, extraClass, size) {
         btnSubmitCreateGroup.addEventListener('click', function() {
           var groupName = inputGroupName ? inputGroupName.value.trim() : '';
           if (!groupName) {
+            setCreateGroupTab('new');
+            setCreateGroupScreen('form');
             showToast('Ingresá el nombre del grupo.');
             if (inputGroupName) inputGroupName.focus();
             return;
@@ -3803,8 +4797,8 @@ function getReiconSvg(name, extraClass, size) {
             if (adminGroupUrlInput) adminGroupUrlInput.value = adminUrl;
             if (createdGroupNameLabel) createdGroupNameLabel.textContent = groupName;
 
-            if (createGroupFormScreen) createGroupFormScreen.style.display = 'none';
-            if (createGroupSuccessScreen) createGroupSuccessScreen.style.display = 'block';
+            setCreateGroupScreen('success');
+            setCreateGroupTab('new');
           }
 
           applyGroupCreatedTokens('', clientAdminToken);
@@ -3867,6 +4861,7 @@ function getReiconSvg(name, extraClass, size) {
           var name = aliasPersonName ? aliasPersonName.value.trim() : '';
 
           if (!name) {
+            setAliasModalTab('person');
             showToast('Ingresá el nombre de la persona.');
             if (aliasPersonName) aliasPersonName.focus();
             return;
@@ -3874,6 +4869,7 @@ function getReiconSvg(name, extraClass, size) {
 
           var accountCards = aliasAccountsContainer ? aliasAccountsContainer.querySelectorAll('.alias-account-card') : [];
           if (accountCards.length === 0) {
+            setAliasModalTab('accounts');
             showToast('Debes agregar al menos una cuenta.');
             return;
           }
@@ -3906,6 +4902,8 @@ function getReiconSvg(name, extraClass, size) {
             var titularVal = titularEl ? titularEl.value.trim() : '';
 
             if (!bankName) {
+              setAliasModalTab('accounts');
+              setActiveAccountCard(i);
               showToast('Seleccioná o escribí la entidad para la Cuenta #' + (i + 1));
               if (selectEl && selectEl.value === 'OTRO' && customEl) {
                 customEl.focus();
@@ -3917,6 +4915,8 @@ function getReiconSvg(name, extraClass, size) {
             }
 
             if (!aliasVal) {
+              setAliasModalTab('accounts');
+              setActiveAccountCard(i);
               showToast('Ingresá el alias para la Cuenta #' + (i + 1));
               if (aliasEl) aliasEl.focus();
               hasInvalidAccount = true;
@@ -4117,6 +5117,7 @@ function getReiconSvg(name, extraClass, size) {
                 if (modalAddAlias && !modalAddAlias.open) {
                   openModal(modalAddAlias);
                 }
+                setAliasModalTab('person');
                 if (aliasPersonName) {
                   aliasPersonName.focus();
                   aliasPersonName.select();
@@ -4129,6 +5130,30 @@ function getReiconSvg(name, extraClass, size) {
           checkBankDuplicatesAndProceed(friendId, name, extractedAccounts, null);
         });
       }
+
+      /* ======================================================================
+         MOBILE BOTTOM DOCK SCROLL COLLAPSE
+         ====================================================================== */
+      (function initDockScrollBehavior() {
+        if (!primaryActionsDock) return;
+        var lastScrollY = window.scrollY || window.pageYOffset || 0;
+        var scrollExpandTimer = null;
+
+        window.addEventListener('scroll', function() {
+          var y = window.scrollY || window.pageYOffset || 0;
+          if (y > lastScrollY + 6 && y > 24) {
+            primaryActionsDock.classList.add('is-scroll-collapsed');
+          } else if (y < lastScrollY - 4 || y <= 16) {
+            primaryActionsDock.classList.remove('is-scroll-collapsed');
+          }
+          lastScrollY = y < 0 ? 0 : y;
+
+          if (scrollExpandTimer) clearTimeout(scrollExpandTimer);
+          scrollExpandTimer = setTimeout(function() {
+            primaryActionsDock.classList.remove('is-scroll-collapsed');
+          }, 450);
+        }, { passive: true });
+      })();
 
       /* ======================================================================
          7. EVENT LISTENERS PARA BÚSQUEDA Y FILTROS
