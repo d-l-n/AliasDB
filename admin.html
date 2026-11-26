@@ -2526,7 +2526,7 @@ function getReiconSvg(name, extraClass, size) {
         var origin = window.location.origin;
         var pathname = window.location.pathname;
         if (!origin || origin === 'null' || origin.indexOf('file:') === 0) {
-          return 'https://d-l-n.github.io/amigos-alias/index.html';
+          return 'https://d-l-n.github.io/AliasDB/index.html';
         }
         var publicPath = pathname.replace(/admin(.html)?$/i, 'index.html');
         return origin + publicPath;
@@ -2646,28 +2646,21 @@ function getReiconSvg(name, extraClass, size) {
       /* ======================================================================
          4. AUTENTICACIÓN ADMIN
          ====================================================================== */
-      var DEFAULT_ADMIN_KEY = 'aliasdb_admin_2026';
-
       function initAuth() {
         var savedKey = '';
         try {
           savedKey = localStorage.getItem(STORAGE_ADMIN_KEY) || '';
         } catch (e) {}
 
-        appState.adminKey = savedKey.trim() || DEFAULT_ADMIN_KEY;
+        appState.adminKey = savedKey.trim();
         updateAuthUI();
       }
 
       function updateAuthUI() {
         if (appState.adminKey) {
           dom.adminAuthBtn.className = 'key-badge is-active';
-          if (appState.adminKey === DEFAULT_ADMIN_KEY) {
-            dom.keyLabel.textContent = 'adminKey Activa';
-            dom.adminAuthBtn.title = 'Clave por defecto activa. Click para configurar clave personalizada.';
-          } else {
-            dom.keyLabel.textContent = 'adminKey Personalizada';
-            dom.adminAuthBtn.title = 'Clave personalizada activa (' + appState.adminKey.slice(0, 3) + '...). Click para cambiar o cerrar sesión.';
-          }
+          dom.keyLabel.textContent = 'adminKey Activa';
+          dom.adminAuthBtn.title = 'Clave personalizada activa (' + appState.adminKey.slice(0, 3) + '...). Click para cambiar o cerrar sesión.';
         } else {
           dom.adminAuthBtn.className = 'key-badge is-empty';
           dom.keyLabel.textContent = 'Sin Clave Admin';

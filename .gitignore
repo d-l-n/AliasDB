@@ -2,3 +2,13 @@
 .clasprc.json
 node_modules/
 package-lock.json
+
+# Entorno, credenciales y exportaciones locales
+.env
+.env.*
+*.csv
+*.log
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
