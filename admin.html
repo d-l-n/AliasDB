@@ -1143,8 +1143,20 @@
     }
 
     .group-select-chip:hover {
-      background: var(--surface-elevated);
-      color: var(--text);
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--shadow);
+    }
+
+    [data-theme="dark"] .group-select-chip:hover {
+      background: var(--accent-cyan);
+      color: #0D0D11;
+    }
+
+    .group-select-chip.active:hover {
+      background: var(--accent-mint);
+      color: #0D0D11;
     }
 
     .group-select-chip.active {
@@ -1268,19 +1280,24 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
+      flex-wrap: wrap;
+      gap: 4px 8px;
       font-size: 0.72rem;
       color: var(--text-muted);
-      white-space: nowrap;
       min-width: 0;
+      max-width: 100%;
     }
 
     .cbu-text {
       font-family: var(--font-mono);
       font-weight: 600;
-      white-space: nowrap;
-      font-size: 0.6875rem;
+      font-size: clamp(0.64rem, 2.7vw, 0.6875rem);
+      line-height: 1.3;
       min-width: 0;
+      flex: 1 1 auto;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-all;
     }
 
     .copy-chip-btn {
@@ -1300,6 +1317,8 @@
       cursor: pointer;
       box-shadow: 1px 1px 0px var(--shadow);
       white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: auto;
       transition: var(--transition-tap);
     }
 
