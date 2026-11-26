@@ -163,109 +163,17 @@ El panel de administración es una SPA estática independiente que interactúa c
 
 ## 🗂️ BACKLOG
 
-### [BACKLOG] Desktop: Sticky Command Bar (Search + Actions)
+Todos los ítems del backlog UI/UX fueron implementados, verificados en navegador real (desktop y mobile, claro y oscuro) y cubiertos por la suite automatizada (`npm test`):
 
-**Motivación:** el `.app-header` actual ocupa espacio sticky con la marca y los botones de acción en extremos opuestos de la grilla; en viewport estrecho no queda espacio para el buscador en la misma línea.
+- [x] **Desktop: Sticky Command Bar (Search + Actions):** `.app-header` estático, `.sticky-command-bar` (`top: 0`, histéresis `.is-condensed` a `> 80px` / `< 30px`, `overflow-anchor: none`), eliminación de `display: contents` en `#primary-actions-dock`.
+- [x] **Mobile: Header de Marca Estático + Atajo de Lupa en Dock:** `#search-box` observado con `IntersectionObserver` para mostrar `#dock-btn-search` (`Buscar`) al hacer scroll hacia abajo.
+- [x] **Header: Máscara superior fija contra transparencia al scrollear:** `#top-scroll-mask` coordinado con `#sticky-command-bar` en desktop.
+- [x] **Header: `#admin-badge` sin fondo y adaptativo por tema:** ícono limpio (`var(--text)` claro / `#FFFFFF` oscuro) sin caja, borde ni sombra.
+- [x] **Acciones Primarias:** botones renombrados a `Grupos` (`#btn-open-create-group`) y `Agregar Alias` (`#btn-open-add-alias`).
+- [x] **Carrusel de Chips:** padding expandido en `.filter-scroll-container`, flechas condicionales (`ChevronLeft`/`ChevronRight`) y drag-to-scroll con puntero en desktop.
+- [x] **Tarjetas de Contacto:** `.collapse-toggle-btn` protegido contra recorte horizontal (`min-width: 0`, `white-space: nowrap`, `flex-wrap` responsive).
+- [x] **Modal `#modal-add-alias`:** eliminación de `.modal-bank-chips` en Tab Cuentas y validación real-time del nombre antes de avanzar en Tab Persona (`#alias-person-validation-hint`, sin `#alias-person-status-pill` ni `Área Resumen`).
+- [x] **Formularios: Dropdowns Neo-Brutalistas unificados (`index.html` y `admin.html`):** componente `initNeoDropdown` accesible (`role="combobox"` / `role="listbox"` con posicionamiento `position: fixed` viewport-aware y navegación por teclado).
+- [x] **Validación CBU/CVU:** contorno verde (`var(--accent-mint)`) al alcanzar 22 dígitos numéricos (`/^\d{22}$/`), con aviso informativo no alarmante cuando el dígito verificador BCRA difiere.
+- [x] **Navegación: FAB "Ir arriba" (`#fab-scroll-top`):** botón flotante neo-brutalista visible a partir de `scrollY > 300px`, posicionado sobre el dock móvil sin colisionar con `.toast-container`.
 
-**Propuesta (Opción A — acordada):** convertir el header de marca en estático y crear un nuevo elemento `.sticky-command-bar` debajo de él que concentre el buscador y los dos botones de acción en una sola fila sticky.
-
-**Implementación técnica:**
-- En `>= 640px`: `.app-header { position: static; }` (deja de ser sticky).
-- Nuevo elemento `<div class="sticky-command-bar">` (posicionado justo debajo del header) con:
-  - `.search-box` → `flex: 1` (el buscador ocupa el espacio disponible).
-  - `#btn-open-create-group` y `#btn-open-add-alias` inline, sin `display: contents` ni dock.
-- CSS: `.sticky-command-bar { position: sticky; top: 0; display: flex; gap: 10px; align-items: center; z-index: 100; }`.
-- Si se agrega animación de condensado: usar histéresis en JS (`scroll > 80px` → activar `.is-condensed`; `scroll < 30px` → desactivar) para evitar jitter.
-- Eliminar el bloque `@media (min-width: 640px) { #primary-actions-dock { display: contents; } }` que actualmente inyecta los botones en la grilla del header.
-
----
-
-### [BACKLOG] Mobile: Header de Marca Estático + Atajo de Lupa en Dock
-
-**Motivación:** el header sticky en mobile ocupa ~56px permanentes que reducen el viewport útil; el dock ya concentra las acciones primarias en la parte inferior.
-
-**Propuesta (acordada):**
-
-1. **Quitar `position: sticky` del `.app-header` en `< 640px`:** el header de marca queda en flujo normal y sale de pantalla al hacer scroll. Se libera el viewport completo para el contenido.
-2. **Agregar botón Lupa al `#primary-actions-dock`:**
-   - Icono: Reicon `reicon-search` (SVG, igual que los demás botones del dock).
-   - Label: `"Buscar"` (visible en estado expandido del dock).
-   - **Visibilidad condicional:** oculto (`display: none`) por defecto; aparece solo cuando `#search-box` sale del viewport hacia arriba (via `IntersectionObserver` con `threshold: 0`).
-   - **Acción al tocar:** `searchInput.scrollIntoView({ behavior: 'smooth', block: 'start' })` + `searchInput.focus()`.
-   - Participa del colapso de scroll del dock: solo muestra el ícono cuando `.is-scroll-collapsed` está activo; muestra label + ícono cuando el dock está expandido.
-
-**CSS clave:**
-```css
-@media (max-width: 639px) {
-  .app-header { position: static; }
-}
-#dock-btn-search { display: none; }
-#dock-btn-search.visible { display: flex; }
-```
-
-**JS clave:**
-```js
-const searchObserver = new IntersectionObserver(([entry]) => {
-  dockSearchBtn.classList.toggle('visible', !entry.isIntersecting);
-}, { threshold: 0 });
-searchObserver.observe(document.getElementById('search-box'));
-```
-
----
-
-### [BACKLOG] Header: `#admin-badge` sin fondo y adaptativo por tema
-
-- Eliminar el fondo/relleno de `#admin-badge` (`.badge-admin.badge-admin-icon`) para renderizar únicamente el ícono limpio (`background: transparent`, sin caja/sombra si corresponde).
-- Color del ícono según tema activo: `#000000` (o `var(--text)`) en tema claro y `#FFFFFF` en tema oscuro (`[data-theme="dark"]`).
-
----
-
-### [BACKLOG] Acciones Primarias: Renombrar botones del header/dock
-
-- `#btn-open-create-group`: cambiar etiqueta visible de `"Crear Grupo"` a `"Grupos"` (actualizar `aria-label` acorde).
-- `#btn-open-add-alias`: cambiar etiqueta visible de `"Sumar mi Alias"` a `"Agregar Alias"` (actualizar `aria-label` acorde).
-
----
-
-### [BACKLOG] Carrusel de Chips: Recorte de hover en el chip "Todos" y controles en Desktop
-
-- **Hover del chip `"Todos"` en margen izquierdo:** ampliar el padding lateral/superior del contenedor `.filter-scroll-container` (`#group-filter-container` y `#bank-filter-container`) para evitar que `box-shadow` / desplazamiento en `:hover` quede recortado por el `overflow-x: auto` en el borde izquierdo.
-- **Navegación de carruseles en desktop (`>= 640px`):** agregar controles de desplazamiento horizontal (flechas izquierda/derecha condicionales según `scrollLeft` y/o soporte de arrastre con puntero) para poder recorrer los chips de grupos y bancos cómodamente con mouse.
-
----
-
-### [BACKLOG] Header: Máscara superior fija contra transparencia al scrollear
-
-- Cubrir la franja entre `top: 0` del viewport y el borde superior del `.app-header` con un elemento o máscara fija sólida del color `var(--bg)` (`z-index` por debajo del header y por encima de las cards), evitando que las tarjetas scrolleadas asomen por encima del header. *(Nota: coordinar su alcance si se aplica el cambio de header estático del backlog).*
-
----
-
-### [BACKLOG] Modal "Sumar / Editar mis datos" (`#modal-add-alias`): Ajustes en Tabs Persona y Cuentas
-
-1. **Tab `Cuentas` (`#panel-alias-accounts`):** eliminar la cinta de chips de selección rápida de bancos (`.modal-bank-chips`) dentro de cada tarjeta de cuenta, dejando la selección únicamente en el selector principal.
-2. **Tab `Persona` (`#panel-alias-person`):** eliminar o replantear la sección `Área Resumen` y el badge `#alias-person-status-pill` (`"Confirmado directo"`), ya que con el campo `#alias-person-name` vacío induce a error mostrando estado confirmado y habilitando `"Continuar a Cuentas"` cuando luego se exige completar el nombre al guardar. Validar el nombre antes de habilitar el avance o unificar el feedback de estado.
-
----
-
-### [BACKLOG] Formularios: Dropdowns Neo-Brutalistas unificados (`index.html` y `admin.html`)
-
-- Reemplazar o estilizar integralmente los `<select>` nativos en toda la webapp (selectores de banco y tipo de cuenta como `.bank-select-styled`, `.alias-bank-select`, `.alias-account-type`, y sus equivalentes en `admin.html`) mediante un componente dropdown custom accesible que herede bordes, sombras rígidas, tipografía y paleta de tema claro/oscuro de la app (incluyendo la lista de opciones desplegada).
-
----
-
-### [BACKLOG] Tarjetas de Contacto: Botón `"Ver cuentas"` / `"Ocultar"` sin recorte en múltiples cuentas
-
-- En tarjetas con más de una cuenta donde aparece `.collapse-toggle-btn`, evitar que el botón se corte horizontalmente en pantallas angostas o encabezados de tarjeta cargados (ajustar `flex-wrap`, `min-width`, acortar/adaptar etiqueta o reubicar en el header/pie de tarjeta).
-
----
-
-### [BACKLOG] Validación CBU/CVU: Contorno verde al alcanzar 22 dígitos
-
-- En `.alias-cbu-value` (`index.html`) y `.acc-cbu` (`admin.html`), revisar el feedback visual en vivo (`checkCbuLive` / `checkAdminCbuLive`) para que al completar los 22 dígitos numéricos muestre contorno verde de aprobación de formato en lugar del contorno rojo actual por dígito verificador BCRA, evitando confundir al usuario cuando el número de 22 dígitos es válido en longitud o proviene de pruebas/billeteras sin validación estricta. Si se conserva el chequeo BCRA, mostrarlo como aviso informativo no alarmante (sin borde rojo).
-
----
-
-### [BACKLOG] Navegación: FAB "Ir arriba" en Desktop y Mobile
-
-- Añadir un botón flotante (`Scroll to Top`, con ícono Reicon de flecha superior y estética neo-brutalista) visible únicamente tras superar un umbral de scroll (por ejemplo, `window.scrollY > 300px`) tanto en desktop como en mobile.
-- En mobile (`< 640px`), ubicarlo por encima del `#primary-actions-dock` con margen seguro para evitar colisiones táctiles.
