@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-26T18:22:00-03:00",
+  "title": "Design System: AliasDB",
+  "extensions": {
+    "colorMeta": {
+      "highlighter-yellow": {
+        "role": "primary",
+        "displayName": "Amarillo Resaltador",
+        "canonical": "#FFE600",
+        "tonalRamp": ["#2D2900", "#595200", "#8A7E00", "#BFAD00", "#FFE600", "#FFED47", "#FFF48A", "#FFFAD1"]
+      },
+      "neon-mint": {
+        "role": "primary",
+        "displayName": "Menta Neón",
+        "canonical": "#2DF8C5",
+        "tonalRamp": ["#052E23", "#0B5C47", "#128D6D", "#1BC298", "#2DF8C5", "#67FAD5", "#A0FCE5", "#DDFEF5"]
+      },
+      "electric-cyan": {
+        "role": "primary",
+        "displayName": "Cian Eléctrico",
+        "canonical": "#00F0FF",
+        "tonalRamp": ["#002B2E", "#00555C", "#00858F", "#00BAC7", "#00F0FF", "#4AF4FF", "#94F9FF", "#DBFDFE"]
+      },
+      "lilac-accent": {
+        "role": "secondary",
+        "displayName": "Lila Acento",
+        "canonical": "#B57BFF",
+        "tonalRamp": ["#23113B", "#442273", "#6835AD", "#8E52E0", "#B57BFF", "#C99EFF", "#DFC4FF", "#F3E8FF"]
+      },
+      "coral-pink": {
+        "role": "secondary",
+        "displayName": "Rosa Coral",
+        "canonical": "#FF5EAC",
+        "tonalRamp": ["#360B21", "#691640", "#9E2361", "#D43686", "#FF5EAC", "#FF87C1", "#FFB5D9", "#FFE5F2"]
+      },
+      "tangerine-accent": {
+        "role": "secondary",
+        "displayName": "Naranja Intenso",
+        "canonical": "#FF6B00",
+        "tonalRamp": ["#331500", "#662B00", "#994000", "#CC5500", "#FF6B00", "#FF8F3D", "#FFB680", "#FFE0C7"]
+      },
+      "crimson-alert": {
+        "role": "secondary",
+        "displayName": "Rojo Alerta",
+        "canonical": "#FF3B30",
+        "tonalRamp": ["#380805", "#6E110C", "#A61C15", "#DB2920", "#FF3B30", "#FF6B63", "#FFA09B", "#FFD9D7"]
+      },
+      "cobalt-link": {
+        "role": "secondary",
+        "displayName": "Azul Enlace",
+        "canonical": "#2563EB",
+        "tonalRamp": ["#0A1C47", "#12348A", "#1B4DC7", "#2563EB", "#4B80F0", "#7FA5F5", "#B5CBF9", "#E6EEFE"]
+      },
+      "chalk-paper": {
+        "role": "neutral",
+        "displayName": "Papel Tiza",
+        "canonical": "#F7F5F0",
+        "tonalRamp": ["#242320", "#4A4842", "#737067", "#9E9A8E", "#C9C5B9", "#E3E0D6", "#F7F5F0", "#FCFAF7"]
+      },
+      "pure-white": {
+        "role": "neutral",
+        "displayName": "Blanco Puro",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#262626", "#4D4D4D", "#737373", "#999999", "#BFBFBF", "#E0E0E0", "#F5F5F5", "#FFFFFF"]
+      },
+      "warm-stone": {
+        "role": "neutral",
+        "displayName": "Piedra Cálida",
+        "canonical": "#EDE9DF",
+        "tonalRamp": ["#24221E", "#4A463E", "#736D61", "#9C9585", "#C4BDB0", "#DBD6CA", "#EDE9DF", "#F7F5F0"]
+      },
+      "carbon-ink": {
+        "role": "neutral",
+        "displayName": "Tinta Carbón",
+        "canonical": "#0D0D11",
+        "tonalRamp": ["#0D0D11", "#202029", "#363644", "#4F4F61", "#6D6D82", "#9191A6", "#B8B8C7", "#E4E4EB"]
+      },
+      "slate-muted": {
+        "role": "neutral",
+        "displayName": "Pizarra Atenuada",
+        "canonical": "#4B4B58",
+        "tonalRamp": ["#17171C", "#2B2B33", "#3B3B46", "#4B4B58", "#6C6C7D", "#9292A3", "#B9B9C7", "#E3E3EA"]
+      },
+      "obsidian-canvas": {
+        "role": "neutral",
+        "displayName": "Lienzo Obsidiana",
+        "canonical": "#121214",
+        "tonalRamp": ["#121214", "#1F1F24", "#303038", "#454552", "#626273", "#878799", "#B2B2C2", "#E2E2EB"]
+      },
+      "graphite-surface": {
+        "role": "neutral",
+        "displayName": "Grafito Base",
+        "canonical": "#1E1E22",
+        "tonalRamp": ["#141417", "#1E1E22", "#2C2C33", "#3E3E47", "#595966", "#7E7E8C", "#ADADBA", "#E1E1E8"]
+      },
+      "graphite-muted": {
+        "role": "neutral",
+        "displayName": "Grafito Atenuado",
+        "canonical": "#28282E",
+        "tonalRamp": ["#17171A", "#28282E", "#373740", "#4B4B57", "#666675", "#898999", "#B5B5C4", "#E3E3EB"]
+      },
+      "graphite-elevated": {
+        "role": "neutral",
+        "displayName": "Grafito Elevado",
+        "canonical": "#24242A",
+        "tonalRamp": ["#151518", "#24242A", "#33333C", "#464652", "#616170", "#858594", "#B3B3C2", "#E2E2EB"]
+      },
+      "ash-muted": {
+        "role": "neutral",
+        "displayName": "Ceniza Atenuada",
+        "canonical": "#A1A1AA",
+        "tonalRamp": ["#1C1C21", "#33333B", "#4F4F59", "#6E6E7A", "#8C8C96", "#A1A1AA", "#C7C7CF", "#ECECF0"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Título de marca AliasDB en el encabezado." },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de modales, estados vacíos y encabezados de grupo." },
+      "title": { "displayName": "Title", "purpose": "Nombres completos de personas en fichas del directorio." },
+      "body": { "displayName": "Body", "purpose": "Texto base, descripciones y mensajes de confirmación." },
+      "label": { "displayName": "Label", "purpose": "Botones, chips de filtro, etiquetas de formulario y metadatos." },
+      "mono": { "displayName": "Mono Data", "purpose": "Alias copiables, CBU/CVU de 22 dígitos, KPIs y tokens." }
+    },
+    "shadows": [
+      { "name": "card-header-offset", "value": "4px 4px 0px var(--shadow)", "purpose": "Contenedores principales: header, fichas de contacto, secciones y buscador." },
+      { "name": "control-chip-offset", "value": "2px 2px 0px var(--shadow)", "purpose": "Botones, chips de filtro, insignias de banco y dropdowns." },
+      { "name": "hover-lift", "value": "3px 3px 0px var(--shadow)", "purpose": "Elevación previa al clic en botones, chips y tarjetas interactivas." },
+      { "name": "tactile-press", "value": "0px 0px 0px var(--shadow)", "purpose": "Colapso de sombra al presionar (:active) acompañado de translate(2px, 2px)." },
+      { "name": "overlay-modal-offset", "value": "8px 8px 0px var(--shadow)", "purpose": "Modales nativos <dialog> sobre backdrop oscuro." }
+    ],
+    "motion": [
+      { "name": "transition-tap", "value": "transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1)", "purpose": "Hundimiento táctil inmediato en botones, chips y alias." },
+      { "name": "transition-hover", "value": "transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease", "purpose": "Elevación sutil y cambio de superficie al pasar el cursor." },
+      { "name": "copy-pulse", "value": "0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)", "purpose": "Microanimación física de confirmación al copiar un alias." }
+    ],
+    "breakpoints": [
+      { "name": "sidebar-sheets", "value": "300px" },
+      { "name": "compact-mobile", "value": "420px" },
+      { "name": "two-col-cards", "value": "580px" },
+      { "name": "desktop-command-bar", "value": "640px" },
+      { "name": "admin-stats-4col", "value": "768px" },
+      { "name": "admin-areas-2col", "value": "900px" },
+      { "name": "wide-grid", "value": "1400px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal en Amarillo Resaltador con hundimiento mecánico al presionar.",
+      "html": "<button type=\"button\" class=\"ds-btn-primary\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" aria-hidden=\"true\"><path d=\"M11.25 20C11.25 20.4142 11.5858 20.75 12 20.75C12.4142 20.75 12.75 20.4142 12.75 20V12.75H20C20.4142 12.75 20.75 12.4142 20.75 12C20.75 11.5858 20.4142 11.25 20 11.25H12.75V4C12.75 3.58579 12.4142 3.25 12 3.25C11.5858 3.25 11.25 3.58579 11.25 4V11.25H4C3.58579 11.25 3.25 11.5858 3.25 12C3.25 12.4142 3.58579 12.75 4 12.75H11.25V20Z\" fill=\"currentColor\"/></svg><span>Nueva Persona</span></button>",
+      "css": ".ds-btn-primary { min-height: 44px; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-display, 'Space Grotesk', system-ui, sans-serif); font-size: 0.875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; background: var(--accent-yellow, #FFE600); color: #0D0D11; border: 2px solid var(--border, #0D0D11); border-radius: var(--radius-md, 8px); box-shadow: 2px 2px 0px var(--shadow, #0D0D11); cursor: pointer; transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1); } .ds-btn-primary:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--shadow, #0D0D11); } .ds-btn-primary:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--shadow, #0D0D11); } .ds-btn-primary:focus-visible { outline: 3px solid var(--border, #0D0D11); outline-offset: 3px; }"
+    },
+    {
+      "name": "Mint Contextual Button",
+      "kind": "button",
+      "refersTo": "button-mint",
+      "description": "CTA secundario y contextual de grupos en Menta Neón.",
+      "html": "<button type=\"button\" class=\"ds-btn-mint\"><span>Sumar Alias</span></button>",
+      "css": ".ds-btn-mint { min-height: 44px; padding: 8px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-display, 'Space Grotesk', system-ui, sans-serif); font-size: 0.875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; background: var(--accent-mint, #2DF8C5); color: #0D0D11; border: 2px solid var(--border, #0D0D11); border-radius: var(--radius-md, 8px); box-shadow: 2px 2px 0px var(--shadow, #0D0D11); cursor: pointer; transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1); } .ds-btn-mint:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--shadow, #0D0D11); } .ds-btn-mint:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--shadow, #0D0D11); } .ds-btn-mint:focus-visible { outline: 3px solid var(--border, #0D0D11); outline-offset: 3px; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "filter-chip",
+      "description": "Píldora de filtrado horizontal por entidad bancaria o grupo.",
+      "html": "<div class=\"ds-chip-row\"><button type=\"button\" class=\"ds-filter-chip is-active\" aria-pressed=\"true\">Todos</button><button type=\"button\" class=\"ds-filter-chip\" aria-pressed=\"false\">Mercado Pago</button></div>",
+      "css": ".ds-chip-row { display: inline-flex; gap: 8px; flex-wrap: wrap; } .ds-filter-chip { min-height: 38px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-display, 'Space Grotesk', system-ui, sans-serif); font-size: 0.8125rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; background: var(--surface, #FFFFFF); color: var(--text, #0D0D11); border: 2px solid var(--border, #0D0D11); border-radius: 9999px; box-shadow: 2px 2px 0px var(--shadow, #0D0D11); cursor: pointer; transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1); } .ds-filter-chip:hover, .ds-filter-chip.is-active { background: var(--accent-yellow, #FFE600); color: #0D0D11; transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--shadow, #0D0D11); } .ds-filter-chip:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--shadow, #0D0D11); } .ds-filter-chip:focus-visible { outline: 3px solid var(--border, #0D0D11); outline-offset: 3px; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "search-input",
+      "description": "Campo de búsqueda predictiva en tiempo real con sombra estructural.",
+      "html": "<div class=\"ds-search-box\"><svg class=\"ds-search-icon\" viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M11.5 2.75C6.66751 2.75 2.75 6.66751 2.75 11.5C2.75 16.3325 6.66751 20.25 11.5 20.25C16.3325 20.25 20.25 16.3325 20.25 11.5C20.25 6.66751 16.3325 2.75 11.5 2.75ZM1.25 11.5C1.25 5.83908 5.83908 1.25 11.5 1.25C17.1609 1.25 21.75 5.83908 21.75 11.5C21.75 14.0605 20.8111 16.4017 19.2589 18.1982L22.5303 21.4697C22.8232 21.7626 22.8232 22.2374 22.5303 22.5303C22.2374 22.8232 21.7626 22.8232 21.4697 22.5303L18.1982 19.2589C16.4017 20.8111 14.0605 21.75 11.5 21.75C5.83908 21.75 1.25 17.1609 1.25 11.5Z\" fill=\"currentColor\"/></svg><input type=\"text\" class=\"ds-search-input\" placeholder=\"Buscar persona, alias o banco...\" aria-label=\"Buscar\"></div>",
+      "css": ".ds-search-box { position: relative; display: flex; align-items: center; width: 100%; max-width: 420px; } .ds-search-icon { position: absolute; left: 14px; color: var(--text-muted, #4B4B58); pointer-events: none; } .ds-search-input { width: 100%; min-height: 50px; padding: 10px 44px; font-family: var(--font-display, 'Space Grotesk', system-ui, sans-serif); font-size: 1rem; font-weight: 700; color: var(--text, #0D0D11); background: var(--surface, #FFFFFF); border: 2px solid var(--border, #0D0D11); border-radius: var(--radius-md, 8px); box-shadow: 4px 4px 0px var(--shadow, #0D0D11); transition: transform 0.12s ease, box-shadow 0.12s ease; } .ds-search-input:focus-visible { outline: 3px solid var(--border, #0D0D11); outline-offset: 2px; transform: translate(-1px, -1px); box-shadow: 6px 6px 0px var(--shadow, #0D0D11); }"
+    },
+    {
+      "name": "Friend Contact Card",
+      "kind": "card",
+      "refersTo": "friend-card",
+      "description": "Ficha principal de contacto con avatar por iniciales y ranura de cuenta bancaria.",
+      "html": "<article class=\"ds-friend-card\"><header class=\"ds-card-header\"><div class=\"ds-avatar\">MG</div><div><h3 class=\"ds-friend-name\">Martín Gómez</h3><span class=\"ds-friend-meta\">1 CUENTA</span></div></header><div class=\"ds-account-item\"><div class=\"ds-account-meta\"><span class=\"ds-bank-badge\">MERCADO PAGO</span><span class=\"ds-account-type\">CVU</span></div></div></article>",
+      "css": ".ds-friend-card { background: var(--surface, #FFFFFF); color: var(--text, #0D0D11); border: 2px solid var(--border, #0D0D11); border-radius: var(--radius-lg, 12px); box-shadow: 4px 4px 0px var(--shadow, #0D0D11); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; max-width: 360px; font-family: var(--font-display, 'Space Grotesk', system-ui, sans-serif); transition: transform 0.12s ease, box-shadow 0.12s ease; } .ds-friend-card:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0px var(--shadow, #0D0D11); } .ds-card-header { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 2px dashed var(--border, #0D0D11); } .ds-avatar { width: 38px; height: 38px; border: 2px solid var(--border, #0D0D11); border-radius: 8px; box-shadow: 2px 2px 0px var(--shadow, #0D0D11); display: grid; place-items: center; font-weight: 900; background: #00F0FF; color: #0D0D11; } .ds-friend-name { font-size: 1.0625rem; font-weight: 800; line-height: 1.2; margin: 0; } .ds-friend-meta { font-size: 0.75rem; font-weight: 700; color: var(--text-muted, #4B4B58); letter-spacing: 0.05em; } .ds-account-item { background: var(--surface-muted, #EDE9DF); border: 2px solid var(--border, #0D0D11); border-radius: 8px; padding: 8px 10px; } .ds-account-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; } .ds-bank-badge { padding: 2px 7px; border: 2px solid var(--border, #0D0D11); border-radius: 4px; box-shadow: 2px 2px 0px var(--shadow, #0D0D11); background: #00D1FF; color: #002B36; font-size: 0.75rem; font-weight: 900; } .ds-account-type { font-size: 0.75rem; font-weight: 800; color: var(--text-muted, #4B4B58); }"
+    },
+    {
+      "name": "1-Click Copy Alias Chip",
+      "kind": "custom",
+      "refersTo": "alias-chip",
+      "description": "Componente insignia de copia dual: chip monoespaciado + botón dedicado de portapapeles.",
+      "html": "<div class=\"ds-copy-row\"><button type=\"button\" class=\"ds-alias-chip\"><span class=\"ds-alias-text\">martin.mp.futbol</span></button><button type=\"button\" class=\"ds-copy-btn\" aria-label=\"Copiar alias\"><svg viewBox=\"0 0 24 24\" width=\"17\" height=\"17\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M15 1.25H10.9436C9.10583 1.24998 7.65019 1.24997 6.51098 1.40314C5.33856 1.56076 4.38961 1.89288 3.64124 2.64124C2.89288 3.38961 2.56076 4.33856 2.40314 5.51098C2.24997 6.65019 2.24998 8.10582 2.25 9.94357V16C2.25 17.8722 3.62205 19.424 5.41551 19.7047C5.55348 20.4687 5.81753 21.1208 6.34835 21.6517C6.95027 22.2536 7.70814 22.5125 8.60825 22.6335C9.47522 22.75 10.5775 22.75 11.9451 22.75H15.0549C16.4225 22.75 17.5248 22.75 18.3918 22.6335C19.2919 22.5125 20.0497 22.2536 20.6517 21.6517C21.2536 21.0497 21.5125 20.2919 21.6335 19.3918C21.75 18.5248 21.75 17.4225 21.75 16.0549V10.9451C21.75 9.57754 21.75 8.47522 21.6335 7.60825C21.5125 6.70814 21.2536 5.95027 20.6517 5.34835C20.1208 4.81753 19.4687 4.55348 18.7047 4.41551C18.424 2.62205 16.8722 1.25 15 1.25Z\" fill=\"currentColor\"/></svg></button></div>",
+      "css": ".ds-copy-row { display: flex; align-items: stretch; gap: 6px; max-width: 320px; } .ds-alias-chip { flex: 1 1 0%; min-height: 36px; background: var(--surface, #FFFFFF); color: var(--text, #0D0D11); border: 2px solid var(--border, #0D0D11); border-radius: 4px; box-shadow: 2px 2px 0px var(--shadow, #0D0D11); padding: 6px 8px; display: flex; align-items: center; text-align: left; cursor: pointer; transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1); } .ds-alias-text { font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 0.875rem; font-weight: 800; overflow-wrap: anywhere; } .ds-alias-chip:hover { background: var(--surface-elevated, #FFFFFF); } .ds-alias-chip:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--shadow, #0D0D11); } .ds-copy-btn { width: 36px; min-height: 36px; flex: 0 0 36px; background: var(--accent-yellow, #FFE600); color: #0D0D11; border: 2px solid var(--border, #0D0D11); border-radius: 4px; box-shadow: 2px 2px 0px var(--shadow, #0D0D11); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1); } .ds-copy-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--shadow, #0D0D11); } .ds-alias-chip:focus-visible, .ds-copy-btn:focus-visible { outline: 3px solid var(--border, #0D0D11); outline-offset: 2px; }"
+    },
+    {
+      "name": "Mobile Floating Dock",
+      "kind": "nav",
+      "description": "Barra inferior móvil en forma de píldora para acciones rápidas con el pulgar.",
+      "html": "<nav class=\"ds-mobile-dock\" aria-label=\"Acciones principales\"><button type=\"button\" class=\"ds-dock-btn is-yellow\">Grupos</button><button type=\"button\" class=\"ds-dock-btn is-mint\">Alias</button></nav>",
+      "css": ".ds-mobile-dock { display: inline-flex; align-items: center; gap: 8px; padding: 6px; background: var(--surface, #FFFFFF); border: 3px solid var(--border, #0D0D11); border-radius: 9999px; box-shadow: 4px 4px 0px var(--shadow, #0D0D11); } .ds-dock-btn { min-height: 44px; padding: 0 14px; border: 2px solid var(--border, #0D0D11); border-radius: 9999px; box-shadow: 2px 2px 0px var(--shadow, #0D0D11); font-family: var(--font-display, 'Space Grotesk', system-ui, sans-serif); font-size: 0.78rem; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1); } .ds-dock-btn.is-yellow { background: #FFE600; color: #0D0D11; } .ds-dock-btn.is-mint { background: #2DF8C5; color: #0D0D11; } .ds-dock-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--shadow, #0D0D11); } .ds-dock-btn:focus-visible { outline: 3px solid var(--border, #0D0D11); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La Libreta del Grupo",
+    "overview": "AliasDB adopta la lógica de un tarjetero físico cercano con pestañas y etiquetas cromáticas por entidad bancaria: directo, cercano y táctil, con alto contraste y legibilidad inmediata desde el celular. Cada persona es una ficha autocontenida, cada cuenta es una ranura con su sello de banco y cada alias funciona como una tecla mecánica lista para copiarse en un solo toque.\n\nEl lenguaje Neo-Brutalista del sistema rechaza explícitamente la estética bancaria corporativa fría, el glassmorphism difuso, los gradientes decorativos en superficies de interfaz, las sombras blandas y los microtextos ornamentales. La jerarquía se construye con bordes macizos, bloques de color plano y desplazamiento mecánico tangible al interactuar.",
+    "keyCharacteristics": [
+      "Directo, cercano y táctil, optimizado para operación con el pulgar desde enlaces compartidos por WhatsApp.",
+      "Alto contraste y legibilidad instantánea mediante superficies planas, bordes sólidos de 2px–3px y tipografía monoespaciada en datos bancarios.",
+      "Etiquetas cromáticas por entidad financiera argentina que permiten identificar bancos y billeteras de un vistazo.",
+      "Respuesta mecánica física: sombras rígidas sin difuminado (4px 4px 0px y 2px 2px 0px) que colapsan al presionar."
+    ],
+    "rules": [
+      {
+        "name": "The Highlighted Ink Rule",
+        "body": "Amarillo Resaltador (#FFE600), Menta Neón (#2DF8C5) y Cian Eléctrico (#00F0FF) llevan siempre texto en Tinta Carbón (#0D0D11), tanto en modo claro como en modo oscuro, para sostener legibilidad inmediata.",
+        "section": "colors"
+      },
+      {
+        "name": "The Chromatic Tab Rule",
+        "body": "La paleta de bancos se reserva exclusivamente para las insignias de entidad y nunca tiñe fondos completos de tarjetas o pantallas.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono Data Rule",
+        "body": "Todo dato transferible o verificable carácter por carácter (alias, CBU/CVU, tokens, rutas CSV y contadores) se renderiza en 'JetBrains Mono' con overflow-wrap: anywhere.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mechanical Press Rule",
+        "body": "Ningún elemento interactivo usa sombras difusas ni cambios solo de opacidad al presionarse; el clic se comunica colapsando físicamente la sombra rígida mediante translate(2px, 2px).",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do mantener áreas táctiles cómodas (44px en acciones primarias y controles principales) y texto funcional legible (>= 0.75rem).",
+      "Do usar sombras rígidas sin difuminar (box-shadow: Xpx Ypx 0px) y respuesta mecánica translate(2px, 2px) en elementos presionables.",
+      "Do aplicar JetBrains Mono en todo alias, CBU/CVU, token y dato técnico copiable, con overflow-wrap: anywhere para evitar desborde horizontal desde 300px.",
+      "Do usar Tinta Carbón (#0D0D11) sobre fondos Amarillo Resaltador, Menta Neón y Cian Eléctrico en ambos temas.",
+      "Do respetar la literalidad del modo oscuro existente (#121214 / #1E1E22 con bordes y sombras #FFFFFF) y sus reglas de contraste WCAG AA en texto y foco."
+    ],
+    "donts": [
+      "Don't introducir sombras difusas (blur > 0), efectos glassmorphism sobre tarjetas o gradientes decorativos en el UI.",
+      "Don't usar los colores de marca bancaria para rellenar tarjetas enteras ni agregar adornos o emojis en reemplazo de la iconografía Reicon inline.",
+      "Don't depender de dependencias externas pesadas de CSS/JS ni romper la operación autocontenida en index.html y admin.html.",
+      "Don't ocultar texto secundario sobre fondos de acento brillante sin forzar tinta oscura de contraste (>= 4.5:1)."
+    ]
+  }
+}

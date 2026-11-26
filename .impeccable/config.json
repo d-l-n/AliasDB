@@ -1,3 +1,35 @@
 {
-  "buildPath": "code"
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [
+      "hard-offset-shadow"
+    ],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "space grotesk",
+        "createdAt": "2026-11-26T21:20:55.308Z",
+        "reason": "Tipografia display intencional de AliasDB (Space Grotesk)"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-26T21:22:34.478Z",
+        "reason": "Lienzo Papel Tiza (#F7F5F0) intencional"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "admin.html"
+        ],
+        "createdAt": "2026-11-26T21:22:38.565Z",
+        "reason": "Lienzo Papel Tiza (#F7F5F0) intencional"
+      }
+    ]
+  }
 }
