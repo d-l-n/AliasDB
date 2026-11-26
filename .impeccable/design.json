@@ -16,6 +16,12 @@
         "canonical": "#2DF8C5",
         "tonalRamp": ["#052E23", "#0B5C47", "#128D6D", "#1BC298", "#2DF8C5", "#67FAD5", "#A0FCE5", "#DDFEF5"]
       },
+      "mint-hover": {
+        "role": "primary",
+        "displayName": "Menta Hover",
+        "canonical": "#25C28C",
+        "tonalRamp": ["#062B1E", "#0C573D", "#14855D", "#1CA877", "#25C28C", "#59D9AD", "#94E8CB", "#D6F7EB"]
+      },
       "electric-cyan": {
         "role": "primary",
         "displayName": "Cian Eléctrico",
@@ -34,6 +40,12 @@
         "canonical": "#FF5EAC",
         "tonalRamp": ["#360B21", "#691640", "#9E2361", "#D43686", "#FF5EAC", "#FF87C1", "#FFB5D9", "#FFE5F2"]
       },
+      "pink-hover": {
+        "role": "secondary",
+        "displayName": "Rosa Hover",
+        "canonical": "#E84D72",
+        "tonalRamp": ["#330913", "#661226", "#991C39", "#C92D51", "#E84D72", "#F07A96", "#F7A8BA", "#FCE0E7"]
+      },
       "tangerine-accent": {
         "role": "secondary",
         "displayName": "Naranja Intenso",
@@ -43,8 +55,20 @@
       "crimson-alert": {
         "role": "secondary",
         "displayName": "Rojo Alerta",
-        "canonical": "#FF3B30",
-        "tonalRamp": ["#380805", "#6E110C", "#A61C15", "#DB2920", "#FF3B30", "#FF6B63", "#FFA09B", "#FFD9D7"]
+        "canonical": "#C81E1E",
+        "tonalRamp": ["#300505", "#610B0B", "#941313", "#C81E1E", "#E04141", "#EC7272", "#F5A6A6", "#FCE0E0"]
+      },
+      "valid-green": {
+        "role": "secondary",
+        "displayName": "Verde Validado",
+        "canonical": "#14532D",
+        "tonalRamp": ["#092413", "#14532D", "#1E7842", "#299C57", "#3CC271", "#6ED998", "#A6EBC1", "#DCF7E6"]
+      },
+      "focus-blue": {
+        "role": "secondary",
+        "displayName": "Azul Foco",
+        "canonical": "#1D4ED8",
+        "tonalRamp": ["#091845", "#112D82", "#173EB0", "#1D4ED8", "#4874ED", "#7B9DF2", "#B0C5F8", "#E3EBFC"]
       },
       "cobalt-link": {
         "role": "secondary",
@@ -114,12 +138,15 @@
       }
     },
     "typographyMeta": {
+      "kpi": { "displayName": "KPI Value", "purpose": "Contadores numéricos destacados en tarjetas KPI de administración." },
       "display": { "displayName": "Display", "purpose": "Título de marca AliasDB en el encabezado." },
       "headline": { "displayName": "Headline", "purpose": "Títulos de modales, estados vacíos y encabezados de grupo." },
       "title": { "displayName": "Title", "purpose": "Nombres completos de personas en fichas del directorio." },
       "body": { "displayName": "Body", "purpose": "Texto base, descripciones y mensajes de confirmación." },
+      "subhead": { "displayName": "Subhead", "purpose": "Controles de formulario y textos secundarios en diálogos." },
       "label": { "displayName": "Label", "purpose": "Botones, chips de filtro, etiquetas de formulario y metadatos." },
-      "mono": { "displayName": "Mono Data", "purpose": "Alias copiables, CBU/CVU de 22 dígitos, KPIs y tokens." }
+      "mono": { "displayName": "Mono Data", "purpose": "Alias copiables, CBU/CVU de 22 dígitos, KPIs y tokens." },
+      "xs": { "displayName": "Metadata XS", "purpose": "Insignias bancarias, píldoras de grupo, ayudas y conteos compactos (>= 0.75rem)." }
     },
     "shadows": [
       { "name": "card-header-offset", "value": "4px 4px 0px var(--shadow)", "purpose": "Contenedores principales: header, fichas de contacto, secciones y buscador." },
@@ -197,7 +224,7 @@
       "kind": "nav",
       "description": "Barra inferior móvil en forma de píldora para acciones rápidas con el pulgar.",
       "html": "<nav class=\"ds-mobile-dock\" aria-label=\"Acciones principales\"><button type=\"button\" class=\"ds-dock-btn is-yellow\">Grupos</button><button type=\"button\" class=\"ds-dock-btn is-mint\">Alias</button></nav>",
-      "css": ".ds-mobile-dock { display: inline-flex; align-items: center; gap: 8px; padding: 6px; background: var(--surface, #FFFFFF); border: 3px solid var(--border, #0D0D11); border-radius: 9999px; box-shadow: 4px 4px 0px var(--shadow, #0D0D11); } .ds-dock-btn { min-height: 44px; padding: 0 14px; border: 2px solid var(--border, #0D0D11); border-radius: 9999px; box-shadow: 2px 2px 0px var(--shadow, #0D0D11); font-family: var(--font-display, 'Space Grotesk', system-ui, sans-serif); font-size: 0.78rem; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1); } .ds-dock-btn.is-yellow { background: #FFE600; color: #0D0D11; } .ds-dock-btn.is-mint { background: #2DF8C5; color: #0D0D11; } .ds-dock-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--shadow, #0D0D11); } .ds-dock-btn:focus-visible { outline: 3px solid var(--border, #0D0D11); outline-offset: 2px; }"
+      "css": ".ds-mobile-dock { display: inline-flex; align-items: center; gap: 8px; padding: 6px; background: var(--surface, #FFFFFF); border: 3px solid var(--border, #0D0D11); border-radius: 9999px; box-shadow: 4px 4px 0px var(--shadow, #0D0D11); } .ds-dock-btn { min-height: 44px; padding: 0 14px; border: 2px solid var(--border, #0D0D11); border-radius: 9999px; box-shadow: 2px 2px 0px var(--shadow, #0D0D11); font-family: var(--font-display, 'Space Grotesk', system-ui, sans-serif); font-size: 0.8125rem; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.08s cubic-bezier(0, 0, 0.2, 1); } .ds-dock-btn.is-yellow { background: #FFE600; color: #0D0D11; } .ds-dock-btn.is-mint { background: #2DF8C5; color: #0D0D11; } .ds-dock-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px var(--shadow, #0D0D11); } .ds-dock-btn:focus-visible { outline: 3px solid var(--border, #0D0D11); outline-offset: 2px; }"
     }
   ],
   "narrative": {

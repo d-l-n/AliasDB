@@ -4,11 +4,15 @@ description: Sistema Neo-Brutalista utilitario de alto contraste para copiar ali
 colors:
   highlighter-yellow: "#FFE600"
   neon-mint: "#2DF8C5"
+  mint-hover: "#25C28C"
   electric-cyan: "#00F0FF"
   lilac-accent: "#B57BFF"
   coral-pink: "#FF5EAC"
+  pink-hover: "#E84D72"
   tangerine-accent: "#FF6B00"
-  crimson-alert: "#FF3B30"
+  crimson-alert: "#C81E1E"
+  valid-green: "#14532D"
+  focus-blue: "#1D4ED8"
   cobalt-link: "#2563EB"
   chalk-paper: "#F7F5F0"
   pure-white: "#FFFFFF"
@@ -21,6 +25,12 @@ colors:
   graphite-elevated: "#24242A"
   ash-muted: "#A1A1AA"
 typography:
+  kpi:
+    fontFamily: "'JetBrains Mono', SFMono-Regular, Consolas, monospace"
+    fontSize: "1.5rem"
+    fontWeight: 900
+    lineHeight: 1.05
+    letterSpacing: "0em"
   display:
     fontFamily: "'Space Grotesk', system-ui, -apple-system, sans-serif"
     fontSize: "1.25rem"
@@ -45,6 +55,12 @@ typography:
     fontWeight: 500
     lineHeight: 1.45
     letterSpacing: "0em"
+  subhead:
+    fontFamily: "'Space Grotesk', system-ui, -apple-system, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 700
+    lineHeight: 1.4
+    letterSpacing: "0em"
   label:
     fontFamily: "'Space Grotesk', system-ui, -apple-system, sans-serif"
     fontSize: "0.8125rem"
@@ -57,6 +73,12 @@ typography:
     fontWeight: 800
     lineHeight: 1.3
     letterSpacing: "-0.01em"
+  xs:
+    fontFamily: "'Space Grotesk', system-ui, -apple-system, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 700
+    lineHeight: 1.2
+    letterSpacing: "0.04em"
 rounded:
   sm: "4px"
   md: "8px"
@@ -137,18 +159,20 @@ Paleta de alto contraste basada en papel cálido o lienzo nocturno con tinta mac
 
 ### Primary
 - **Amarillo Resaltador** (#FFE600): Color de acción primaria en modo claro, filtro de banco activo, botón dedicado de copia de alias, pestañas seleccionadas y píldoras administrativas.
-- **Menta Neón** (#2DF8C5): Acento de confirmación, feedback positivo al copiar al portapapeles (toast y pulso táctil), chips activos de grupo y CTA contextual para sumar alias.
+- **Menta Neón** (#2DF8C5) / **Menta Hover** (#25C28C): Acento de confirmación, feedback positivo al copiar al portapapeles (toast y pulso táctil), chips activos de grupo y CTA contextual para sumar alias.
 - **Cian Eléctrico** (#00F0FF): Acento primario de interacción, hover y foco en modo oscuro; también identifica acciones secundarias destacadas (copiar enlace de grupo, Quick-Add y tokens).
 
 ### Secondary
 - **Lila Acento** (#B57BFF): Identificación de portabilidad CSV y contadores de tokens activos en el panel de administración.
-- **Rosa Coral** (#FF5EAC): Acción de descarte o rechazo en tarjetas pendientes de moderación.
+- **Rosa Coral** (#FF5EAC) / **Rosa Hover** (#E84D72): Acción de descarte o rechazo en tarjetas pendientes de moderación.
 - **Naranja Intenso** (#FF6B00): Indicador de estado sin conexión en la insignia de sincronización.
-- **Rojo Alerta** (#FF3B30): Acciones destructivas, advertencias de cierre de sesión y ausencia de clave administrativa.
+- **Rojo Alerta** (#C81E1E): Acciones destructivas, estado de error WCAG AA sobre texto blanco, advertencias de cierre de sesión y ausencia de clave administrativa.
+- **Verde Validado** (#14532D): Texto de validación CBU/CVU verificada sobre papel claro con contraste WCAG AA.
+- **Azul Foco** (#1D4ED8): Anillo de enfoque visible `:focus-visible` sobre superficies claras con contraste WCAG AA.
 - **Azul Enlace** (#2563EB): Enlaces textuales y referencias externas en el panel de administración.
 
 ### Tertiary
-- **Identidad por Entidad Bancaria**: Etiquetas dedicadas por banco/billetera en las fichas: Mercado Pago (`#00D1FF` / `#002B36`), Banco Galicia (`#FF7A00` / `#170700`), Santander (`#D31010` / `#FFFFFF`), Brubank (`#7328E0` / `#FFFFFF`), Lemon Cash (`#B8FF00` / `#0A1C00`), BBVA (`#004DB8` / `#FFFFFF`), Ualá (`#D81B60` / `#FFFFFF`), Naranja X (`#FF5500` / `#FFFFFF`) y genérico (`#E2E8F0` / `#0F172A` en claro; `#334155` / `#F8FAFC` en oscuro).
+- **Identidad por Entidad Bancaria**: Etiquetas dedicadas por banco/billetera en las fichas: Mercado Pago (`#00D1FF` / `#002B36`), Banco Galicia (`#FF7A00` / `#170700`), Santander (`#D31010` / `#FFFFFF`), Brubank (`#7328E0` / `#FFFFFF`), Lemon Cash (`#B8FF00` / `#0A1C00`), BBVA (`#004DB8` / `#FFFFFF`), Ualá (`#D81B60` / `#FFFFFF`), Naranja X (`#FF5500` / `#170700`) y genérico (`#E2E8F0` / `#0F172A` en claro; `#334155` / `#F8FAFC` en oscuro).
 
 ### Neutral
 - **Papel Tiza** (#F7F5F0): Lienzo principal de página en modo claro, elegido para evitar el blanco clínico sin perder contraste frente a la tinta.
@@ -220,7 +244,7 @@ Geometría rectangular con esquinas ligeramente suavizadas, bordes perimetrales 
 - **Shape:** Rectángulo con esquinas medianas (`8px`), borde continuo (`2px`) y sombra rígida pequeña (`2px 2px 0px`).
 - **Primary:** Fondo Amarillo Resaltador (`#FFE600`) con texto en Tinta Carbón (`#0D0D11`), tipografía en negrita `800` mayúscula y área mínima táctil de `44px` (`--touch-min`).
 - **Hover / Focus:** Desplazamiento diagonal inverso (`-1px, -1px`) con incremento de sombra (`3px 3px 0px`); anillo `:focus-visible` de `3px` con desplazamiento `outline-offset: 3px`.
-- **Secondary / Mint / Cyan / Danger:** Variantes con fondos Piedra Cálida (`#EDE9DF`), Menta Neón (`#2DF8C5`), Cian Eléctrico (`#00F0FF`) o Rojo Alerta (`#FF3B30`) preservando la misma mecánica táctil al presionar (`2px, 2px`).
+- **Secondary / Mint / Cyan / Danger:** Variantes con fondos Piedra Cálida (`#EDE9DF`), Menta Neón (`#2DF8C5`), Cian Eléctrico (`#00F0FF`) o Rojo Alerta (`#C81E1E`) preservando la misma mecánica táctil al presionar (`2px, 2px`).
 
 ### Chips
 - **Style:** Píldoras (`9999px`) de `38px` de altura con borde de `2px`, sombra `2px 2px 0px` y texto en negrita mayúscula.
