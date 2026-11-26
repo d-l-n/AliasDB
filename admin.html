@@ -63,7 +63,7 @@
       --accent-purple: #B57BFF;
       --accent-pink: #FF5EAC;
       --accent-orange: #FF6B00;
-      --accent-red: #FF3B30;
+      --accent-red: #C81E1E;
       --accent-lime: #CCFF00;
       --accent-blue: #2563EB;
 
@@ -83,7 +83,7 @@
       --bank-uala-bg: #D81B60;
       --bank-uala-text: #FFFFFF;
       --bank-naranja-bg: #FF5500;
-      --bank-naranja-text: #FFFFFF;
+      --bank-naranja-text: #170700;
       --bank-generic-bg: #E2E8F0;
       --bank-generic-text: #0F172A;
 
@@ -165,12 +165,40 @@
     }
 
     :focus-visible {
-      outline: 3px solid var(--accent-yellow);
+      outline: 3px solid #1D4ED8;
       outline-offset: 3px;
     }
 
     [data-theme="dark"] :focus-visible {
       outline: 3px solid var(--accent-cyan);
+      outline-offset: 3px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) :focus-visible {
+        outline: 3px solid var(--accent-cyan);
+        outline-offset: 3px;
+      }
+      :root:not([data-theme="light"]) #sheet-link-status a {
+        color: var(--accent-cyan) !important;
+      }
+    }
+
+    [data-theme="dark"] #sheet-link-status a {
+      color: var(--accent-cyan) !important;
+    }
+
+    @media (forced-colors: active) {
+      :focus-visible {
+        outline: 3px solid Highlight;
+      }
+      .btn-brutalist,
+      .neo-dropdown-trigger,
+      .area-card,
+      .group-section,
+      dialog {
+        border: 2px solid ButtonText;
+      }
     }
 
     .sr-only {
@@ -248,9 +276,7 @@
 
     /* Header Neo-Brutalista */
     .app-header {
-      position: -webkit-sticky;
-      position: sticky;
-      top: 12px;
+      position: relative;
       z-index: 100;
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -263,8 +289,10 @@
       box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
     }
 
-    @media (min-width: 640px) {
+    @media (min-width: 920px) {
       .app-header {
+        position: -webkit-sticky;
+        position: sticky;
         top: 16px;
       }
     }
@@ -485,14 +513,34 @@
        SIDEBAR SHORTCUT BANNER (OPTIMIZADO PARA GOOGLE SHEETS & STANDALONE)
        ========================================================================== */
     .sidebar-shortcut-banner {
-      background: var(--surface);
-      border: var(--border-width) solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--shadow);
-      padding: 14px 16px;
+      background: transparent;
+      border: none;
+      border-top: 2px dashed var(--border);
+      border-radius: 0;
+      box-shadow: none;
+      padding: 14px 0 0;
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+
+    .demo-mode-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--accent-yellow);
+      color: #0D0D11;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 3px 3px 0px var(--shadow);
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+    .demo-mode-banner[hidden] {
+      display: none !important;
     }
 
     .shortcut-banner-header {
@@ -624,23 +672,11 @@
       }
     }
 
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--border);
-    }
-
-    .stat-card.stat-yellow::before { background: var(--accent-yellow); }
-    .stat-card.stat-cyan::before { background: var(--accent-cyan); }
-    .stat-card.stat-mint::before { background: var(--accent-mint); }
-    .stat-card.stat-purple::before { background: var(--accent-purple); }
-
     .stat-label {
-      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -648,6 +684,21 @@
       min-width: 0;
       overflow-wrap: break-word;
     }
+
+    .stat-label::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 2px;
+      background: var(--surface-muted);
+      flex-shrink: 0;
+    }
+
+    .stat-card.stat-yellow .stat-label::before { background: var(--accent-yellow); }
+    .stat-card.stat-cyan .stat-label::before { background: var(--accent-cyan); }
+    .stat-card.stat-mint .stat-label::before { background: var(--accent-mint); }
+    .stat-card.stat-purple .stat-label::before { background: var(--accent-purple); }
 
     .stat-value {
       font-size: 1.4rem;
@@ -727,7 +778,7 @@
 
     .areas-grid {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 20px;
     }
 
@@ -749,6 +800,8 @@
       gap: 14px;
       position: relative;
       overflow: hidden;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .area-card::before {
@@ -882,7 +935,6 @@
     }
 
     .search-input:focus {
-      outline: none;
       transform: translate(-1px, -1px);
       box-shadow: calc(var(--shadow-offset-sm) + 2px) calc(var(--shadow-offset-sm) + 2px) 0px var(--shadow);
     }
@@ -1343,10 +1395,11 @@
     }
 
     .account-data-box {
-      background: var(--surface-muted);
-      border: var(--border-width) solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 6px 8px;
+      background: transparent;
+      border: none;
+      border-top: 1.5px dashed var(--border);
+      border-radius: 0;
+      padding: 8px 0 0;
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -1410,8 +1463,9 @@
       font-family: var(--font-display);
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 2px 7px;
-      font-size: 0.7rem;
+      padding: 4px 8px;
+      min-height: 28px;
+      font-size: 0.75rem;
       font-weight: 800;
       line-height: 1.2;
       text-transform: uppercase;
@@ -1718,7 +1772,6 @@
     }
 
     .form-control:focus {
-      outline: none;
       transform: translate(-1px, -1px);
       box-shadow: 4px 4px 0px var(--shadow);
     }
@@ -1734,10 +1787,12 @@
 
     /* Quick-Add Box */
     .quick-add-box {
-      background: var(--surface-muted);
-      border: var(--border-width) dashed var(--border);
-      border-radius: var(--radius-md);
-      padding: 14px;
+      background: transparent !important;
+      border: none;
+      border-top: var(--border-width) dashed var(--border);
+      border-bottom: var(--border-width) dashed var(--border);
+      border-radius: 0;
+      padding: 12px 0;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -1809,6 +1864,8 @@
     /* Tables Neo-Brutalistas */
     .table-container {
       width: 100%;
+      min-width: 0;
+      max-width: 100%;
       overflow-x: auto;
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-sm);
@@ -1820,6 +1877,25 @@
       border-collapse: collapse;
       font-size: 0.8125rem;
       text-align: left;
+    }
+
+    .area-card .table-container {
+      box-shadow: none;
+    }
+
+    @media (max-width: 639px) {
+      .brutalist-table th {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        word-break: normal;
+      }
+      .brutalist-table td {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+        word-break: normal;
+        overflow-wrap: break-word;
+      }
     }
 
     .brutalist-table th {
@@ -1854,6 +1930,10 @@
 
     /* File Drop Zone */
     .file-dropzone {
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
       border: var(--border-width) dashed var(--border);
       border-radius: var(--radius-md);
       padding: 24px 16px;
@@ -1869,6 +1949,11 @@
 
     .file-dropzone:hover, .file-dropzone.dragover {
       background: var(--accent-yellow);
+      color: #0D0D11;
+    }
+
+    .file-dropzone:hover .form-hint,
+    .file-dropzone.dragover .form-hint {
       color: #0D0D11;
     }
 
@@ -1889,10 +1974,13 @@
 
     dialog .toast-container {
       z-index: 999999;
+      top: max(12px, env(safe-area-inset-top, 12px));
+      bottom: auto;
     }
 
     .brutalist-toast {
-      pointer-events: auto;
+      pointer-events: none;
+      visibility: hidden;
       background: var(--accent-mint);
       color: #0D0D11;
       border: var(--border-thick) solid var(--border);
@@ -1905,11 +1993,14 @@
       gap: 12px;
       opacity: 0;
       transform: translateY(24px) scale(0.95);
-      transition: opacity 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                  transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1), 
+                  transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0.2s;
     }
 
     .brutalist-toast.show {
+      pointer-events: auto;
+      visibility: visible;
       opacity: 1;
       transform: translateY(0) scale(1);
     }
@@ -2090,6 +2181,8 @@
 
     .neo-dropdown-menu {
       position: fixed;
+      inset: auto;
+      margin: 0;
       z-index: 100000;
       background: var(--surface);
       color: var(--text);
@@ -2223,7 +2316,7 @@
     }
 
     .cbu-live-hint.is-valid {
-      color: #15803d;
+      color: #14532D;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -2493,8 +2586,15 @@
       </div>
     </header>
 
-    <!-- Navegación por Pestañas Neo-Brutalistas -->
-    <nav class="admin-tabs-bar" role="tablist" aria-label="Áreas del panel de administración">
+    <!-- Contenido Principal -->
+    <main id="admin-main" aria-label="Panel de administración">
+      <div id="demo-mode-banner" class="demo-mode-banner" role="status" hidden>
+        <span>Modo demostración (sin conexión o hoja vacía): los cambios son locales.</span>
+        <button id="btn-demo-open-auth" class="btn-brutalist btn-sm" type="button">Configurar clave</button>
+      </div>
+
+      <!-- Navegación por Pestañas Neo-Brutalistas -->
+      <div class="admin-tabs-bar" role="tablist" aria-label="Áreas del panel de administración">
       <button
         id="tab-btn-directory"
         class="admin-tab-btn"
@@ -2534,7 +2634,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-file" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.25 2.83422C11.7896 2.75598 11.162 2.75005 10.0298 2.75005C8.11311 2.75005 6.75075 2.75163 5.71785 2.88987C4.70596 3.0253 4.12453 3.27933 3.7019 3.70195C3.27869 4.12516 3.02502 4.70481 2.88976 5.7109C2.75159 6.73856 2.75 8.09323 2.75 10.0001V14.0001C2.75 15.9069 2.75159 17.2615 2.88976 18.2892C3.02502 19.2953 3.27869 19.8749 3.7019 20.2981C4.12511 20.7214 4.70476 20.975 5.71085 21.1103C6.73851 21.2485 8.09318 21.2501 10 21.2501H14C15.9068 21.2501 17.2615 21.2485 18.2892 21.1103C19.2952 20.975 19.8749 20.7214 20.2981 20.2981C20.7213 19.8749 20.975 19.2953 21.1102 18.2892C21.2484 17.2615 21.25 15.9069 21.25 14.0001V13.5629C21.25 12.0269 21.2392 11.2988 21.0762 10.7501H17.9463C16.8135 10.7501 15.8877 10.7501 15.1569 10.6518C14.3929 10.5491 13.7306 10.3268 13.2019 9.79815C12.6732 9.26945 12.4509 8.60712 12.3482 7.84317C12.25 7.1123 12.25 6.18657 12.25 5.05374V2.83422ZM13.75 3.6095V5.00005C13.75 6.19976 13.7516 7.0241 13.8348 7.64329C13.9152 8.24091 14.059 8.53395 14.2626 8.73749C14.4661 8.94103 14.7591 9.08486 15.3568 9.16521C15.976 9.24846 16.8003 9.25005 18 9.25005H20.0195C19.723 8.9625 19.3432 8.61797 18.85 8.17407L14.8912 4.61117C14.4058 4.17433 14.0446 3.85187 13.75 3.6095ZM10.1755 1.25002C11.5601 1.24965 12.4546 1.24942 13.2779 1.56535C14.1012 1.88129 14.7632 2.47735 15.7873 3.39955C15.8226 3.43139 15.8584 3.46361 15.8947 3.49623L19.8534 7.05912C19.8956 7.09705 19.9372 7.1345 19.9783 7.17149C21.162 8.23614 21.9274 8.92458 22.3391 9.84902C22.7508 10.7734 22.7505 11.8029 22.75 13.3949C22.75 13.4502 22.75 13.5062 22.75 13.5629V14.0565C22.75 15.8942 22.75 17.3499 22.5969 18.4891C22.4392 19.6615 22.1071 20.6104 21.3588 21.3588C20.6104 22.1072 19.6614 22.4393 18.489 22.5969C17.3498 22.7501 15.8942 22.7501 14.0564 22.7501H9.94359C8.10583 22.7501 6.65019 22.7501 5.51098 22.5969C4.33856 22.4393 3.38961 22.1072 2.64124 21.3588C1.89288 20.6104 1.56076 19.6615 1.40314 18.4891C1.24997 17.3499 1.24998 15.8942 1.25 14.0565V9.94363C1.24998 8.10587 1.24997 6.65024 1.40314 5.51103C1.56076 4.33861 1.89288 3.38966 2.64124 2.64129C3.39019 1.89235 4.34232 1.56059 5.51887 1.40313C6.66283 1.25002 8.1257 1.25003 9.97352 1.25005L10.0298 1.25005C10.0789 1.25005 10.1275 1.25004 10.1755 1.25002Z" fill="currentColor"/></svg>
         <span>Datos y Sheet</span>
       </button>
-    </nav>
+    </div>
 
     <!-- TAB 1: DIRECTORIO -->
     <div id="tab-panel-directory" class="admin-tab-panel" role="tabpanel" aria-labelledby="tab-btn-directory" data-admin-tab-panel="directory">
@@ -2589,16 +2689,16 @@
 
         <div class="toolbar-secondary-row">
           <button id="btn-toggle-all-groups" class="btn-brutalist btn-sm btn-yellow" type="button" title="Plegar o desplegar todos los grupos">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="14" height="14" class="reicon reicon-filter" aria-hidden="true"><path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="14" height="14" class="reicon reicon-chevron-down" aria-hidden="true"><path d="M5.46967 8.46967C5.76256 8.17678 6.23744 8.17678 6.53033 8.46967L12 13.9393L17.4697 8.46967C17.7626 8.17678 18.2374 8.17678 18.5303 8.46967C18.8232 8.76256 18.8232 9.23744 18.5303 9.53033L12.5303 15.5303C12.2374 15.8232 11.7626 15.8232 11.4697 15.5303L5.46967 9.53033C5.17678 9.23744 5.17678 8.76256 5.46967 8.46967Z" fill="currentColor"/></svg>
             <span id="btn-toggle-all-text">Plegar todos</span>
           </button>
         </div>
       </section>
 
-      <!-- Main Content: Groups Container -->
-      <main id="groups-container" class="groups-container" aria-label="Directorio agrupado de personas">
+      <!-- Directory Content: Groups Container -->
+      <div id="groups-container" class="groups-container" aria-label="Directorio agrupado de personas">
         <!-- Din&aacute;micamente renderizado por JavaScript -->
-      </main>
+      </div>
     </div>
 
     <!-- TAB 2: GRUPOS Y TOKENS -->
@@ -2620,11 +2720,12 @@
           </p>
           <div class="table-container">
             <table class="brutalist-table">
+              <caption class="sr-only">Listado de grupos sincronizados</caption>
               <thead>
                 <tr>
-                  <th>Grupo</th>
-                  <th>Personas</th>
-                  <th>Acciones</th>
+                  <th scope="col">Grupo</th>
+                  <th scope="col">Personas</th>
+                  <th scope="col">Acciones</th>
                 </tr>
               </thead>
               <tbody id="inline-groups-body">
@@ -2660,11 +2761,12 @@
           </div>
           <div class="table-container">
             <table class="brutalist-table">
+              <caption class="sr-only">Tokens privados de acceso por grupo</caption>
               <thead>
                 <tr>
-                  <th>Grupo</th>
-                  <th>Token</th>
-                  <th>Acciones</th>
+                  <th scope="col">Grupo</th>
+                  <th scope="col">Token</th>
+                  <th scope="col">Acciones</th>
                 </tr>
               </thead>
               <tbody id="inline-tokens-body">
@@ -2719,7 +2821,7 @@
             </h2>
           </div>
           <!-- Atajo Directo al Admin Panel (Sidebar Launcher) -->
-          <section class="sidebar-shortcut-banner" aria-label="Atajo Directo al Admin Panel" style="box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);">
+          <div class="sidebar-shortcut-banner" role="region" aria-label="Atajo Directo al Admin Panel">
             <div class="shortcut-banner-header">
               <span class="shortcut-banner-pill">
                 <svg class="reicon reicon-sm" viewBox="0 0 24 24" fill="none" width="12" height="12" aria-hidden="true" style="margin-right:3px;vertical-align:-1px;"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/></svg>
@@ -2738,10 +2840,11 @@
                 <span>Ver App P&uacute;blica ↗</span>
               </a>
             </div>
-          </section>
+          </div>
         </section>
       </div>
     </div>
+    </main>
 
   </div>
 
@@ -2889,6 +2992,7 @@
               <span class="quick-add-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-flash" aria-hidden="true"><path d="M9.31993 13.28H12.4099V20.48C12.4099 21.54 13.7299 22.04 14.4299 21.24L21.9999 12.64C22.6599 11.89 22.1299 10.72 21.1299 10.72H18.0399V3.51997C18.0399 2.45997 16.7199 1.95997 16.0199 2.75997L8.44994 11.36C7.79994 12.11 8.32993 13.28 9.31993 13.28Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 4H1.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 20H1.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 12H1.5" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></svg> <span>Auto-detecci&oacute;n Inteligente (Quick-Add)</span></span>
               <span class="form-hint">CBU / CVU + Alias</span>
             </div>
+            <label for="quick-add-text" class="sr-only">Pegar texto libre con alias o CBU/CVU para auto-detección</label>
             <textarea 
               id="quick-add-text" 
               class="form-control" 
@@ -2948,6 +3052,7 @@
       <div class="quick-add-box" style="background: var(--surface);">
         <span class="quick-add-title">Generar Nuevo Token para un Grupo</span>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+          <label for="token-group-select" class="sr-only">Grupo para generar token</label>
           <select id="token-group-select" class="form-control" style="flex: 1; min-width: 160px;"></select>
           <button id="btn-generate-token" class="btn-brutalist btn-sm btn-primary" type="button">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="14" height="14" class="reicon reicon-sparkle" aria-hidden="true"><path d="M 7.544 3.9867 l -1.684 -0.5613 -0.5613 -1.684 c -0.1827 -0.544 -1.0827 -0.544 -1.2653 0 l -0.5613 1.684 -1.684 0.5613 c -0.272 0.0907 -0.456 0.3453 -0.456 0.632 s 0.184 0.5413 0.456 0.632 l 1.684 0.5613 0.5613 1.684 c 0.0907 0.272 0.3467 0.456 0.6333 0.456 s 0.5413 -0.184 0.6333 -0.456 l 0.5613 -1.684 1.684 -0.5613 c 0.272 -0.0907 0.456 -0.3453 0.456 -0.632 s -0.184 -0.5413 -0.456 -0.632 Z" fill="currentColor"></path><polygon points="12.6666 3.6667 15.216 10.116 21.6666 12.6666 15.216 15.2173 12.6666 21.6666 10.116 15.2173 3.6667 12.6666 10.116 10.116 12.6666 3.6667" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></polygon></svg> <span>Generar Token</span>
@@ -2960,11 +3065,12 @@
         <label class="form-label">Tokens Activos Registrados</label>
         <div class="table-container">
           <table class="brutalist-table">
+            <caption class="sr-only">Tokens activos registrados</caption>
             <thead>
               <tr>
-                <th>Grupo</th>
-                <th>Token</th>
-                <th>Acciones</th>
+                <th scope="col">Grupo</th>
+                <th scope="col">Token</th>
+                <th scope="col">Acciones</th>
               </tr>
             </thead>
             <tbody id="tokens-table-body">
@@ -2993,11 +3099,12 @@
       </p>
       <div class="table-container">
         <table class="brutalist-table">
+          <caption class="sr-only">Listado de grupos para renombrar o eliminar</caption>
           <thead>
             <tr>
-              <th>Nombre de Grupo</th>
-              <th>Personas</th>
-              <th>Acciones</th>
+              <th scope="col">Nombre de Grupo</th>
+              <th scope="col">Personas</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
           <tbody id="groups-table-body">
@@ -3025,12 +3132,12 @@
       </p>
 
       <!-- Dropzone -->
-      <div id="csv-dropzone" class="file-dropzone" role="button" tabindex="0">
+      <button type="button" id="csv-dropzone" class="file-dropzone">
         <div style="font-size: 1.8rem; display: flex; justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="36" height="36" class="reicon reicon-file" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.25 2.83422C11.7896 2.75598 11.162 2.75005 10.0298 2.75005C8.11311 2.75005 6.75075 2.75163 5.71785 2.88987C4.70596 3.0253 4.12453 3.27933 3.7019 3.70195C3.27869 4.12516 3.02502 4.70481 2.88976 5.7109C2.75159 6.73856 2.75 8.09323 2.75 10.0001V14.0001C2.75 15.9069 2.75159 17.2615 2.88976 18.2892C3.02502 19.2953 3.27869 19.8749 3.7019 20.2981C4.12511 20.7214 4.70476 20.975 5.71085 21.1103C6.73851 21.2485 8.09318 21.2501 10 21.2501H14C15.9068 21.2501 17.2615 21.2485 18.2892 21.1103C19.2952 20.975 19.8749 20.7214 20.2981 20.2981C20.7213 19.8749 20.975 19.2953 21.1102 18.2892C21.2484 17.2615 21.25 15.9069 21.25 14.0001V13.5629C21.25 12.0269 21.2392 11.2988 21.0762 10.7501H17.9463C16.8135 10.7501 15.8877 10.7501 15.1569 10.6518C14.3929 10.5491 13.7306 10.3268 13.2019 9.79815C12.6732 9.26945 12.4509 8.60712 12.3482 7.84317C12.25 7.1123 12.25 6.18657 12.25 5.05374V2.83422ZM13.75 3.6095V5.00005C13.75 6.19976 13.7516 7.0241 13.8348 7.64329C13.9152 8.24091 14.059 8.53395 14.2626 8.73749C14.4661 8.94103 14.7591 9.08486 15.3568 9.16521C15.976 9.24846 16.8003 9.25005 18 9.25005H20.0195C19.723 8.9625 19.3432 8.61797 18.85 8.17407L14.8912 4.61117C14.4058 4.17433 14.0446 3.85187 13.75 3.6095ZM10.1755 1.25002C11.5601 1.24965 12.4546 1.24942 13.2779 1.56535C14.1012 1.88129 14.7632 2.47735 15.7873 3.39955C15.8226 3.43139 15.8584 3.46361 15.8947 3.49623L19.8534 7.05912C19.8956 7.09705 19.9372 7.1345 19.9783 7.17149C21.162 8.23614 21.9274 8.92458 22.3391 9.84902C22.7508 10.7734 22.7505 11.8029 22.75 13.3949C22.75 13.4502 22.75 13.5062 22.75 13.5629V14.0565C22.75 15.8942 22.75 17.3499 22.5969 18.4891C22.4392 19.6615 22.1071 20.6104 21.3588 21.3588C20.6104 22.1072 19.6614 22.4393 18.489 22.5969C17.3498 22.7501 15.8942 22.7501 14.0564 22.7501H9.94359C8.10583 22.7501 6.65019 22.7501 5.51098 22.5969C4.33856 22.4393 3.38961 22.1072 2.64124 21.3588C1.89288 20.6104 1.56076 19.6615 1.40314 18.4891C1.24997 17.3499 1.24998 15.8942 1.25 14.0565V9.94363C1.24998 8.10587 1.24997 6.65024 1.40314 5.51103C1.56076 4.33861 1.89288 3.38966 2.64124 2.64129C3.39019 1.89235 4.34232 1.56059 5.51887 1.40313C6.66283 1.25002 8.1257 1.25003 9.97352 1.25005L10.0298 1.25005C10.0789 1.25005 10.1275 1.25004 10.1755 1.25002Z" fill="currentColor"/></svg></div>
         <strong>Hac&eacute; click o arrastr&aacute; tu archivo .csv aqu&iacute;</strong>
         <span class="form-hint">Codificaci&oacute;n UTF-8 recomendada</span>
-        <input type="file" id="csv-file-input" accept=".csv,text/csv" class="sr-only">
-      </div>
+      </button>
+      <input type="file" id="csv-file-input" accept=".csv,text/csv" class="sr-only" tabindex="-1" aria-hidden="true">
 
       <!-- Preview de importación -->
       <div id="import-preview-box" style="display: none; flex-direction: column; gap: 8px;">
@@ -3040,13 +3147,14 @@
         </div>
         <div class="table-container" style="max-height: 200px; overflow-y: auto;">
           <table class="brutalist-table">
+            <caption class="sr-only">Vista previa de filas detectadas en el archivo CSV</caption>
             <thead>
               <tr>
-                <th>Persona</th>
-                <th>Grupo</th>
-                <th>Banco</th>
-                <th>Alias</th>
-                <th>CBU</th>
+                <th scope="col">Persona</th>
+                <th scope="col">Grupo</th>
+                <th scope="col">Banco</th>
+                <th scope="col">Alias</th>
+                <th scope="col">CBU</th>
               </tr>
             </thead>
             <tbody id="import-preview-body"></tbody>
@@ -3060,6 +3168,28 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="14" height="14" class="reicon reicon-import" aria-hidden="true"><path d="M14.4697 10.4697C14.7626 10.1768 15.2374 10.1768 15.5303 10.4697C15.8232 10.7626 15.8232 11.2374 15.5303 11.5303L12.5303 14.5303C12.2374 14.8232 11.7626 14.8232 11.4697 14.5303L8.46967 11.5303C8.17678 11.2374 8.17678 10.7626 8.46967 10.4697C8.76256 10.1768 9.23744 10.1768 9.53033 10.4697L11.25 12.1893V4C11.25 3.58579 11.5858 3.25 12 3.25C12.4142 3.25 12.75 3.58579 12.75 4V12.1893L14.4697 10.4697Z" fill="currentColor"/><path d="M20.75 12C20.75 11.5858 20.4142 11.25 20 11.25C19.5858 11.25 19.25 11.5858 19.25 12C19.25 16.0041 16.0041 19.25 12 19.25C7.99593 19.25 4.75 16.0041 4.75 12C4.75 11.5858 4.41421 11.25 4 11.25C3.58579 11.25 3.25 11.5858 3.25 12C3.25 16.8325 7.16751 20.75 12 20.75C16.8325 20.75 20.75 16.8325 20.75 12Z" fill="currentColor"/></svg> <span>Confirmar e Importar</span>
       </button>
     </div>
+  </dialog>
+
+  <!-- MODAL: RENOMBRAR GRUPO -->
+  <dialog id="modal-rename-group" aria-labelledby="rename-group-modal-title">
+    <form id="form-rename-group" method="dialog" novalidate>
+      <div class="dialog-header">
+        <h2 id="rename-group-modal-title" class="dialog-title">Renombrar Grupo</h2>
+        <button class="dialog-close-btn" type="button" data-close-modal="modal-rename-group" aria-label="Cerrar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="16" height="16" class="reicon reicon-x" aria-hidden="true"><path d="M18.4697 19.5303C18.7626 19.8232 19.2374 19.8232 19.5303 19.5303C19.8232 19.2374 19.8232 18.7626 19.5303 18.4697L13.0607 12L19.5303 5.53033C19.8232 5.23744 19.8232 4.76256 19.5303 4.46967C19.2374 4.17678 18.7626 4.17678 18.4697 4.46967L12 10.9393L5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L10.9393 12L4.46967 18.4697C4.17678 18.7626 4.17678 19.2374 4.46967 19.5303C4.76256 19.8232 5.23744 19.8232 5.53033 19.5303L12 13.0607L18.4697 19.5303Z" fill="currentColor"/></svg></button>
+      </div>
+      <div class="dialog-body">
+        <input type="hidden" id="rename-group-old">
+        <div class="form-group">
+          <label for="rename-group-new-input" class="form-label">Nuevo nombre del grupo *</label>
+          <input type="text" id="rename-group-new-input" class="form-control" required autocomplete="off">
+          <p class="form-hint">Se actualizar&aacute; en todas las personas y enlaces asociados a este grupo.</p>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn-brutalist btn-sm" type="button" data-close-modal="modal-rename-group">Cancelar</button>
+        <button id="btn-save-rename-group" class="btn-brutalist btn-sm btn-primary" type="submit">Guardar Nombre</button>
+      </div>
+    </form>
   </dialog>
 
   <!-- ==========================================================================
@@ -3085,7 +3215,7 @@
 
 <!-- Toast Notification (Accessible Bottom Bar) -->
   <div class="toast-container" aria-hidden="true">
-    <div id="brutalist-toast" class="brutalist-toast" role="status">
+    <div id="brutalist-toast" class="brutalist-toast">
       <div class="toast-content">
         <div class="toast-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-check" aria-hidden="true"><path d="M21.5303 5.46967C21.8232 5.76256 21.8232 6.23744 21.5303 6.53033L9.53033 18.5303C9.23744 18.8232 8.76256 18.8232 8.46967 18.5303L2.46967 12.5303C2.17678 12.2374 2.17678 11.7626 2.46967 11.4697C2.76256 11.1768 3.23744 11.1768 3.53033 11.4697L9 16.9393L20.4697 5.46967C20.7626 5.17678 21.2374 5.17678 21.5303 5.46967Z" fill="currentColor"/></svg></div>
         <span id="toast-message">Notificaci&oacute;n del sistema</span>
@@ -3272,6 +3402,13 @@ function getReiconSvg(name, extraClass, size) {
       var dom = {
         shortcutOpenAdminTab: document.getElementById('shortcut-open-admin-tab'),
         shortcutOpenAppTab: document.getElementById('shortcut-open-app-tab'),
+        demoBanner: document.getElementById('demo-mode-banner'),
+        btnDemoOpenAuth: document.getElementById('btn-demo-open-auth'),
+        modalRenameGroup: document.getElementById('modal-rename-group'),
+        formRenameGroup: document.getElementById('form-rename-group'),
+        renameGroupOld: document.getElementById('rename-group-old'),
+        renameGroupNewInput: document.getElementById('rename-group-new-input'),
+        btnSaveRenameGroup: document.getElementById('btn-save-rename-group'),
         adminAuthBtn: document.getElementById('admin-auth-btn'),
         keyLabel: document.getElementById('key-label'),
         openSheetBtn: document.getElementById('open-sheet-btn'),
@@ -3648,6 +3785,18 @@ function getReiconSvg(name, extraClass, size) {
         var vh = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : (window.innerHeight || document.documentElement.clientHeight || 640);
         var margin = 8;
         var gap = 4;
+        var inTopLayer = false;
+        try { inTopLayer = state.menu.matches(':popover-open'); } catch (e) {}
+        var boundTop = margin;
+        var boundBottom = vh - margin;
+        if (!inTopLayer) {
+          var hostDlg = state.trigger.closest('dialog[open]');
+          if (hostDlg) {
+            var dlgRect = hostDlg.getBoundingClientRect();
+            boundTop = Math.max(margin, dlgRect.top + margin);
+            boundBottom = Math.min(vh - margin, dlgRect.bottom - margin);
+          }
+        }
 
         var minW = Math.max(rect.width, 160);
         var maxW = Math.max(140, vw - margin * 2);
@@ -3656,8 +3805,8 @@ function getReiconSvg(name, extraClass, size) {
         state.menu.style.maxHeight = '280px';
 
         var naturalH = Math.min(state.menu.scrollHeight || 200, 280);
-        var spaceBelow = vh - rect.bottom - margin - gap;
-        var spaceAbove = rect.top - margin - gap;
+        var spaceBelow = Math.max(0, boundBottom - rect.bottom - gap);
+        var spaceAbove = Math.max(0, rect.top - boundTop - gap);
         var openUp = (spaceBelow < naturalH && spaceAbove > spaceBelow);
         var availSpace = openUp ? spaceAbove : spaceBelow;
         var clampedMaxH = Math.max(96, Math.min(280, availSpace));
@@ -3681,6 +3830,9 @@ function getReiconSvg(name, extraClass, size) {
         state.isOpen = false;
         state.trigger.setAttribute('aria-expanded', 'false');
         state.trigger.removeAttribute('aria-activedescendant');
+        if (typeof state.menu.hidePopover === 'function') {
+          try { state.menu.hidePopover(); } catch (e) {}
+        }
         state.menu.hidden = true;
         state.menu.style.visibility = '';
         if (state.menu.parentElement) {
@@ -3717,6 +3869,9 @@ function getReiconSvg(name, extraClass, size) {
         state.trigger.setAttribute('aria-expanded', 'true');
         state.menu.style.visibility = 'hidden';
         state.menu.hidden = false;
+        if (typeof state.menu.showPopover === 'function') {
+          try { state.menu.showPopover(); } catch (e) {}
+        }
         positionNeoDropdownMenu(state);
         state.menu.style.visibility = '';
 
@@ -3903,6 +4058,9 @@ function getReiconSvg(name, extraClass, size) {
         menu.id = menuId;
         menu.className = 'neo-dropdown-menu' + (isFilter ? ' is-filter-menu' : '');
         menu.setAttribute('role', 'listbox');
+        if ('popover' in menu) {
+          menu.setAttribute('popover', 'manual');
+        }
         menu.tabIndex = -1;
         menu.hidden = true;
 
@@ -4046,12 +4204,52 @@ function getReiconSvg(name, extraClass, size) {
         }
       }
 
+      var personInitialSnapshot = '';
+      var allowPersonModalClose = false;
+
+      function getPersonModalSnapshot() {
+        if (!dom.modalPerson) return '';
+        var name = dom.personNameInput ? dom.personNameInput.value.trim() : '';
+        var groups = Array.from(dom.personGroupsChipsContainer ? dom.personGroupsChipsContainer.querySelectorAll('.group-select-chip.active') : []).map(function(c) {
+          return c.getAttribute('data-group-name') || '';
+        });
+        var accs = Array.from(dom.modalAccountsContainer ? dom.modalAccountsContainer.querySelectorAll('.account-edit-card') : []).map(function(r) {
+          return [
+            (r.querySelector('.acc-bank') || {}).value || '',
+            (r.querySelector('.acc-type') || {}).value || '',
+            (r.querySelector('.acc-alias') || {}).value || '',
+            (r.querySelector('.acc-cbu') || {}).value || '',
+            (r.querySelector('.acc-titular') || {}).value || ''
+          ].join('|');
+        });
+        return JSON.stringify({ n: name, g: groups, a: accs });
+      }
+
+      function requestClosePersonModal() {
+        if (allowPersonModalClose || getPersonModalSnapshot() === personInitialSnapshot) {
+          allowPersonModalClose = false;
+          closeModal(dom.modalPerson);
+          return;
+        }
+        confirmDestructiveAction(
+          'Ten&eacute;s cambios sin guardar en esta persona. &iquest;Quer&eacute;s descartarlos?',
+          function() {
+            allowPersonModalClose = true;
+            closeModal(dom.modalPerson);
+          }
+        );
+      }
+
       // Event delegation para botones data-close-modal
       document.addEventListener('click', function(e) {
         var btn = e.target.closest('[data-close-modal]');
         if (btn) {
           var targetId = btn.getAttribute('data-close-modal');
-          closeModal(document.getElementById(targetId));
+          if (targetId === 'modal-person') {
+            requestClosePersonModal();
+          } else {
+            closeModal(document.getElementById(targetId));
+          }
         }
       });
 
@@ -4072,9 +4270,21 @@ function getReiconSvg(name, extraClass, size) {
             e.clientY > rect.bottom
           );
           if (isOutside) {
-            closeModal(dlg);
+            if (dlg === dom.modalPerson) {
+              requestClosePersonModal();
+            } else {
+              closeModal(dlg);
+            }
           }
         });
+        if (dlg === dom.modalPerson) {
+          dlg.addEventListener('cancel', function(e) {
+            if (!allowPersonModalClose && getPersonModalSnapshot() !== personInitialSnapshot) {
+              e.preventDefault();
+              requestClosePersonModal();
+            }
+          });
+        }
         function restoreToastContainer() {
           var toastContainer = document.querySelector('.toast-container');
           if (toastContainer && toastContainer.parentElement !== document.body) {
@@ -4102,6 +4312,36 @@ function getReiconSvg(name, extraClass, size) {
       }
 
       dom.themeToggleBtn.addEventListener('click', toggleTheme);
+
+      if (window.matchMedia) {
+        var sysThemeQ = window.matchMedia('(prefers-color-scheme: dark)');
+        var handleSysTheme = function(e) {
+          var stored = null;
+          try { stored = localStorage.getItem(STORAGE_THEME); } catch (err) {}
+          if (stored === 'light' || stored === 'dark') return;
+          var next = e.matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', next);
+          if (dom.metaColorScheme) dom.metaColorScheme.content = next;
+          if (dom.metaThemeColor) dom.metaThemeColor.content = next === 'dark' ? '#121214' : '#F7F5F0';
+        };
+        if (typeof sysThemeQ.addEventListener === 'function') {
+          sysThemeQ.addEventListener('change', handleSysTheme);
+        } else if (typeof sysThemeQ.addListener === 'function') {
+          sysThemeQ.addListener(handleSysTheme);
+        }
+      }
+
+      if (dom.btnDemoOpenAuth) {
+        dom.btnDemoOpenAuth.addEventListener('click', function() {
+          if (dom.adminAuthBtn) dom.adminAuthBtn.click();
+        });
+      }
+
+      function setDemoModeBanner(active) {
+        if (dom.demoBanner) {
+          dom.demoBanner.hidden = !active;
+        }
+      }
 
       /* ======================================================================
          4. AUTENTICACIÓN ADMIN
@@ -4300,10 +4540,12 @@ function getReiconSvg(name, extraClass, size) {
 
             if (list.length > 0) {
               appState.persons = normalizePersonsList(list);
+              setDemoModeBanner(false);
               showToast('Datos sincronizados correctamente con Google Sheets');
             } else {
               // Si la hoja está vacía, usar demo data
               appState.persons = normalizePersonsList(DEMO_PERSONS);
+              setDemoModeBanner(true);
               showToast('Directorio vacío. Mostrando datos de demostración');
             }
 
@@ -4324,6 +4566,7 @@ function getReiconSvg(name, extraClass, size) {
             console.warn('Backend fetch fallback:', err);
             if (appState.persons.length === 0) {
               appState.persons = normalizePersonsList(DEMO_PERSONS);
+              setDemoModeBanner(true);
             }
             showToast('Modo sin conexión. Mostrando datos locales.', true);
             renderDashboard();
@@ -4924,6 +5167,8 @@ function getReiconSvg(name, extraClass, size) {
         renderPersonGroupChips(currentSelectedGroups);
         updatePersonAccountsTabCount();
         switchPersonModalTab('info');
+        allowPersonModalClose = false;
+        personInitialSnapshot = getPersonModalSnapshot();
 
         openModal(dom.modalPerson);
         setTimeout(function() { dom.personNameInput.focus(); }, 50);
@@ -4933,25 +5178,27 @@ function getReiconSvg(name, extraClass, size) {
         openPersonModal(null);
       });
 
+      var adminAccCounter = 0;
       function appendAccountRow(accData, shouldScroll) {
         accData = accData || { bank: 'Mercado Pago', type: 'CVU', alias: '', cbu: '', titular: '' };
         var index = dom.modalAccountsContainer.children.length + 1;
+        var rowUid = 'adm-acc-' + (++adminAccCounter);
 
         var row = document.createElement('div');
         row.className = 'account-edit-card';
         row.innerHTML = [
           '<div class="account-edit-header">',
           '  <span class="account-edit-index">Cuenta #' + index + '</span>',
-          '  <button class="dialog-close-btn btn-remove-account" type="button" style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; max-width: 28px; max-height: 28px; flex: 0 0 28px; padding: 0; margin: 0;" title="Eliminar esta cuenta" aria-label="Eliminar cuenta">' + getReiconSvg('Trash', '', 14) + '</button>',
+          '  <button class="dialog-close-btn btn-remove-account" type="button" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; max-width: 32px; max-height: 32px; flex: 0 0 32px; padding: 0; margin: 0;" title="Eliminar esta cuenta" aria-label="Eliminar cuenta">' + getReiconSvg('Trash', '', 14) + '</button>',
           '</div>',
           '<div class="account-edit-grid">',
           '  <div class="form-group">',
-          '    <label class="form-label">Banco / Entidad *</label>',
-          '    <input type="text" list="bank-datalist" class="form-control acc-bank" value="' + escapeHtml(accData.bank) + '" placeholder="Ej: Mercado Pago" required>',
+          '    <label for="' + rowUid + '-bank" class="form-label">Banco / Entidad *</label>',
+          '    <input id="' + rowUid + '-bank" type="text" list="bank-datalist" class="form-control acc-bank" value="' + escapeHtml(accData.bank) + '" placeholder="Ej: Mercado Pago" required>',
           '  </div>',
           '  <div class="form-group">',
-          '    <label class="form-label">Tipo de Cuenta *</label>',
-          '    <select class="form-control acc-type">',
+          '    <label for="' + rowUid + '-type" class="form-label">Tipo de Cuenta *</label>',
+          '    <select id="' + rowUid + '-type" class="form-control acc-type">',
           '      <option value="CVU"' + (accData.type === 'CVU' ? ' selected' : '') + '>CVU</option>',
           '      <option value="Caja de Ahorro"' + (accData.type === 'Caja de Ahorro' ? ' selected' : '') + '>Caja de Ahorro $</option>',
           '      <option value="Caja de Ahorro USD"' + (accData.type === 'Caja de Ahorro USD' ? ' selected' : '') + '>Caja de Ahorro USD</option>',
@@ -4960,17 +5207,17 @@ function getReiconSvg(name, extraClass, size) {
           '    </select>',
           '  </div>',
           '  <div class="form-group">',
-          '    <label class="form-label">Alias *</label>',
-          '    <input type="text" class="form-control font-mono acc-alias" value="' + escapeHtml(accData.alias) + '" placeholder="nombre.alias.mp" spellcheck="false" required>',
+          '    <label for="' + rowUid + '-alias" class="form-label">Alias *</label>',
+          '    <input id="' + rowUid + '-alias" type="text" class="form-control font-mono acc-alias" value="' + escapeHtml(accData.alias) + '" placeholder="nombre.alias.mp" spellcheck="false" required>',
           '  </div>',
           '  <div class="form-group">',
-          '    <label class="form-label">CBU / CVU (22 dígitos)</label>',
-          '    <input type="text" class="form-control font-mono acc-cbu" value="' + escapeHtml(accData.cbu) + '" placeholder="0000003100012345678901" maxlength="22">',
-          '    <span class="cbu-live-hint" aria-live="polite"></span>',
+          '    <label for="' + rowUid + '-cbu" class="form-label">CBU / CVU (22 dígitos)</label>',
+          '    <input id="' + rowUid + '-cbu" type="text" class="form-control font-mono acc-cbu" value="' + escapeHtml(accData.cbu) + '" placeholder="0000003100012345678901" maxlength="22" aria-describedby="' + rowUid + '-cbu-hint">',
+          '    <span id="' + rowUid + '-cbu-hint" class="cbu-live-hint" aria-live="polite"></span>',
           '  </div>',
           '  <div class="form-group" style="grid-column: 1 / -1;">',
-          '    <label class="form-label">Titular Diferente (opcional)</label>',
-          '    <input type="text" class="form-control acc-titular" value="' + escapeHtml(accData.titular) + '" placeholder="Dejar en blanco si es el mismo que la persona">',
+          '    <label for="' + rowUid + '-titular" class="form-label">Titular Diferente (opcional)</label>',
+          '    <input id="' + rowUid + '-titular" type="text" class="form-control acc-titular" value="' + escapeHtml(accData.titular) + '" placeholder="Dejar en blanco si es el mismo que la persona">',
           '  </div>',
           '</div>'
         ].join('\n');
@@ -5251,6 +5498,7 @@ function getReiconSvg(name, extraClass, size) {
               appState.persons.push(normalizedPerson);
             }
 
+            allowPersonModalClose = true;
             closeModal(dom.modalPerson);
             showToast('Persona guardada exitosamente');
             renderDashboard();
@@ -5278,6 +5526,7 @@ function getReiconSvg(name, extraClass, size) {
             if (existingIdx !== -1) appState.persons[existingIdx] = localPerson;
             else appState.persons.push(localPerson);
 
+            allowPersonModalClose = true;
             closeModal(dom.modalPerson);
             showToast('Guardado localmente (sin conexión con backend).', true);
             renderDashboard();
@@ -5551,38 +5800,77 @@ function getReiconSvg(name, extraClass, size) {
       dom.btnOpenGroups.addEventListener('click', openGroupsModal);
 
       function promptRenameGroup(oldName) {
-        var newName = prompt('Ingresá el nuevo nombre para el grupo "' + oldName + '":', oldName);
-        if (!newName || newName.trim() === '' || newName.trim() === oldName) return;
-        newName = newName.trim();
+        if (!dom.modalRenameGroup || !dom.renameGroupOld || !dom.renameGroupNewInput) return;
+        dom.renameGroupOld.value = oldName;
+        dom.renameGroupNewInput.value = oldName;
+        openModal(dom.modalRenameGroup);
+        setTimeout(function() {
+          dom.renameGroupNewInput.focus();
+          dom.renameGroupNewInput.select();
+        }, 40);
+      }
 
-        // Actualizar localmente
-        var affected = 0;
-        appState.persons.forEach(function(p) {
-          var pGroups = p.groups || (p.group ? p.group.split(',').map(function(s) { return s.trim(); }) : ['General']);
-          var idx = pGroups.indexOf(oldName);
-          if (idx !== -1) {
-            pGroups[idx] = newName;
-            p.groups = Array.from(new Set(pGroups));
-            p.group = p.groups.join(', ');
-            affected++;
-            // Enviar guardado asíncrono
+      if (dom.formRenameGroup) {
+        dom.formRenameGroup.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var oldName = dom.renameGroupOld ? dom.renameGroupOld.value : '';
+          var newName = dom.renameGroupNewInput ? dom.renameGroupNewInput.value.trim() : '';
+          if (!oldName || !newName || newName === oldName) {
+            closeModal(dom.modalRenameGroup);
+            return;
+          }
+
+          var affectedPersons = [];
+          appState.persons.forEach(function(p) {
+            var pGroups = p.groups || (p.group ? p.group.split(',').map(function(s) { return s.trim(); }) : ['General']);
+            var idx = pGroups.indexOf(oldName);
+            if (idx !== -1) {
+              pGroups[idx] = newName;
+              p.groups = Array.from(new Set(pGroups));
+              p.group = p.groups.join(', ');
+              affectedPersons.push(p);
+            }
+          });
+
+          for (var t in appState.groupTokens) {
+            if (appState.groupTokens[t] === oldName) {
+              appState.groupTokens[t] = newName;
+            }
+          }
+          saveLocalTokens();
+
+          if (dom.btnSaveRenameGroup) {
+            dom.btnSaveRenameGroup.disabled = true;
+            dom.btnSaveRenameGroup.textContent = 'Guardando...';
+          }
+
+          var savePromises = affectedPersons.map(function(p) {
             var saveUrl = BACKEND_API_URL + '?action=save';
             if (appState.adminKey) saveUrl += '&adminKey=' + encodeURIComponent(appState.adminKey);
             saveUrl += '&payload=' + encodeURIComponent(JSON.stringify(p));
-            fetch(saveUrl).catch(function() {});
-          }
+            return fetch(saveUrl)
+              .then(function(res) {
+                if (!res.ok) return false;
+                return res.json().then(function(j) { return !(j && j.success === false); }).catch(function() { return true; });
+              })
+              .catch(function() { return false; });
+          });
+
+          Promise.all(savePromises).then(function(results) {
+            if (dom.btnSaveRenameGroup) {
+              dom.btnSaveRenameGroup.disabled = false;
+              dom.btnSaveRenameGroup.textContent = 'Guardar Nombre';
+            }
+            closeModal(dom.modalRenameGroup);
+            var failed = results.filter(function(ok) { return !ok; }).length;
+            if (failed > 0) {
+              showToast('Renombrado localmente (' + failed + ' de ' + affectedPersons.length + ' personas sin sincronizar)', true);
+            } else {
+              showToast('Grupo "' + oldName + '" renombrado a "' + newName + '" (' + affectedPersons.length + ' personas)');
+            }
+            renderDashboard();
+          });
         });
-
-        // Actualizar tokens
-        for (var t in appState.groupTokens) {
-          if (appState.groupTokens[t] === oldName) {
-            appState.groupTokens[t] = newName;
-          }
-        }
-        saveLocalTokens();
-
-        showToast('Grupo "' + oldName + '" renombrado a "' + newName + '" (' + affected + ' personas)');
-        renderDashboard();
       }
 
       function confirmDeleteGroup(groupName, onCompleted) {
@@ -5821,7 +6109,9 @@ function getReiconSvg(name, extraClass, size) {
           }
 
           appState.parsedImportData = parsedRows;
-          dom.importCountLabel.textContent = parsedRows.length + ' filas detectadas';
+          dom.importCountLabel.textContent = parsedRows.length > 10
+            ? ('Mostrando las primeras 10 de ' + parsedRows.length + ' filas')
+            : (parsedRows.length + ' filas detectadas');
           dom.importPreviewBody.innerHTML = parsedRows.slice(0, 10).map(function(r) {
             return [
               '<tr>',
@@ -5874,6 +6164,8 @@ function getReiconSvg(name, extraClass, size) {
         var importedPersons = Array.from(personMap.values());
         var total = importedPersons.length;
         var completed = 0;
+        var succeeded = 0;
+        var failed = 0;
 
         importedPersons.forEach(function(person) {
           // Guardar en backend
@@ -5882,26 +6174,40 @@ function getReiconSvg(name, extraClass, size) {
           saveUrl += '&payload=' + encodeURIComponent(JSON.stringify(person));
 
           fetch(saveUrl)
-            .then(function() {
+            .then(function(res) {
+              if (!res.ok) throw new Error('HTTP ' + res.status);
+              return res.json();
+            })
+            .then(function(json) {
+              if (json && json.success === false) {
+                failed++;
+              } else {
+                succeeded++;
+              }
               completed++;
               if (completed === total) {
-                finishImport(importedPersons);
+                finishImport(succeeded, failed);
               }
             })
             .catch(function() {
+              failed++;
               completed++;
               if (completed === total) {
-                finishImport(importedPersons);
+                finishImport(succeeded, failed);
               }
             });
         });
       });
 
-      function finishImport(importedPersons) {
+      function finishImport(succeededCount, failedCount) {
         dom.btnConfirmImport.disabled = false;
         dom.btnConfirmImport.textContent = 'Confirmar e Importar';
         closeModal(dom.modalImport);
-        showToast('Importación finalizada (' + importedPersons.length + ' personas)');
+        if (failedCount > 0) {
+          showToast('Importadas ' + succeededCount + ' personas; ' + failedCount + ' fallaron.', true);
+        } else {
+          showToast('Importación exitosa (' + succeededCount + ' personas)');
+        }
         loadData();
       }
 
