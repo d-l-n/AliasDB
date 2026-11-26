@@ -2500,20 +2500,29 @@
       }
     }
 
+    .friend-card[data-status="pending"] {
+      border-left-width: 6px;
+    }
+
     .badge-pending {
       background: var(--accent-yellow);
       color: #0D0D11;
-      border: 2px solid var(--border);
-      font-weight: 800;
+      border: var(--border-width) solid var(--border);
+      font-family: var(--font-display);
+      font-weight: 900;
       font-size: 0.75rem;
       line-height: 1.2;
-      padding: 3px 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 2px 7px;
       border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
       display: inline-flex;
       align-items: center;
       gap: 4px;
       max-width: 100%;
       min-width: 0;
+      flex-shrink: 0;
     }
 
     .badge-pending svg {
@@ -2526,41 +2535,152 @@
       white-space: normal;
     }
 
-    .card-admin-actions {
+    /* ==========================================================================
+       CARD ACTIONS FOOTER (Moderación Admin & Autogestión de Autor)
+       ========================================================================== */
+    .card-actions-footer {
       display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-      padding: 10px 12px;
+      flex-direction: column;
+      gap: 10px;
+      margin: auto -14px -12px -14px;
+      padding: 10px 14px 12px 14px;
       background: var(--surface-muted);
-      border-top: var(--border-width) solid var(--border);
-      border-bottom-left-radius: calc(var(--radius-md) - 2px);
-      border-bottom-right-radius: calc(var(--radius-md) - 2px);
-      flex-wrap: wrap;
-      max-width: 100%;
+      border-top: var(--border-width) dashed var(--border);
+      border-bottom-left-radius: calc(var(--radius-lg) - var(--border-width));
+      border-bottom-right-radius: calc(var(--radius-lg) - var(--border-width));
+      min-width: 0;
+      max-width: calc(100% + 28px);
+    }
+
+    .card-mod-zone {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       min-width: 0;
     }
 
-    .card-action-btn {
-      min-height: 32px;
-      height: auto;
-      padding: 6px 12px;
-      max-width: 100%;
+    .card-zone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px 8px;
       min-width: 0;
+    }
+
+    .card-zone-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-display);
       font-size: 0.75rem;
       font-weight: 800;
-      letter-spacing: 0.03em;
       line-height: 1.2;
-      text-align: left;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .card-zone-tag.is-author-tag {
+      color: var(--text-muted);
+    }
+
+    .card-zone-tag svg {
+      flex-shrink: 0;
+    }
+
+    .card-zone-hint {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-muted);
+      min-width: 0;
+      overflow-wrap: break-word;
+    }
+
+    .card-mod-controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .card-mod-controls[hidden] {
+      display: none !important;
+    }
+
+    .card-reject-confirm {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+      background: var(--surface);
       border: var(--border-width) solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      min-width: 0;
+    }
+
+    .card-reject-confirm[hidden] {
+      display: none !important;
+    }
+
+    .card-reject-prompt {
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--text);
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+
+    .card-reject-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .card-author-zone {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      min-width: 0;
+    }
+
+    .card-mod-zone + .card-author-zone {
+      padding-top: 10px;
+      border-top: var(--border-width) dashed var(--border);
+    }
+
+    .card-action-btn {
+      position: relative;
+      min-height: var(--touch-min);
+      height: auto;
+      padding: 8px 12px;
+      max-width: 100%;
+      min-width: 0;
+      font-family: var(--font-display);
+      font-size: 0.8125rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+      text-transform: uppercase;
+      text-align: center;
+      border: var(--border-width) solid var(--border);
+      border-radius: var(--radius-md);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
       cursor: pointer;
-      box-shadow: 2px 2px 0px var(--shadow);
-      transition: var(--transition-tap);
+      box-shadow: var(--shadow-offset-sm) var(--shadow-offset-sm) 0px var(--shadow);
+      transition: var(--transition-tap), background-color 0.15s ease, color 0.15s ease;
       user-select: none;
     }
 
@@ -2570,13 +2690,17 @@
 
     .card-action-btn > span {
       min-width: 0;
-      overflow-wrap: break-word;
+      overflow-wrap: anywhere;
       white-space: normal;
     }
 
+    .card-action-btn:focus-visible {
+      z-index: 2;
+    }
+
     .card-action-btn:active {
-      transform: translate(1px, 1px);
-      box-shadow: 1px 1px 0px var(--shadow);
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px var(--shadow);
     }
 
     .card-action-btn.btn-confirm-action {
@@ -2584,30 +2708,156 @@
       color: #0D0D11;
     }
 
-    .card-action-btn.btn-confirm-action:hover {
-      background: #25C28C;
-      transform: translateY(-1px);
-    }
-
     .card-action-btn.btn-reject-action {
       background: var(--accent-pink);
       color: #0D0D11;
     }
 
-    .card-action-btn.btn-reject-action:hover {
-      background: #E84D72;
-      transform: translateY(-1px);
+    .card-action-btn.btn-danger-confirm {
+      background: var(--accent-red);
+      color: #FFFFFF;
+    }
+
+    .card-action-btn.btn-reject-cancel {
+      background: var(--surface-muted);
+      color: var(--text);
     }
 
     .card-action-btn.btn-edit-action {
       background: var(--surface);
       color: var(--text);
+      margin-left: auto;
     }
 
-    .card-action-btn.btn-edit-action:hover {
-      background: var(--accent-yellow);
-      color: #0D0D11;
-      transform: translateY(-1px);
+    @media (hover: hover) {
+      .card-action-btn:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0px var(--shadow);
+      }
+
+      .card-action-btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px var(--shadow);
+      }
+
+      .card-action-btn.btn-confirm-action:hover {
+        background: #25C28C;
+        color: #0D0D11;
+      }
+
+      .card-action-btn.btn-reject-action:hover {
+        background: #E84D72;
+        color: #0D0D11;
+      }
+
+      .card-action-btn.btn-danger-confirm:hover {
+        background: #A91717;
+        color: #FFFFFF;
+      }
+
+      .card-action-btn.btn-reject-cancel:hover {
+        background: var(--surface);
+      }
+
+      .card-action-btn.btn-edit-action:hover {
+        background: var(--accent-yellow);
+        color: #0D0D11;
+      }
+
+      [data-theme="dark"] .card-action-btn.btn-edit-action:hover {
+        background: var(--accent-cyan);
+        color: #0D0D11;
+      }
+    }
+
+    @container (max-width: 260px) {
+      .card-mod-controls,
+      .card-reject-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .card-author-zone .btn-edit-action {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+
+    @container (max-width: 340px) {
+      .card-actions-footer {
+        padding: 10px 12px 12px 12px;
+      }
+
+      .card-author-zone {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .card-author-zone .btn-edit-action {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+
+    @container (min-width: 420px) {
+      .card-mod-zone:not(.is-confirming) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .card-mod-zone:not(.is-confirming) .card-mod-controls {
+        display: flex;
+        flex: 0 0 auto;
+      }
+
+      .card-mod-zone:not(.is-confirming) .card-action-btn {
+        min-width: 124px;
+      }
+
+      .card-reject-confirm {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .card-reject-buttons {
+        display: flex;
+        flex-shrink: 0;
+      }
+    }
+
+    @supports not (container-type: inline-size) {
+      @media (max-width: 360px) {
+        .card-author-zone {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .card-author-zone .btn-edit-action {
+          width: 100%;
+          margin-left: 0;
+        }
+      }
+    }
+
+    @media (forced-colors: active) {
+      .friend-card[data-status="pending"] {
+        border: 3px solid Highlight;
+      }
+
+      .badge-pending,
+      .card-action-btn,
+      .card-reject-confirm {
+        border: 2px solid ButtonText;
+        box-shadow: none;
+      }
+
+      .card-actions-footer,
+      .card-mod-zone + .card-author-zone {
+        border-top: 2px dashed CanvasText;
+      }
     }
 
     /* Zero-UI: Visibilidad Condicional Exclusiva ante Fallos o Sincronización */
@@ -5222,7 +5472,7 @@ function getReiconSvg(name, extraClass, size) {
           var isAuthor = Boolean(myEditToken);
 
           var pendingBadgeHtml = isPending
-            ? '<span class="badge-pending">' + getReiconSvg('AlertTriangle', '', 12) + ' <span>PENDIENTE DE CONFIRMACI\u00D3N</span></span>'
+            ? '<span class="badge-pending" aria-label="Pendiente de confirmaci\u00F3n">' + getReiconSvg('AlertTriangle', '', 12) + ' <span>PENDIENTE</span></span>'
             : '';
 
           var accountsHtml = friend.accounts
@@ -5284,20 +5534,53 @@ function getReiconSvg(name, extraClass, size) {
           }
 
           var actionsHtml = '';
+          var hasPrevData = Boolean(friend.datos_previos && typeof friend.datos_previos === 'object');
           if ((isPending && isAdmin) || isAuthor) {
-            var actionButtons = [];
+            var footerZones = [];
+            var safeFriendId = escapeHtml(friend.id);
+            var safeFriendName = escapeHtml(friend.name);
             if (isPending && isAdmin) {
-              actionButtons.push('<button class="card-action-btn btn-confirm-action btn-confirm-friend font-mono" type="button" data-friend-id="' + friend.id + '" aria-label="Confirmar datos de ' + escapeHtml(friend.name) + '">' + getReiconSvg('ShieldCheck', '', 14) + ' <span>Confirmar</span></button>');
-              actionButtons.push('<button class="card-action-btn btn-reject-action btn-reject-friend font-mono" type="button" data-friend-id="' + friend.id + '" aria-label="Descartar solicitud de ' + escapeHtml(friend.name) + '">' + getReiconSvg('X', '', 14) + ' <span>Descartar</span></button>');
+              var zoneLabel = hasPrevData ? 'Edici\u00F3n pendiente' : 'Solicitud pendiente';
+              var rejectPrompt = hasPrevData
+                ? '\u00BFDescartar cambios de <strong>' + safeFriendName + '</strong> y restaurar datos anteriores?'
+                : '\u00BFDescartar la solicitud de <strong>' + safeFriendName + '</strong>?';
+              var rejectConfirmBtnAria = hasPrevData
+                ? 'S\u00ED, descartar cambios de ' + safeFriendName
+                : 'S\u00ED, descartar solicitud de ' + safeFriendName;
+              footerZones.push([
+                '<div class="card-mod-zone" data-friend-id="' + safeFriendId + '" role="group" aria-label="Moderaci\u00F3n de solicitud pendiente">',
+                '  <div class="card-zone-header">',
+                '    <span class="card-zone-tag is-pending-tag">' + getReiconSvg('AlertTriangle', '', 12) + ' <span>' + zoneLabel + '</span></span>',
+                (hasPrevData ? '    <span class="card-zone-hint">Con datos previos</span>' : ''),
+                '  </div>',
+                '  <div class="card-mod-controls">',
+                '    <button class="card-action-btn btn-confirm-action btn-confirm-friend" type="button" data-friend-id="' + safeFriendId + '" aria-label="Confirmar datos de ' + safeFriendName + '">' + getReiconSvg('ShieldCheck', '', 15) + ' <span>Confirmar</span></button>',
+                '    <button class="card-action-btn btn-reject-action btn-reject-arm" type="button" data-friend-id="' + safeFriendId + '" aria-expanded="false" aria-controls="reject-confirm-' + safeFriendId + '" aria-label="Descartar solicitud de ' + safeFriendName + '">' + getReiconSvg('X', '', 15) + ' <span>Descartar</span></button>',
+                '  </div>',
+                '  <div id="reject-confirm-' + safeFriendId + '" class="card-reject-confirm" role="group" aria-label="Confirmar descarte de ' + safeFriendName + '" hidden>',
+                '    <p class="card-reject-prompt">' + rejectPrompt + '</p>',
+                '    <div class="card-reject-buttons">',
+                '      <button class="card-action-btn btn-reject-cancel" type="button" data-friend-id="' + safeFriendId + '" aria-label="Cancelar descarte de ' + safeFriendName + '"><span>Cancelar</span></button>',
+                '      <button class="card-action-btn btn-danger-confirm btn-reject-friend" type="button" data-friend-id="' + safeFriendId + '" aria-label="' + rejectConfirmBtnAria + '">' + getReiconSvg('Trash', '', 15) + ' <span>S\u00ED, descartar</span></button>',
+                '    </div>',
+                '  </div>',
+                '</div>'
+              ].filter(Boolean).join('\n'));
             }
             if (isAuthor) {
-              actionButtons.push('<button class="card-action-btn btn-edit-action btn-edit-my-data font-mono" type="button" data-friend-id="' + friend.id + '" aria-label="Editar mis datos">' + getReiconSvg('Edit', '', 14) + ' <span>Editar mis datos</span></button>');
+              var authorTagText = isPending ? 'Tu ficha \u00B7 En revisi\u00F3n' : 'Tu ficha';
+              footerZones.push([
+                '<div class="card-author-zone" role="group" aria-label="Gesti\u00F3n de tu ficha">',
+                '  <span class="card-zone-tag is-author-tag">' + getReiconSvg('User', '', 12) + ' <span>' + authorTagText + '</span></span>',
+                '  <button class="card-action-btn btn-edit-action btn-edit-my-data" type="button" data-friend-id="' + safeFriendId + '" aria-label="Editar mis datos de ' + safeFriendName + '">' + getReiconSvg('Edit', '', 15) + ' <span>Editar mis datos</span></button>',
+                '</div>'
+              ].join('\n'));
             }
-            actionsHtml = '<div class="card-admin-actions">' + actionButtons.join('\n') + '</div>';
+            actionsHtml = '<footer class="card-actions-footer" aria-label="Acciones de cuenta">\n' + footerZones.join('\n') + '\n</footer>';
           }
 
           return [
-            '<article class="' + cardClasses.join(' ') + '" data-friend-id="' + friend.id + '" aria-label="Alias bancarios de ' + friend.name + '">',
+            '<article class="' + cardClasses.join(' ') + '" data-friend-id="' + friend.id + '" data-status="' + (isPending ? 'pending' : 'confirmed') + '" aria-label="Alias bancarios de ' + friend.name + '">',
             '  <div class="card-header">',
             '    <div class="friend-profile">',
             '      <div class="friend-avatar" style="background: ' + friend.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
@@ -5397,6 +5680,57 @@ function getReiconSvg(name, extraClass, size) {
           });
         });
 
+        function disarmRejectConfirm(zone) {
+          if (!zone) return;
+          var armBtn = zone.querySelector('.btn-reject-arm');
+          var controls = zone.querySelector('.card-mod-controls');
+          var confirmBox = zone.querySelector('.card-reject-confirm');
+          zone.classList.remove('is-confirming');
+          if (confirmBox) confirmBox.hidden = true;
+          if (controls) controls.hidden = false;
+          if (armBtn) {
+            armBtn.setAttribute('aria-expanded', 'false');
+            armBtn.focus();
+          }
+          announceScreenReader('Descarte cancelado');
+        }
+
+        cardsContainer.querySelectorAll('.btn-reject-arm').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var zone = btn.closest('.card-mod-zone');
+            var controls = zone ? zone.querySelector('.card-mod-controls') : null;
+            var confirmBox = zone ? zone.querySelector('.card-reject-confirm') : null;
+            if (!zone || !controls || !confirmBox) return;
+
+            zone.classList.add('is-confirming');
+            controls.hidden = true;
+            confirmBox.hidden = false;
+            btn.setAttribute('aria-expanded', 'true');
+
+            var cancelBtn = confirmBox.querySelector('.btn-reject-cancel');
+            if (cancelBtn) cancelBtn.focus();
+            var promptEl = confirmBox.querySelector('.card-reject-prompt');
+            if (promptEl) announceScreenReader(promptEl.textContent);
+          });
+        });
+
+        cardsContainer.querySelectorAll('.btn-reject-cancel').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            disarmRejectConfirm(btn.closest('.card-mod-zone'));
+          });
+        });
+
+        cardsContainer.querySelectorAll('.card-reject-confirm').forEach(function(box) {
+          box.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+              e.stopPropagation();
+              disarmRejectConfirm(box.closest('.card-mod-zone'));
+            }
+          });
+        });
+
         cardsContainer.querySelectorAll('.btn-reject-friend').forEach(function(btn) {
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -5445,6 +5779,7 @@ function getReiconSvg(name, extraClass, size) {
         var friend = friendsData.find(function(f) { return f.id === friendId; });
         if (friend) {
           friend.estado = 'CONFIRMADO';
+          friend.datos_previos = null;
         }
         try {
           localStorage.setItem(getCacheKey(), JSON.stringify({ success: true, data: friendsData, grupo: grupoParam }));
@@ -5471,18 +5806,39 @@ function getReiconSvg(name, extraClass, size) {
             });
         }
         renderCards();
-        showToast('Alias de ' + (friend ? friend.name : 'contacto') + ' confirmado con éxito.');
+        var confirmMsg = 'Alias de ' + (friend ? friend.name : 'contacto') + ' confirmado con éxito.';
+        announceScreenReader(confirmMsg);
+        showToast(confirmMsg);
       }
 
       function rejectFriend(friendId) {
         var friend = friendsData.find(function(f) { return f.id === friendId; });
         var name = friend ? friend.name : 'contacto';
-        friendsData = friendsData.filter(function(f) { return f.id !== friendId; });
+        var prevSnapshot = (friend && friend.datos_previos && typeof friend.datos_previos === 'object')
+          ? friend.datos_previos
+          : null;
 
-        try {
-          localStorage.removeItem('aliasdb_edit_token_' + friendId);
-          localStorage.setItem(getCacheKey(), JSON.stringify({ success: true, data: friendsData, grupo: grupoParam }));
-        } catch (e) {}
+        if (prevSnapshot) {
+          var restoredList = normalizeFriendData([Object.assign({}, prevSnapshot, {
+            id: friend.id,
+            avatarColor: friend.avatarColor,
+            estado: 'CONFIRMADO',
+            datos_previos: null
+          })]);
+          if (restoredList.length > 0) {
+            var idx = friendsData.findIndex(function(f) { return f.id === friendId; });
+            if (idx >= 0) friendsData[idx] = restoredList[0];
+          }
+          try {
+            localStorage.setItem(getCacheKey(), JSON.stringify({ success: true, data: friendsData, grupo: grupoParam }));
+          } catch (e) {}
+        } else {
+          friendsData = friendsData.filter(function(f) { return f.id !== friendId; });
+          try {
+            localStorage.removeItem('aliasdb_edit_token_' + friendId);
+            localStorage.setItem(getCacheKey(), JSON.stringify({ success: true, data: friendsData, grupo: grupoParam }));
+          } catch (e) {}
+        }
 
         var token = getActiveAdminToken();
         if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.rejectFriend) {
@@ -5505,7 +5861,11 @@ function getReiconSvg(name, extraClass, size) {
             });
         }
         renderCards();
-        showToast('Solicitud de ' + name + ' descartada.');
+        var rejectMsg = prevSnapshot
+          ? 'Cambios de ' + name + ' descartados. Se restauraron los datos anteriores.'
+          : 'Solicitud de ' + name + ' descartada.';
+        announceScreenReader(rejectMsg);
+        showToast(rejectMsg);
       }
 
       function serializeAddAliasForm() {
@@ -6652,6 +7012,7 @@ function getReiconSvg(name, extraClass, size) {
             groups: groupsArray,
             avatarColor: friend.avatarColor || AVATAR_PALETTE[idx % AVATAR_PALETTE.length],
             estado: estado,
+            datos_previos: (friend.datos_previos && typeof friend.datos_previos === 'object') ? friend.datos_previos : null,
             accounts: accounts
           };
         });

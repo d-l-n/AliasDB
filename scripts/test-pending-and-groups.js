@@ -94,6 +94,15 @@ it("index.html incluye el modal para proponer alias (modal-add-alias)", () => {
 
 it("index.html implementa badge o visualización para estados pendientes (badge-pending o PENDIENTE)", () => {
   assert(indexHtml.includes("badge-pending") || indexHtml.includes("PENDIENTE"), "index.html debe tener indicador de estado pendiente");
+  assert(indexHtml.includes('data-status="'), "index.html debe marcar estado pendiente/confirmado en la tarjeta");
+});
+
+it("index.html rediseña el footer de acciones de cuenta (.card-actions-footer) con moderación, confirmación inline de descarte y autogestión", () => {
+  assert(indexHtml.includes("card-actions-footer"), "index.html debe contener footer .card-actions-footer");
+  assert(indexHtml.includes("card-mod-zone"), "index.html debe separar zona de moderación .card-mod-zone");
+  assert(indexHtml.includes("card-author-zone"), "index.html debe separar zona de autor .card-author-zone");
+  assert(indexHtml.includes("btn-reject-arm") && indexHtml.includes("card-reject-confirm"), "index.html debe incluir confirmación inline en 2 pasos para descartar");
+  assert(indexHtml.includes("datos_previos"), "index.html debe preservar datos_previos para distinguir ediciones pendientes");
 });
 
 it("index.html contiene controles de moderación para confirmar o rechazar (confirmFriend y rejectFriend)", () => {
