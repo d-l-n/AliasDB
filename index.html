@@ -2070,7 +2070,7 @@
         justify-content: center;
         gap: 7px;
         white-space: nowrap;
-        flex: 0 1 auto;
+        flex: 0 0 auto;
         min-width: 0;
         font-size: 0.78rem;
         transition: width 0.2s ease, min-width 0.2s ease, padding 0.2s ease, gap 0.2s ease, transform 0.08s ease, box-shadow 0.08s ease;
@@ -2116,14 +2116,30 @@
         transition: max-width 0.2s ease, opacity 0.14s ease 0.04s, margin 0.2s ease, visibility 0s linear 0s;
       }
 
-      .primary-actions-dock.is-scroll-collapsed {
+      .primary-actions-dock.is-measuring,
+      .primary-actions-dock.is-measuring #dock-btn-search,
+      .primary-actions-dock.is-measuring #btn-open-create-group,
+      .primary-actions-dock.is-measuring #btn-open-add-alias,
+      .primary-actions-dock.is-measuring .dock-btn-label {
+        transition: none !important;
+      }
+
+      .primary-actions-dock.is-measuring {
+        max-width: none !important;
+      }
+
+      .primary-actions-dock.is-scroll-collapsed,
+      .primary-actions-dock.is-compact-icons {
         gap: 6px;
         padding: 5px;
       }
 
       .primary-actions-dock.is-scroll-collapsed #dock-btn-search.visible,
       .primary-actions-dock.is-scroll-collapsed #btn-open-create-group,
-      .primary-actions-dock.is-scroll-collapsed #btn-open-add-alias {
+      .primary-actions-dock.is-scroll-collapsed #btn-open-add-alias,
+      .primary-actions-dock.is-compact-icons #dock-btn-search.visible,
+      .primary-actions-dock.is-compact-icons #btn-open-create-group,
+      .primary-actions-dock.is-compact-icons #btn-open-add-alias {
         width: var(--touch-min);
         min-width: var(--touch-min);
         flex: 0 0 var(--touch-min);
@@ -2132,7 +2148,8 @@
         overflow: hidden;
       }
 
-      .primary-actions-dock.is-scroll-collapsed .dock-btn-label {
+      .primary-actions-dock.is-scroll-collapsed .dock-btn-label,
+      .primary-actions-dock.is-compact-icons .dock-btn-label {
         max-width: 0;
         opacity: 0;
         margin: 0;
@@ -2233,18 +2250,18 @@
         padding: 5px;
       }
 
-      .primary-actions-dock:not(.is-scroll-collapsed) #dock-btn-search.visible,
-      .primary-actions-dock:not(.is-scroll-collapsed) #btn-open-create-group,
-      .primary-actions-dock:not(.is-scroll-collapsed) #btn-open-add-alias {
+      .primary-actions-dock:not(.is-scroll-collapsed):not(.is-compact-icons) #dock-btn-search.visible,
+      .primary-actions-dock:not(.is-scroll-collapsed):not(.is-compact-icons) #btn-open-create-group,
+      .primary-actions-dock:not(.is-scroll-collapsed):not(.is-compact-icons) #btn-open-add-alias {
         padding: 0 9px;
         gap: 5px;
         font-size: 0.6875rem;
         letter-spacing: 0.01em;
       }
 
-      .primary-actions-dock:not(.is-scroll-collapsed) #dock-btn-search > svg,
-      .primary-actions-dock:not(.is-scroll-collapsed) #btn-open-create-group > svg,
-      .primary-actions-dock:not(.is-scroll-collapsed) #btn-open-add-alias > svg {
+      .primary-actions-dock:not(.is-scroll-collapsed):not(.is-compact-icons) #dock-btn-search > svg,
+      .primary-actions-dock:not(.is-scroll-collapsed):not(.is-compact-icons) #btn-open-create-group > svg,
+      .primary-actions-dock:not(.is-scroll-collapsed):not(.is-compact-icons) #btn-open-add-alias > svg {
         width: 16px;
         height: 16px;
       }
@@ -5991,6 +6008,60 @@ function getReiconSvg(name, extraClass, size) {
               }
             }, 220);
           });
+        }
+
+        function updateDockCompactFit() {
+          if (!primaryActionsDock) return;
+          if (window.innerWidth >= 640) {
+            primaryActionsDock.classList.remove('is-compact-icons');
+            return;
+          }
+
+          var wasCollapsed = primaryActionsDock.classList.contains('is-scroll-collapsed');
+          var wasCompact = primaryActionsDock.classList.contains('is-compact-icons');
+          primaryActionsDock.classList.add('is-measuring');
+          primaryActionsDock.classList.remove('is-scroll-collapsed', 'is-compact-icons');
+
+          var availableWidth = Math.max(0, (window.innerWidth || document.documentElement.clientWidth || 0) - 16);
+          var naturalWidth = Math.ceil(primaryActionsDock.getBoundingClientRect().width);
+          var hasCutLabel = false;
+          primaryActionsDock.querySelectorAll('button').forEach(function(btn) {
+            if (getComputedStyle(btn).display === 'none') return;
+            var lbl = btn.querySelector('.dock-btn-label');
+            if (lbl && (lbl.scrollWidth > lbl.clientWidth + 1)) {
+              hasCutLabel = true;
+            }
+          });
+
+          var shouldCompact = naturalWidth > availableWidth || hasCutLabel;
+          primaryActionsDock.classList.toggle('is-scroll-collapsed', wasCollapsed);
+          primaryActionsDock.classList.toggle('is-compact-icons', shouldCompact);
+          if (wasCompact !== shouldCompact) {
+            void primaryActionsDock.offsetWidth;
+          }
+          primaryActionsDock.classList.remove('is-measuring');
+        }
+
+        if (primaryActionsDock) {
+          window.updateDockCompactFit = updateDockCompactFit;
+          window.addEventListener('resize', updateDockCompactFit, { passive: true });
+          if ('MutationObserver' in window) {
+            var dockObserver = new MutationObserver(function(mutations) {
+              var shouldCheck = mutations.some(function(m) {
+                return m.target !== primaryActionsDock || m.attributeName === 'style';
+              });
+              if (shouldCheck) updateDockCompactFit();
+            });
+            dockObserver.observe(primaryActionsDock, {
+              subtree: true,
+              attributes: true,
+              attributeFilter: ['class', 'style']
+            });
+          }
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(updateDockCompactFit);
+          }
+          updateDockCompactFit();
         }
       })();
 
