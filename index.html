@@ -64,7 +64,7 @@
       --accent-purple: #B57BFF;
       --accent-pink: #FF5EAC;
       --accent-orange: #FF6B00;
-      --accent-red: #FF3B30;
+      --accent-red: #C81E1E;
       --accent-lime: #CCFF00;
       --accent-blue: #2563EB;
 
@@ -84,7 +84,7 @@
       --bank-uala-bg: #D81B60;
       --bank-uala-text: #FFFFFF;
       --bank-naranja-bg: #FF5500;
-      --bank-naranja-text: #FFFFFF;
+      --bank-naranja-text: #170700;
       --bank-generic-bg: #E2E8F0;
       --bank-generic-text: #0F172A;
 
@@ -223,12 +223,32 @@
 
     /* Focus States Accesibles de Alto Contraste */
     :focus-visible {
-      outline: 3px solid var(--accent-yellow);
+      outline: 3px solid #1D4ED8;
       outline-offset: 3px;
     }
 
     [data-theme="dark"] :focus-visible {
       outline: 3px solid var(--accent-cyan);
+      outline-offset: 3px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) :focus-visible {
+        outline: 3px solid var(--accent-cyan);
+        outline-offset: 3px;
+      }
+    }
+
+    @media (forced-colors: active) {
+      :focus-visible {
+        outline: 3px solid Highlight;
+      }
+      .btn-brutalist,
+      .neo-dropdown-trigger,
+      .friend-card,
+      dialog {
+        border: 2px solid ButtonText;
+      }
     }
 
     /* ==========================================================================
@@ -693,7 +713,6 @@
     }
 
     .search-input:focus {
-      outline: none;
       background: var(--surface-elevated);
       transform: translate(-1px, -1px);
       box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0px var(--shadow);
@@ -1497,12 +1516,15 @@
     .btn-clear-recent {
       background: none;
       border: none;
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 700;
       color: var(--text-muted);
       cursor: pointer;
       text-decoration: underline;
-      padding: 2px 4px;
+      padding: 4px 8px;
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
     }
 
     .btn-clear-recent:hover {
@@ -1631,10 +1653,11 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       font-weight: 800;
       cursor: pointer;
-      padding: 2px 6px;
+      padding: 4px 8px;
+      min-height: 28px;
       text-decoration: underline;
       white-space: normal;
       max-width: 100%;
@@ -1806,10 +1829,13 @@
 
     dialog .toast-container {
       z-index: 999999;
+      top: max(12px, env(safe-area-inset-top, 12px));
+      bottom: auto;
     }
 
     .brutalist-toast {
-      pointer-events: auto;
+      pointer-events: none;
+      visibility: hidden;
       background: var(--accent-mint);
       color: #0D0D11;
       border: var(--border-thick) solid var(--border);
@@ -1822,11 +1848,14 @@
       gap: 12px;
       opacity: 0;
       transform: translateY(24px) scale(0.95);
-      transition: opacity 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                  transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1), 
+                  transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0.2s;
     }
 
     .brutalist-toast.show {
+      pointer-events: auto;
+      visibility: visible;
       opacity: 1;
       transform: translateY(0) scale(1);
     }
@@ -2115,7 +2144,6 @@
       border: var(--border-width) solid var(--border);
       border-radius: var(--radius-md);
       box-shadow: 2px 2px 0px var(--shadow);
-      outline: none;
       transition: var(--transition-tap);
       box-sizing: border-box;
     }
@@ -2309,7 +2337,8 @@
       /* Dentro de un modal no hay dock visible: el toast vuelve a su altura base */
       dialog .toast-container,
       body.is-group-view dialog .toast-container {
-        bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--keyboard-inset-height, 0px));
+        top: max(12px, env(safe-area-inset-top, 12px));
+        bottom: auto;
       }
     }
 
@@ -2338,7 +2367,7 @@
       color: #0D0D11;
       border: 2px solid var(--border);
       font-weight: 800;
-      font-size: 11px;
+      font-size: 0.75rem;
       padding: 4px 8px;
       border-radius: var(--radius-sm);
       display: inline-flex;
@@ -2758,6 +2787,8 @@
 
     .neo-dropdown-menu {
       position: fixed;
+      inset: auto;
+      margin: 0;
       z-index: 100000;
       background: var(--surface);
       color: var(--text);
@@ -2778,6 +2809,10 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
       padding: 9px 10px;
       border-radius: var(--radius-sm);
       font-family: var(--font-display);
@@ -2803,6 +2838,19 @@
     [data-theme="dark"] .neo-dropdown-option:hover {
       background: var(--accent-cyan);
       color: #0D0D11;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .neo-dropdown-option[data-focused="true"],
+      :root:not([data-theme="light"]) .neo-dropdown-option:hover,
+      :root:not([data-theme="light"]) .neo-dropdown-option[aria-selected="true"][data-focused="true"],
+      :root:not([data-theme="light"]) .neo-dropdown-option[aria-selected="true"]:hover {
+        background: var(--accent-cyan);
+        color: #0D0D11;
+      }
+      :root:not([data-theme="light"]) .cbu-live-hint.is-valid {
+        color: var(--accent-mint);
+      }
     }
 
     .neo-dropdown-option[aria-selected="true"] {
@@ -2840,7 +2888,7 @@
       background: var(--surface-muted);
       color: var(--text-muted);
       font-family: var(--font-mono);
-      font-size: 0.74rem;
+      font-size: 0.75rem;
       font-weight: 700;
       line-height: 1.35;
     }
@@ -2863,7 +2911,7 @@
     .cbu-live-hint {
       margin-top: 5px;
       font-family: var(--font-mono);
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 700;
       line-height: 1.35;
       color: var(--text-muted);
@@ -2871,7 +2919,7 @@
     }
 
     .cbu-live-hint.is-valid {
-      color: #15803D;
+      color: #14532D;
     }
 
     [data-theme="dark"] .cbu-live-hint.is-valid {
@@ -3397,14 +3445,14 @@
       </div>
 
       <!-- Cards Grid Container -->
-    <main id="cards-container" class="cards-grid" aria-label="Listado de alias bancarios de personas" aria-live="polite">
+    <main id="cards-container" class="cards-grid" aria-label="Listado de alias bancarios de personas">
       <!-- Din&aacute;micamente renderizado por JavaScript -->
     </main>
 
   </div>
 
   <!-- Modal 1: Crear Nuevo Grupo / Mis Grupos -->
-  <dialog id="modal-create-group" aria-labelledby="modal-create-group-title" aria-modal="true">
+  <dialog id="modal-create-group" aria-labelledby="modal-create-group-title">
     <div class="dialog-header">
       <h2 id="modal-create-group-title" class="dialog-title">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-users" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 1.25C6.37665 1.25 4.25 3.37665 4.25 6C4.25 8.62335 6.37665 10.75 9 10.75C11.6234 10.75 13.75 8.62335 13.75 6C13.75 3.37665 11.6234 1.25 9 1.25ZM5.75 6C5.75 4.20507 7.20507 2.75 9 2.75C10.7949 2.75 12.25 4.20507 12.25 6C12.25 7.79493 10.7949 9.25 9 9.25C7.20507 9.25 5.75 7.79493 5.75 6Z" fill="currentColor"/><path d="M15 2.25C14.5858 2.25 14.25 2.58579 14.25 3C14.25 3.41421 14.5858 3.75 15 3.75C16.2426 3.75 17.25 4.75736 17.25 6C17.25 7.24264 16.2426 8.25 15 8.25C14.5858 8.25 14.25 8.58579 14.25 9C14.25 9.41421 14.5858 9.75 15 9.75C17.0711 9.75 18.75 8.07107 18.75 6C18.75 3.92893 17.0711 2.25 15 2.25Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.67815 13.5204C5.07752 12.7208 6.96067 12.25 9 12.25C11.0393 12.25 12.9225 12.7208 14.3219 13.5204C15.7 14.3079 16.75 15.5101 16.75 17C16.75 18.4899 15.7 19.6921 14.3219 20.4796C12.9225 21.2792 11.0393 21.75 9 21.75C6.96067 21.75 5.07752 21.2792 3.67815 20.4796C2.3 19.6921 1.25 18.4899 1.25 17C1.25 15.5101 2.3 14.3079 3.67815 13.5204ZM4.42236 14.8228C3.26701 15.483 2.75 16.2807 2.75 17C2.75 17.7193 3.26701 18.517 4.42236 19.1772C5.55649 19.8253 7.17334 20.25 9 20.25C10.8267 20.25 12.4435 19.8253 13.5776 19.1772C14.733 18.517 15.25 17.7193 15.25 17C15.25 16.2807 14.733 15.483 13.5776 14.8228C12.4435 14.1747 10.8267 13.75 9 13.75C7.17334 13.75 5.55649 14.1747 4.42236 14.8228Z" fill="currentColor"/><path d="M18.1607 13.2674C17.7561 13.1787 17.3561 13.4347 17.2674 13.8393C17.1787 14.2439 17.4347 14.6439 17.8393 14.7326C18.6317 14.9064 19.2649 15.2048 19.6829 15.5468C20.1014 15.8892 20.25 16.2237 20.25 16.5C20.25 16.7507 20.1294 17.045 19.7969 17.3539C19.462 17.665 18.9475 17.9524 18.2838 18.1523C17.8871 18.2717 17.6624 18.69 17.7818 19.0867C17.9013 19.4833 18.3196 19.708 18.7162 19.5886C19.5388 19.3409 20.2743 18.9578 20.8178 18.4529C21.3637 17.9457 21.75 17.2786 21.75 16.5C21.75 15.6352 21.2758 14.912 20.6328 14.3859C19.9893 13.8593 19.1225 13.4783 18.1607 13.2674Z" fill="currentColor"/></svg>
@@ -3476,7 +3524,7 @@
             <div class="form-group" style="margin-bottom: 0;">
               <label for="share-group-url" class="form-label">Enlace para Compartir (WhatsApp)</label>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <input type="text" id="share-group-url" class="form-control font-mono" readonly style="font-size: 11px; flex: 1 1 150px; min-width: 0;">
+                <input type="text" id="share-group-url" class="form-control font-mono" readonly style="font-size: 0.75rem; flex: 1 1 150px; min-width: 0;">
                 <button type="button" class="btn-brutalist btn-cyan" id="btn-copy-share-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
               </div>
               <p class="form-hint">Compart&iacute; este enlace en WhatsApp para que tus amigos consulten y sumen sus alias.</p>
@@ -3488,10 +3536,10 @@
             <div class="form-group" style="margin-bottom: 0;">
               <label for="admin-group-url" class="form-label">Enlace de Administraci&oacute;n</label>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <input type="text" id="admin-group-url" class="form-control font-mono" readonly style="font-size: 11px; flex: 1 1 150px; min-width: 0;">
+                <input type="text" id="admin-group-url" class="form-control font-mono" readonly style="font-size: 0.75rem; flex: 1 1 150px; min-width: 0;">
                 <button type="button" class="btn-brutalist btn-primary" id="btn-copy-admin-url" style="padding: 0 14px; flex-shrink: 0;">Copiar</button>
               </div>
-              <div style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-top: 8px; min-width: 0;">
+              <div style="background: var(--accent-yellow); color: #0D0D11; border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 6px; margin-top: 8px; min-width: 0;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" class="reicon" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
                 <span style="min-width: 0; overflow-wrap: break-word;">Guard&aacute; este enlace para aprobar cambios y moderar el grupo</span>
               </div>
@@ -3521,7 +3569,7 @@
   </dialog>
 
   <!-- Modal 2: Sumar o Editar Alias -->
-  <dialog id="modal-add-alias" aria-labelledby="modal-add-alias-title" aria-modal="true">
+  <dialog id="modal-add-alias" aria-labelledby="modal-add-alias-title">
     <div class="dialog-header">
       <h2 id="modal-add-alias-title" class="dialog-title">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-wallet" aria-hidden="true"><path d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.94358 3.25H13.0564C14.8942 3.24998 16.3498 3.24997 17.489 3.40314C18.6614 3.56076 19.6104 3.89288 20.3588 4.64124C21.2831 5.56563 21.5777 6.80363 21.6847 8.41008C22.2619 8.6641 22.6978 9.2013 22.7458 9.88179C22.7501 9.94199 22.75 10.0069 22.75 10.067C22.75 10.0725 22.75 10.0779 22.75 10.0833V13.9167C22.75 13.9221 22.75 13.9275 22.75 13.933C22.75 13.9931 22.7501 14.058 22.7458 14.1182C22.6978 14.7987 22.2619 15.3359 21.6847 15.5899C21.5777 17.1964 21.2831 18.4344 20.3588 19.3588C19.6104 20.1071 18.6614 20.4392 17.489 20.5969C16.3498 20.75 14.8942 20.75 13.0564 20.75H9.94359C8.10583 20.75 6.65019 20.75 5.51098 20.5969C4.33856 20.4392 3.38961 20.1071 2.64124 19.3588C1.89288 18.6104 1.56076 17.6614 1.40314 16.489C1.24997 15.3498 1.24998 13.8942 1.25 12.0564V11.9436C1.24998 10.1058 1.24997 8.65019 1.40314 7.51098C1.56076 6.33856 1.89288 5.38961 2.64124 4.64124C3.38961 3.89288 4.33856 3.56076 5.51098 3.40314C6.65019 3.24997 8.10582 3.24998 9.94358 3.25ZM20.1679 15.75H18.2308C16.0856 15.75 14.25 14.1224 14.25 12C14.25 9.87756 16.0856 8.25 18.2308 8.25H20.1679C20.0541 6.90855 19.7966 6.20043 19.2981 5.7019C18.8749 5.27869 18.2952 5.02502 17.2892 4.88976C16.2615 4.75159 14.9068 4.75 13 4.75H10C8.09318 4.75 6.73851 4.75159 5.71085 4.88976C4.70476 5.02502 4.12511 5.27869 3.7019 5.7019C3.27869 6.12511 3.02502 6.70476 2.88976 7.71085C2.75159 8.73851 2.75 10.0932 2.75 12C2.75 13.9068 2.75159 15.2615 2.88976 16.2892C3.02502 17.2952 3.27869 17.8749 3.7019 18.2981C4.12511 18.7213 4.70476 18.975 5.71085 19.1102C6.73851 19.2484 8.09318 19.25 10 19.25H13C14.9068 19.25 16.2615 19.2484 17.2892 19.1102C18.2952 18.975 18.8749 18.7213 19.2981 18.2981C19.7966 17.7996 20.0541 17.0915 20.1679 15.75ZM5.25 8C5.25 7.58579 5.58579 7.25 6 7.25H10C10.4142 7.25 10.75 7.58579 10.75 8C10.75 8.41421 10.4142 8.75 10 8.75H6C5.58579 8.75 5.25 8.41421 5.25 8ZM20.9235 9.75023C20.9032 9.75001 20.8766 9.75 20.8333 9.75H18.2308C16.8074 9.75 15.75 10.8087 15.75 12C15.75 13.1913 16.8074 14.25 18.2308 14.25H20.8333C20.8766 14.25 20.9032 14.25 20.9235 14.2498C20.936 14.2496 20.9426 14.2495 20.9457 14.2493L20.9479 14.2492C21.1541 14.2367 21.2427 14.0976 21.2495 14.0139C21.2495 14.0139 21.2497 14.0076 21.2498 13.9986C21.25 13.9808 21.25 13.9572 21.25 13.9167V10.0833C21.25 10.0428 21.25 10.0192 21.2498 10.0014C21.2497 9.99238 21.2495 9.98609 21.2495 9.98609C21.2427 9.90242 21.1541 9.7633 20.9479 9.75076C20.9479 9.75076 20.943 9.75043 20.9235 9.75023Z" fill="currentColor"/></svg>
@@ -3552,6 +3600,7 @@
                 placeholder="Ej: Martín Gómez" 
                 required 
                 autocomplete="name"
+                aria-describedby="alias-person-validation-hint"
               >
               <div id="alias-person-validation-hint" class="alias-person-validation is-missing" aria-live="polite">
                 Ingres&aacute; tu nombre para habilitar la pesta&ntilde;a Cuentas.
@@ -3588,7 +3637,7 @@
   </dialog>
 
   <!-- Modal 3: Decisión y Confirmación de Alias / Nombre Repetido / Banco Duplicado -->
-  <dialog id="modal-alias-decision" aria-labelledby="modal-alias-decision-title" aria-modal="true" style="max-width: 440px;">
+  <dialog id="modal-alias-decision" aria-labelledby="modal-alias-decision-title" style="max-width: 440px;">
     <div class="dialog-header">
       <h2 id="modal-alias-decision-title" class="dialog-title" style="display: inline-flex; align-items: center; gap: 8px;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-alert" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -3606,7 +3655,7 @@
   </dialog>
 
   <!-- Modal 4: Confirmar Descarte de Cambios -->
-  <dialog id="modal-discard-confirm" aria-labelledby="modal-discard-title" aria-modal="true" style="max-width: 420px;">
+  <dialog id="modal-discard-confirm" aria-labelledby="modal-discard-title" style="max-width: 420px;">
     <div class="dialog-header">
       <h2 id="modal-discard-title" class="dialog-title">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-alerttriangle" aria-hidden="true"><path d="M12 7.25C12.4142 7.25 12.75 7.58579 12.75 8V13C12.75 13.4142 12.4142 13.75 12 13.75C11.5858 13.75 11.25 13.4142 11.25 13V8C11.25 7.58579 11.5858 7.25 12 7.25Z" fill="currentColor"/><path d="M12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M8.2944 4.47643C9.36631 3.11493 10.5018 2.25 12 2.25C13.4981 2.25 14.6336 3.11493 15.7056 4.47643C16.7598 5.81544 17.8769 7.79622 19.3063 10.3305L19.7418 11.1027C20.9234 13.1976 21.8566 14.8523 22.3468 16.1804C22.8478 17.5376 22.9668 18.7699 22.209 19.8569C21.4736 20.9118 20.2466 21.3434 18.6991 21.5471C17.1576 21.75 15.0845 21.75 12.4248 21.75H11.5752C8.91552 21.75 6.84239 21.75 5.30082 21.5471C3.75331 21.3434 2.52637 20.9118 1.79099 19.8569C1.03318 18.7699 1.15218 17.5376 1.65314 16.1804C2.14334 14.8523 3.07658 13.1977 4.25818 11.1027L4.69361 10.3307C6.123 7.79629 7.24019 5.81547 8.2944 4.47643ZM9.47297 5.40432C8.49896 6.64148 7.43704 8.51988 5.96495 11.1299L5.60129 11.7747C4.37507 13.9488 3.50368 15.4986 3.06034 16.6998C2.6227 17.8855 2.68338 18.5141 3.02148 18.9991C3.38202 19.5163 4.05873 19.8706 5.49659 20.0599C6.92858 20.2484 8.9026 20.25 11.6363 20.25H12.3636C15.0974 20.25 17.0714 20.2484 18.5034 20.0599C19.9412 19.8706 20.6179 19.5163 20.9785 18.9991C21.3166 18.5141 21.3773 17.8855 20.9396 16.6998C20.4963 15.4986 19.6249 13.9488 18.3987 11.7747L18.035 11.1299C16.5629 8.51987 15.501 6.64148 14.527 5.40431C13.562 4.17865 12.8126 3.75 12 3.75C11.1874 3.75 10.4379 4.17865 9.47297 5.40432Z" fill="currentColor"/></svg>
@@ -3632,7 +3681,7 @@
 
   <!-- Toast Notification (Accessible Bottom Bar) -->
   <div class="toast-container" aria-hidden="true">
-    <div id="brutalist-toast" class="brutalist-toast" role="status">
+    <div id="brutalist-toast" class="brutalist-toast">
       <div class="toast-content">
         <div class="toast-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="18" height="18" class="reicon reicon-check" aria-hidden="true"><path d="M21.5303 5.46967C21.8232 5.76256 21.8232 6.23744 21.5303 6.53033L9.53033 18.5303C9.23744 18.8232 8.76256 18.8232 8.46967 18.5303L2.46967 12.5303C2.17678 12.2374 2.17678 11.7626 2.46967 11.4697C2.76256 11.1768 3.23744 11.1768 3.53033 11.4697L9 16.9393L20.4697 5.46967C20.7626 5.17678 21.2374 5.17678 21.5303 5.46967Z" fill="currentColor"/></svg></div>
         <span id="toast-message">Alias copiado al portapapeles</span>
@@ -3977,6 +4026,23 @@ function getReiconSvg(name, extraClass, size) {
         trigger.setAttribute('aria-haspopup', 'listbox');
         trigger.setAttribute('aria-expanded', 'false');
         trigger.setAttribute('aria-controls', listId);
+        var explicitLabel = selectEl.getAttribute('aria-label');
+        var explicitLabelledBy = selectEl.getAttribute('aria-labelledby');
+        if (explicitLabelledBy) {
+          trigger.setAttribute('aria-labelledby', explicitLabelledBy);
+        } else if (explicitLabel) {
+          trigger.setAttribute('aria-label', explicitLabel);
+        } else {
+          var assocLabel = selectEl.id ? document.querySelector('label[for="' + selectEl.id + '"]') : null;
+          if (!assocLabel) {
+            var grp = selectEl.closest('.form-group');
+            if (grp) assocLabel = grp.querySelector('label.form-label');
+          }
+          if (assocLabel) {
+            if (!assocLabel.id) assocLabel.id = idPrefix + '-label';
+            trigger.setAttribute('aria-labelledby', assocLabel.id);
+          }
+        }
         trigger.innerHTML = '<span class="neo-dropdown-value"></span>' + getReiconSvg('ChevronDown', 'neo-dropdown-arrow', 16);
         wrapper.appendChild(trigger);
 
@@ -3984,6 +4050,9 @@ function getReiconSvg(name, extraClass, size) {
         menu.id = listId;
         menu.className = 'neo-dropdown-menu';
         menu.setAttribute('role', 'listbox');
+        if ('popover' in menu) {
+          menu.setAttribute('popover', 'manual');
+        }
         menu.hidden = true;
 
         var isOpen = false;
@@ -4025,10 +4094,12 @@ function getReiconSvg(name, extraClass, size) {
         function renderOptions() {
           menu.innerHTML = '';
           Array.prototype.forEach.call(selectEl.options, function(opt, idx) {
-            var optEl = document.createElement('div');
+            var optEl = document.createElement('button');
+            optEl.type = 'button';
             optEl.id = idPrefix + '-opt-' + idx;
             optEl.className = 'neo-dropdown-option' + (opt.value === '' ? ' is-placeholder' : '');
             optEl.setAttribute('role', 'option');
+            optEl.setAttribute('tabindex', '-1');
             optEl.setAttribute('data-value', opt.value);
             var isSel = opt.value === selectEl.value;
             optEl.setAttribute('aria-selected', isSel ? 'true' : 'false');
@@ -4052,20 +4123,32 @@ function getReiconSvg(name, extraClass, size) {
           var rect = trigger.getBoundingClientRect();
           var vw = window.innerWidth;
           var vh = window.innerHeight;
+          var inTopLayer = false;
+          try { inTopLayer = menu.matches(':popover-open'); } catch (e) {}
+          var boundTop = 8;
+          var boundBottom = vh - 8;
+          if (!inTopLayer) {
+            var hostDlg = trigger.closest('dialog[open]');
+            if (hostDlg) {
+              var dlgRect = hostDlg.getBoundingClientRect();
+              boundTop = Math.max(8, dlgRect.top + 8);
+              boundBottom = Math.min(vh - 8, dlgRect.bottom - 8);
+            }
+          }
           var width = Math.max(rect.width, 160);
           var left = Math.min(Math.max(8, rect.left), Math.max(8, vw - width - 8));
-          var spaceBelow = vh - rect.bottom - 8;
-          var spaceAbove = rect.top - 8;
+          var spaceBelow = Math.max(0, boundBottom - rect.bottom - 4);
+          var spaceAbove = Math.max(0, rect.top - boundTop - 4);
           var desiredHeight = Math.min(menu.scrollHeight || 240, 260);
-          var placeAbove = spaceBelow < Math.min(desiredHeight, 180) && spaceAbove > spaceBelow;
-          var maxH = Math.max(120, Math.min(260, placeAbove ? spaceAbove : spaceBelow));
+          var placeAbove = spaceBelow < Math.min(desiredHeight, 160) && spaceAbove > spaceBelow;
+          var maxH = Math.max(96, Math.min(260, placeAbove ? spaceAbove : spaceBelow));
 
           menu.style.left = left + 'px';
           menu.style.width = Math.min(width, vw - 16) + 'px';
           menu.style.maxHeight = maxH + 'px';
 
           if (placeAbove) {
-            var topPos = Math.max(8, rect.top - Math.min(menu.scrollHeight || maxH, maxH) - 4);
+            var topPos = Math.max(boundTop, rect.top - Math.min(menu.scrollHeight || maxH, maxH) - 4);
             menu.style.top = topPos + 'px';
             menu.style.bottom = 'auto';
           } else {
@@ -4112,6 +4195,9 @@ function getReiconSvg(name, extraClass, size) {
           renderOptions();
           getPortalTarget().appendChild(menu);
           menu.hidden = false;
+          if (typeof menu.showPopover === 'function') {
+            try { menu.showPopover(); } catch (e) {}
+          }
           isOpen = true;
           trigger.setAttribute('aria-expanded', 'true');
           var selIdx = Math.max(0, selectEl.selectedIndex);
@@ -4126,6 +4212,9 @@ function getReiconSvg(name, extraClass, size) {
         function closeMenu(returnFocus) {
           if (!isOpen) return;
           isOpen = false;
+          if (typeof menu.hidePopover === 'function') {
+            try { menu.hidePopover(); } catch (e) {}
+          }
           menu.hidden = true;
           trigger.setAttribute('aria-expanded', 'false');
           trigger.removeAttribute('aria-activedescendant');
@@ -4202,6 +4291,12 @@ function getReiconSvg(name, extraClass, size) {
         if (btnAliasNextAccounts) {
           btnAliasNextAccounts.disabled = !hasName;
         }
+        if (tabAliasAccounts) {
+          tabAliasAccounts.setAttribute('aria-disabled', (!hasName).toString());
+        }
+        if (aliasPersonName && hasName) {
+          aliasPersonName.setAttribute('aria-invalid', 'false');
+        }
         if (aliasPersonValidationHint) {
           var count = aliasAccountsContainer ? aliasAccountsContainer.querySelectorAll('.alias-account-card').length : 1;
           var adminSuffix = isCurrentAdmin() ? ' Como administrador se publicará directo.' : '';
@@ -4221,6 +4316,7 @@ function getReiconSvg(name, extraClass, size) {
         var isAccounts = (tabKey === 'accounts');
         if (isAccounts && !isAliasPersonNameValid()) {
           updateAliasPersonValidation();
+          if (aliasPersonName) aliasPersonName.setAttribute('aria-invalid', 'true');
           showToast('Ingresá tu nombre antes de pasar a Cuentas.');
           if (aliasPersonName) aliasPersonName.focus();
           return;
@@ -4295,16 +4391,24 @@ function getReiconSvg(name, extraClass, size) {
         card.setAttribute('data-acc-id', accId);
         card.style.cssText = 'background: var(--surface-muted); border: 2px solid var(--border); border-radius: var(--radius-md); padding: 14px; box-shadow: 2px 2px 0 var(--shadow); position: relative;';
 
+        var bankSelectId = accId + '-bank';
+        var customBankId = accId + '-bank-custom';
+        var typeSelectId = accId + '-type';
+        var aliasInputId = accId + '-alias';
+        var cbuInputId = accId + '-cbu';
+        var cbuHintId = accId + '-cbu-hint';
+        var titularInputId = accId + '-titular';
+
         card.innerHTML = [
           '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px dashed var(--border); padding-bottom: 6px;">',
           '  <span class="alias-account-index font-mono" style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">Cuenta</span>',
-          '  <button type="button" class="btn-remove-alias-account dialog-close-btn" style="width: 26px; height: 26px; min-width: 26px; min-height: 26px; max-width: 26px; max-height: 26px; flex: 0 0 26px; padding: 0; margin: 0;" title="Eliminar esta cuenta" aria-label="Eliminar cuenta">' + getReiconSvg('X', '', 13) + '</button>',
+          '  <button type="button" class="btn-remove-alias-account dialog-close-btn" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; max-width: 32px; max-height: 32px; flex: 0 0 32px; padding: 0; margin: 0;" title="Eliminar esta cuenta" aria-label="Eliminar cuenta">' + getReiconSvg('X', '', 14) + '</button>',
           '</div>',
           '<div class="account-card-section">',
           '  <div class="account-card-section-label">1. Entidad y Tipo</div>',
           '  <div class="form-group" style="margin-bottom: 10px;">',
-          '    <label class="form-label" style="font-size: 0.8rem;">Banco / Billetera *</label>',
-          '    <select class="form-control bank-select-styled alias-bank-select" required>',
+          '    <label for="' + bankSelectId + '" class="form-label" style="font-size: 0.8rem;">Banco / Billetera *</label>',
+          '    <select id="' + bankSelectId + '" class="form-control bank-select-styled alias-bank-select" required>',
           '      <option value=""' + (!selValue ? ' selected' : '') + '>Seleccioná tu banco o billetera...</option>',
           '      <option value="Mercado Pago"' + (selValue === 'Mercado Pago' ? ' selected' : '') + '>Mercado Pago</option>',
           '      <option value="Banco Galicia"' + (selValue === 'Banco Galicia' ? ' selected' : '') + '>Banco Galicia</option>',
@@ -4323,11 +4427,12 @@ function getReiconSvg(name, extraClass, size) {
           '      <option value="Belo"' + (selValue === 'Belo' ? ' selected' : '') + '>Belo</option>',
           '      <option value="OTRO"' + (selValue === 'OTRO' ? ' selected' : '') + '>Otro banco / billetera...</option>',
           '    </select>',
-          '    <input type="text" class="form-control alias-bank-custom" placeholder="Escribí el nombre de la entidad..." value="' + (isCustom ? escapeHtml(bankName) : '') + '" style="display: ' + (isCustom ? 'block' : 'none') + '; margin-top: 8px;">',
+          '    <label for="' + customBankId + '" class="sr-only">Nombre personalizado del banco o billetera</label>',
+          '    <input id="' + customBankId + '" type="text" class="form-control alias-bank-custom" placeholder="Escribí el nombre de la entidad..." value="' + (isCustom ? escapeHtml(bankName) : '') + '" style="display: ' + (isCustom ? 'block' : 'none') + '; margin-top: 8px;">',
           '  </div>',
           '  <div class="form-group" style="margin-bottom: 0;">',
-          '    <label class="form-label" style="font-size: 0.8rem;">Tipo de cuenta *</label>',
-          '    <select class="form-control bank-select-styled alias-account-type" required>',
+          '    <label for="' + typeSelectId + '" class="form-label" style="font-size: 0.8rem;">Tipo de cuenta *</label>',
+          '    <select id="' + typeSelectId + '" class="form-control bank-select-styled alias-account-type" required>',
           '      <option value="CVU"' + (type === 'CVU' ? ' selected' : '') + '>CVU</option>',
           '      <option value="Caja de Ahorro"' + (type === 'Caja de Ahorro' ? ' selected' : '') + '>Caja de Ahorro</option>',
           '      <option value="Cuenta Corriente"' + (type === 'Cuenta Corriente' ? ' selected' : '') + '>Cuenta Corriente</option>',
@@ -4337,20 +4442,20 @@ function getReiconSvg(name, extraClass, size) {
           '<div class="account-card-section">',
           '  <div class="account-card-section-label">2. Datos de Transferencia</div>',
           '  <div class="form-group" style="margin-bottom: 10px;">',
-          '    <label class="form-label" style="font-size: 0.8rem;">Alias (validado, requerido) *</label>',
-          '    <input type="text" class="form-control font-mono alias-input-value" value="' + escapeHtml(alias) + '" placeholder="Ej: mi.alias.personal" required autocomplete="off" spellcheck="false">',
+          '    <label for="' + aliasInputId + '" class="form-label" style="font-size: 0.8rem;">Alias (validado, requerido) *</label>',
+          '    <input id="' + aliasInputId + '" type="text" class="form-control font-mono alias-input-value" value="' + escapeHtml(alias) + '" placeholder="Ej: mi.alias.personal" required autocomplete="off" spellcheck="false">',
           '  </div>',
           '  <div class="form-group" style="margin-bottom: 0;">',
-          '    <label class="form-label" style="font-size: 0.8rem;">CBU / CVU (opcional, 22 dígitos)</label>',
-          '    <input type="text" class="form-control font-mono alias-cbu-value" value="' + escapeHtml(cbu) + '" placeholder="22 dígitos numéricos" maxlength="22" inputmode="numeric" autocomplete="off">',
-          '    <div class="cbu-live-hint" aria-live="polite"></div>',
+          '    <label for="' + cbuInputId + '" class="form-label" style="font-size: 0.8rem;">CBU / CVU (opcional, 22 dígitos)</label>',
+          '    <input id="' + cbuInputId + '" type="text" class="form-control font-mono alias-cbu-value" value="' + escapeHtml(cbu) + '" placeholder="22 dígitos numéricos" maxlength="22" inputmode="numeric" autocomplete="off" aria-describedby="' + cbuHintId + '">',
+          '    <div id="' + cbuHintId + '" class="cbu-live-hint" aria-live="polite"></div>',
           '  </div>',
           '</div>',
           '<details class="account-optional-group"' + (hasTitular ? ' open' : '') + '>',
-          '  <summary><span>3. Titular diferente</span><span class="font-mono" style="font-size: 0.68rem; color: var(--text-muted);">Opcional</span></summary>',
+          '  <summary><span>3. Titular diferente</span><span class="font-mono" style="font-size: 0.75rem; color: var(--text-muted);">Opcional</span></summary>',
           '  <div class="form-group" style="margin-bottom: 0;">',
-          '    <label class="form-label" style="font-size: 0.8rem;">Titular de la cuenta</label>',
-          '    <input type="text" class="form-control alias-titular-value" value="' + escapeHtml(titular) + '" placeholder="Dejar vacío si está a tu nombre" autocomplete="off">',
+          '    <label for="' + titularInputId + '" class="form-label" style="font-size: 0.8rem;">Titular de la cuenta</label>',
+          '    <input id="' + titularInputId + '" type="text" class="form-control alias-titular-value" value="' + escapeHtml(titular) + '" placeholder="Dejar vacío si está a tu nombre" autocomplete="off">',
           '  </div>',
           '</details>'
         ].join('\n');
@@ -4790,6 +4895,24 @@ function getReiconSvg(name, extraClass, size) {
 
       themeToggleBtn.addEventListener('click', toggleTheme);
 
+      if (window.matchMedia) {
+        var systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        var handleSystemThemeChange = function(e) {
+          var stored = null;
+          try { stored = localStorage.getItem('theme-preference'); } catch (err) {}
+          if (stored === 'light' || stored === 'dark') return;
+          var nextTheme = e.matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', nextTheme);
+          if (metaColorScheme) metaColorScheme.content = nextTheme;
+          if (metaThemeColor) metaThemeColor.content = nextTheme === 'dark' ? '#121214' : '#F7F5F0';
+        };
+        if (typeof systemThemeQuery.addEventListener === 'function') {
+          systemThemeQuery.addEventListener('change', handleSystemThemeChange);
+        } else if (typeof systemThemeQuery.addListener === 'function') {
+          systemThemeQuery.addListener(handleSystemThemeChange);
+        }
+      }
+
       var btnClearRecentCopies = document.getElementById('btn-clear-recent-copies');
       if (btnClearRecentCopies) {
         btnClearRecentCopies.addEventListener('click', function() {
@@ -5048,7 +5171,7 @@ function getReiconSvg(name, extraClass, size) {
               var cbuDetailsHtml = hasCbu ? [
                 '  <div class="cbu-details-row">',
                 '    <span class="cbu-number font-mono" style="display: flex; align-items: center; gap: 4px;">' + getReiconSvg('CreditCard', '', 13) + '<span style="min-width: 0; overflow-wrap: anywhere;">' + cbuTypeLabel + ': ' + cleanCbu + '</span></span>',
-                '    <button class="cbu-copy-mini-btn" type="button" data-cbu="' + cleanCbu + '" data-label="' + cbuTypeLabel + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar ' + cbuTypeLabel + ' ' + cleanCbu + '" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar ' + cbuTypeLabel + '</button>',
+                '    <button class="cbu-copy-mini-btn" type="button" data-cbu="' + cleanCbu + '" data-label="' + cbuTypeLabel + '" data-pending="' + isPending + '" data-friend-name="' + escapeHtml(friend.name) + '" aria-label="Copiar ' + cbuTypeLabel + ' ' + cleanCbu + '" style="display: inline-flex; align-items: center; gap: 4px;">' + getReiconSvg('Copy', '', 11) + ' Copiar ' + cbuTypeLabel + '</button>',
                 '  </div>'
               ].join('\n') : '';
 
@@ -5075,7 +5198,7 @@ function getReiconSvg(name, extraClass, size) {
           var bankPreviewHtml = '';
           if (hasMultiple) {
             var badges = friend.accounts.map(function(acc) {
-              return '<span class="bank-badge ' + acc.badgeClass + '" style="font-size: 10px; padding: 2px 7px;">' + escapeHtml(acc.bankName) + '</span>';
+              return '<span class="bank-badge ' + acc.badgeClass + '" style="font-size: 0.75rem; padding: 2px 7px;">' + escapeHtml(acc.bankName) + '</span>';
             }).join('');
             bankPreviewHtml = '<div class="collapsed-bank-preview">' + badges + '</div>';
           }
@@ -5111,7 +5234,7 @@ function getReiconSvg(name, extraClass, size) {
 
           return [
             '<article class="' + cardClasses.join(' ') + '" data-friend-id="' + friend.id + '" aria-label="Alias bancarios de ' + friend.name + '">',
-            '  <div class="card-header" ' + (hasMultiple ? 'role="button" tabindex="0" aria-expanded="' + isExpanded + '" aria-label="Alternar cuentas de ' + friend.name + '"' : '') + '>',
+            '  <div class="card-header">',
             '    <div class="friend-profile">',
             '      <div class="friend-avatar" style="background: ' + friend.avatarColor + ';" aria-hidden="true">' + initials + '</div>',
             '      <div class="friend-info">',
@@ -5147,11 +5270,6 @@ function getReiconSvg(name, extraClass, size) {
         card.classList.toggle('is-expanded', newState);
         card.classList.toggle('is-collapsed', !newState);
 
-        var header = card.querySelector('.card-header');
-        if (header) {
-          header.setAttribute('aria-expanded', newState.toString());
-        }
-
         var toggleBtn = card.querySelector('.collapse-toggle-btn');
         if (toggleBtn) {
           toggleBtn.setAttribute('aria-expanded', newState.toString());
@@ -5169,29 +5287,6 @@ function getReiconSvg(name, extraClass, size) {
 
       /* Attach Click and Keyboard Events to dynamically created elements */
       function attachCardEvents() {
-        // Eventos en tarjetas colapsables
-        cardsContainer.querySelectorAll('.friend-card.is-collapsible .card-header').forEach(function(header) {
-          var card = header.closest('.friend-card');
-          var friendId = card.dataset.friendId;
-
-          function handleHeaderClick(e) {
-            if (e.target.closest('.collapse-toggle-btn')) {
-              return;
-            }
-            toggleCard(card, friendId);
-          }
-
-          header.addEventListener('click', handleHeaderClick);
-          header.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-              if (!e.target.closest('.collapse-toggle-btn')) {
-                e.preventDefault();
-                toggleCard(card, friendId);
-              }
-            }
-          });
-        });
-
         cardsContainer.querySelectorAll('.collapse-toggle-btn').forEach(function(btn) {
           var card = btn.closest('.friend-card');
           var friendId = btn.dataset.friendId;
@@ -5229,10 +5324,11 @@ function getReiconSvg(name, extraClass, size) {
         cardsContainer.querySelectorAll('.cbu-copy-mini-btn').forEach(function(btn) {
           var cbu = btn.dataset.cbu;
           var label = btn.dataset.label || 'CBU';
+          var isPending = btn.dataset.pending === 'true';
           var friendName = btn.dataset.friendName || '';
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
-            copyToClipboard(cbu, btn, label, false, friendName);
+            copyToClipboard(cbu, btn, label, isPending, friendName);
           });
         });
 
@@ -5736,27 +5832,50 @@ function getReiconSvg(name, extraClass, size) {
             setCreateGroupTab('new');
           }
 
-          applyGroupCreatedTokens('', clientAdminToken);
+          function resetCreateBtn() {
+            btnSubmitCreateGroup.disabled = false;
+            btnSubmitCreateGroup.textContent = 'Crear Grupo';
+          }
+
+          btnSubmitCreateGroup.disabled = true;
+          btnSubmitCreateGroup.textContent = 'Creando grupo...';
 
           if (typeof google !== 'undefined' && google.script && google.script.run && google.script.run.createGroup) {
             google.script.run
               .withSuccessHandler(function(res) {
+                resetCreateBtn();
                 if (res && res.success && res.data) {
                   applyGroupCreatedTokens(res.data.readToken, res.data.adminToken);
+                } else {
+                  showToast((res && res.error) ? res.error : 'No se pudo crear el grupo. Intentá nuevamente.');
                 }
+              })
+              .withFailureHandler(function() {
+                resetCreateBtn();
+                showToast('Error al crear el grupo en el servidor.');
               })
               .createGroup(groupName, clientAdminToken);
           } else if (BACKEND_API_URL) {
             fetch(BACKEND_API_URL + '?action=createGroup&nombre=' + encodeURIComponent(groupName) + '&adminToken=' + encodeURIComponent(clientAdminToken))
-              .then(function(r) { return r.json(); })
+              .then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+              })
               .then(function(res) {
+                resetCreateBtn();
                 if (res && res.success && res.data) {
                   applyGroupCreatedTokens(res.data.readToken, res.data.adminToken);
+                } else {
+                  showToast((res && res.error) ? res.error : 'No se pudo crear el grupo. Intentá nuevamente.');
                 }
               })
-              .catch(function(err) {
-                console.warn('Backend createGroup sync fallback:', err);
+              .catch(function() {
+                resetCreateBtn();
+                showToast('No se pudo conectar para crear el grupo. Verificá tu red e intentá de nuevo.');
               });
+          } else {
+            resetCreateBtn();
+            applyGroupCreatedTokens('', clientAdminToken);
           }
         });
       }
@@ -6237,10 +6356,16 @@ function getReiconSvg(name, extraClass, size) {
       /* ======================================================================
          7. EVENT LISTENERS PARA BÚSQUEDA Y FILTROS
          ====================================================================== */
+      var searchAnnounceTimer = null;
       searchInput.addEventListener('input', function(e) {
         searchQuery = e.target.value;
         searchClearBtn.classList.toggle('visible', searchQuery.length > 0);
         renderCards();
+        clearTimeout(searchAnnounceTimer);
+        searchAnnounceTimer = setTimeout(function() {
+          var cardsCount = cardsContainer.querySelectorAll('.friend-card').length;
+          announceScreenReader(cardsCount === 0 ? 'Sin coincidencias para la búsqueda' : 'Mostrando ' + cardsCount + (cardsCount === 1 ? ' persona' : ' personas'));
+        }, 400);
       });
 
       searchClearBtn.addEventListener('click', function() {
